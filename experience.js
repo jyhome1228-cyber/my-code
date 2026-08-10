@@ -15,8 +15,39 @@ const emailSignupForm = document.getElementById('emailSignupForm');
 const signupEmail = document.getElementById('signupEmail');
 const accountName = document.getElementById('accountName');
 const accountSub = document.getElementById('accountSub');
+const menuButton = document.getElementById('menuButton');
+const menuCloseButton = document.getElementById('menuCloseButton');
+const menuOverlay = document.getElementById('menuOverlay');
+const landingUploadButton = document.getElementById('landingUploadButton');
+
+function openMenu() {
+  document.body.classList.add('menu-open');
+  menuButton?.setAttribute('aria-expanded', 'true');
+}
+
+function closeMenu() {
+  document.body.classList.remove('menu-open');
+  menuButton?.setAttribute('aria-expanded', 'false');
+}
+
+menuButton?.addEventListener('click', () => {
+  document.body.classList.contains('menu-open') ? closeMenu() : openMenu();
+});
+menuCloseButton?.addEventListener('click', closeMenu);
+menuOverlay?.addEventListener('click', closeMenu);
+document.querySelectorAll('.drawer-link').forEach(button => button.addEventListener('click', closeMenu));
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && document.body.classList.contains('menu-open')) closeMenu();
+});
+
+landingUploadButton?.addEventListener('click', () => {
+  switchView('upload');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => document.getElementById('fileInput')?.click(), 350);
+});
 
 function openAuth() {
+  closeMenu();
   authModal?.showModal();
   setTimeout(() => signupEmail?.focus(), 80);
 }
