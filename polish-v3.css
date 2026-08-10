@@ -1,0 +1,176 @@
+/* my:code polish v3 — tighter SaaS scale */
+:root{
+  --mc-blue:#0B3FC7;
+  --mc-lime:#B7FF00;
+  --mc-black:#050505;
+  --mc-line:#deded9;
+}
+
+.site-header{height:68px!important;padding:0 28px!important}
+.site-logo{font-size:20px!important}
+.menu-button{width:42px!important;height:42px!important}
+.menu-button span{width:16px!important}
+.menu-drawer{width:min(390px,92vw)!important;padding:24px 26px!important}
+.drawer-nav{margin-top:52px!important}
+.drawer-link{min-height:70px!important}
+.drawer-link strong{font-size:21px!important}
+.drawer-signup{height:44px!important}
+
+.brand-hero{min-height:760px!important;padding:112px 28px 58px!important;justify-content:center!important}
+.hero-badge-line,.brand-hero-copy,.brand-dropzone,.brand-hero .auto-save-note,.brand-hero .upload-results{width:min(940px,100%)!important}
+.hero-badge-line{margin-bottom:18px!important;font-size:9px!important}
+.hero-badge-line b{font-size:9px!important}
+.brand-hero-copy{margin-bottom:30px!important}
+.brand-hero-copy h1{max-width:900px!important;font-size:clamp(40px,5.5vw,74px)!important;line-height:1.02!important;letter-spacing:-.065em!important}
+.brand-hero-copy>p{margin-top:20px!important;font-size:13px!important;line-height:1.65!important}
+.brand-dropzone{border-width:1.5px!important;border-radius:20px!important}
+.brand-dropzone .composer-row{min-height:88px!important;padding:14px 16px!important;grid-template-columns:42px 1fr 42px!important;gap:12px!important}
+.brand-dropzone .composer-plus,.brand-dropzone .composer-arrow{width:40px!important;height:40px!important}
+.brand-dropzone .composer-copy strong{font-size:13px!important}
+.brand-dropzone .composer-copy span{font-size:9px!important}
+.brand-hero .auto-save-note{min-height:38px!important;font-size:9.5px!important}
+
+.upload-results{margin-top:32px!important}
+.result-heading{margin-bottom:10px!important}
+.result-heading .eyebrow{font-size:8px!important;margin-bottom:5px!important}
+.result-heading h2{font-size:19px!important;letter-spacing:-.04em!important}
+.result-heading .text-button{font-size:11px!important}
+.result-list{display:grid!important;gap:8px!important}
+.result-card{grid-template-columns:58px minmax(0,1fr) auto!important;min-height:82px!important;padding:11px 12px!important;gap:13px!important;border-radius:16px!important}
+.result-card .result-thumb,.result-preview-wrap,.loading-preview{width:58px!important;height:58px!important;border-radius:12px!important}
+.ready-check{width:20px!important;height:20px!important;border-width:2px!important;font-size:9px!important}
+.saved-label{margin-bottom:4px!important;padding:3px 6px!important;font-size:8px!important}
+.result-card-ready .result-info strong{font-size:12.5px!important}
+.result-info small{font-size:9.5px!important}
+.result-actions-main{display:flex!important;gap:7px!important;flex-wrap:nowrap!important}
+.export-button,.quick-copy-button{height:36px!important;padding:0 12px!important;border-radius:10px!important;font-size:10px!important;white-space:nowrap!important}
+.saved-callout{margin-top:8px!important;padding:9px 12px!important;border-radius:10px!important;font-size:9.5px!important;text-align:left!important}
+.loading-spinner{width:21px!important;height:21px!important;border-width:2px!important}
+.loading-track{height:4px!important;margin-top:7px!important}
+.processing-pill{padding:6px 8px!important;font-size:9px!important}
+
+.value-section{padding:82px max(5vw,28px)!important}
+.value-kicker{margin-bottom:18px!important;font-size:9px!important}
+.value-heading{grid-template-columns:minmax(0,1.25fr) minmax(230px,.75fr)!important;gap:48px!important}
+.value-heading h2{font-size:clamp(44px,6.2vw,84px)!important;line-height:.94!important;letter-spacing:-.07em!important}
+.split-heading h2{font-size:clamp(42px,5.8vw,76px)!important}
+.value-heading p{font-size:12px!important;line-height:1.7!important}
+.value-grid{margin-top:50px!important;gap:10px!important}
+.value-grid article{min-height:210px!important;padding:22px!important;border-radius:20px!important}
+.value-grid h3{font-size:clamp(27px,3vw,40px)!important}
+.value-grid p{font-size:10.5px!important}
+.point-list{margin-top:48px!important}
+.point-list>div{min-height:78px!important;grid-template-columns:50px minmax(200px,.6fr) 1fr!important;gap:18px!important}
+.point-list strong{font-size:clamp(18px,2vw,27px)!important}
+.point-list span{font-size:10.5px!important}
+
+.pricing-section{padding:82px max(5vw,28px) 88px!important}
+.pricing-head{gap:48px!important}
+.pricing-head h2{font-size:clamp(44px,5.8vw,78px)!important;line-height:.95!important}
+.pricing-head>p{font-size:11.5px!important}
+.pricing-grid{margin-top:48px!important;gap:10px!important}
+.price-card{min-height:405px!important;padding:22px!important;border-radius:20px!important}
+.price-top>span{font-size:10px!important}
+.price-top>b{padding:6px 8px!important;font-size:8px!important}
+.price-number{margin:40px 0 18px!important}
+.price-number strong{font-size:clamp(50px,4.8vw,68px)!important}
+.price-card>p{font-size:10.5px!important}
+.price-card ul{margin:28px 0 26px!important;gap:10px!important}
+.price-card li{padding-top:10px!important;font-size:10px!important}
+.price-card button{height:44px!important;border-radius:11px!important;font-size:10px!important}
+.pricing-note{font-size:9px!important}
+
+.value-black{min-height:470px!important;align-items:center!important}
+.black-copy h2{font-size:clamp(46px,6vw,80px)!important;line-height:.94!important}
+.black-copy p{margin-top:18px!important;font-size:12px!important}
+.lime-cta{width:150px!important;height:150px!important;font-size:12px!important}
+
+.site-footer{padding:52px max(5vw,28px) 26px!important}
+.footer-brand{font-size:clamp(44px,5.5vw,74px)!important}
+.footer-rule{margin:36px 0 20px!important}
+.footer-top p{font-size:10.5px!important}
+.footer-bottom{font-size:9px!important}
+.footer-bottom strong{font-size:11px!important}
+
+.inner-view{padding:108px max(5vw,28px) 64px!important}
+.inner-view>*{max-width:1060px!important}
+.inner-head{margin-bottom:30px!important}
+.inner-head h1{font-size:clamp(38px,5vw,58px)!important;line-height:1!important}
+.inner-head .lead{font-size:12px!important}
+.toolbar{margin-bottom:22px!important}
+.search-box{min-height:42px!important}
+.code-row{min-height:74px!important;padding:9px 11px!important;gap:11px!important}
+.code-thumb{width:50px!important;height:50px!important;border-radius:10px!important}
+.code-name{font-size:11.5px!important}
+.code-sub{font-size:9px!important}
+.copy-chip{min-height:30px!important;padding:0 8px!important;font-size:8.5px!important}
+.project-card{min-height:150px!important;padding:18px!important;border-radius:16px!important}
+.project-card h3{margin:22px 0 6px!important;font-size:14px!important}
+
+.modal-card{width:min(820px,calc(100% - 28px))!important;border-radius:18px!important}
+.wide-modal{padding:10px!important}
+.detail-layout{grid-template-columns:minmax(0,.9fr) minmax(330px,1.1fr)!important;gap:10px!important;min-height:460px!important}
+.detail-preview-wrap{min-height:400px!important;padding:18px!important;border-radius:14px!important}
+.detail-content{padding:26px 24px 22px 18px!important}
+.detail-content h2{font-size:20px!important;margin-bottom:8px!important}
+.detail-meta{margin-bottom:18px!important;font-size:9.5px!important}
+.code-blocks{gap:7px!important}
+.code-block{padding:11px 12px!important;border-radius:11px!important}
+.code-block-head{margin-bottom:7px!important}
+.code-value{font-size:9px!important;line-height:1.5!important}
+.code-copy-button{font-size:9px!important;color:var(--mc-blue)!important}
+.detail-actions{margin-top:18px!important}
+.detail-actions .outline-button{height:38px!important;padding:0 13px!important;font-size:10px!important}
+
+.auth-card{width:min(390px,calc(100% - 26px))!important;padding:28px!important;border-radius:20px!important}
+.auth-card h2{font-size:23px!important}
+.auth-description{font-size:10.5px!important}
+.google-button,.auth-form input,.auth-submit{height:44px!important;border-radius:11px!important}
+
+@media(max-width:900px){
+  .brand-hero{min-height:auto!important;padding:106px 22px 58px!important}
+  .brand-hero-copy h1{font-size:clamp(40px,8vw,62px)!important}
+  .value-heading,.pricing-head{grid-template-columns:1fr!important;gap:22px!important}
+  .value-grid,.pricing-grid{grid-template-columns:1fr!important}
+  .price-card{min-height:340px!important}
+  .value-black{align-items:flex-start!important}
+  .detail-layout{grid-template-columns:1fr!important}
+  .detail-preview-wrap{min-height:260px!important}
+}
+
+@media(max-width:640px){
+  .site-header{height:62px!important;padding:0 16px!important}
+  .site-logo{font-size:18px!important}
+  .menu-button{width:38px!important;height:38px!important}
+  .brand-hero{padding:94px 16px 50px!important}
+  .hero-badge-line{margin-bottom:14px!important}
+  .brand-hero-copy h1{font-size:38px!important;line-height:1.05!important}
+  .brand-hero-copy>p{font-size:11.5px!important}
+  .brand-dropzone .composer-row{min-height:82px!important;padding:12px!important;grid-template-columns:38px 1fr 38px!important}
+  .brand-dropzone .composer-plus,.brand-dropzone .composer-arrow{width:36px!important;height:36px!important}
+  .brand-dropzone .composer-copy strong{font-size:11.5px!important}
+  .brand-dropzone .composer-copy span{font-size:8px!important}
+  .result-card{grid-template-columns:50px 1fr!important}
+  .result-card .result-thumb,.result-preview-wrap,.loading-preview{width:50px!important;height:50px!important}
+  .result-actions-main{grid-column:1/-1!important;width:100%!important}
+  .export-button,.quick-copy-button{flex:1!important}
+  .value-section,.pricing-section{padding:62px 18px!important}
+  .value-heading h2,.split-heading h2,.pricing-head h2{font-size:42px!important}
+  .value-grid{margin-top:34px!important}
+  .value-grid article{min-height:180px!important}
+  .point-list{margin-top:34px!important}
+  .point-list>div{grid-template-columns:38px 1fr!important;min-height:86px!important}
+  .point-list span{grid-column:2!important}
+  .value-black{min-height:410px!important}
+  .black-copy h2{font-size:46px!important}
+  .lime-cta{width:120px!important;height:120px!important;align-self:flex-end!important}
+  .footer-brand{font-size:48px!important}
+  .inner-view{padding:90px 18px 54px!important}
+  .inner-head{align-items:flex-start!important;flex-direction:column!important}
+  .inner-head h1{font-size:42px!important}
+  .inner-head>button{display:inline-flex!important}
+  .code-row{grid-template-columns:22px 46px 1fr!important}
+  .row-copy-actions{grid-column:2/-1!important}
+  .modal-card{max-height:calc(100vh - 18px)!important}
+  .detail-content{padding:20px 14px 16px!important}
+}
