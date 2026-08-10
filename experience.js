@@ -3,6 +3,11 @@ experienceStyles.rel = 'stylesheet';
 experienceStyles.href = './experience.css';
 document.head.appendChild(experienceStyles);
 
+const finalBrandStyles = document.createElement('link');
+finalBrandStyles.rel = 'stylesheet';
+finalBrandStyles.href = './brand-v2.css';
+document.head.appendChild(finalBrandStyles);
+
 const noirRuntimeStyles = document.createElement('style');
 noirRuntimeStyles.textContent = `
   .site-header{
@@ -161,7 +166,6 @@ createResultCard = async function(item) {
   return element;
 };
 
-// Base64/Data URL은 외부용 코드로 내보내지 않습니다.
 buildCodes = async function(item) {
   if (!item.publicUrl) {
     return {
