@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#f8f7fb" />
-  <meta name="description" content="이미지를 올리면 코드로 바꾸고, 내가 만든 코드를 차곡차곡 보관하는 my:code" />
-  <title>my:code — 이미지 코드 보관함</title>
+  <meta name="description" content="이미지를 올리면 코드로 바꾸고 MY CODE에 자동 보관하는 my:code" />
+  <title>my:code — 이미지를 올리면 코드로</title>
   <link rel="stylesheet" href="./styles.css" />
   <link rel="stylesheet" href="./friendly.css" />
 </head>
@@ -17,27 +17,13 @@
         <span class="brand-name">my<span>:</span>code</span>
       </a>
 
-      <button class="primary-upload" id="sidebarUploadBtn" type="button">
-        <span class="button-plus">＋</span> 이미지 올리기
-      </button>
+      <button class="primary-upload" id="sidebarUploadBtn" type="button"><span class="button-plus">＋</span> 이미지 올리기</button>
 
       <nav class="nav-list">
-        <button class="nav-item is-active" data-view="upload" type="button">
-          <span class="nav-icon">↑</span><span>이미지 올리기</span>
-        </button>
-        <button class="nav-item" data-view="my-code" type="button">
-          <span class="nav-icon">♡</span><span>MY CODE</span>
-          <span class="nav-count" id="myCodeCount">0</span>
-        </button>
-        <button class="nav-item" data-view="projects" type="button">
-          <span class="nav-icon">▢</span><span>프로젝트</span>
-        </button>
+        <button class="nav-item is-active" data-view="upload" type="button"><span class="nav-icon">↑</span><span>올리기</span></button>
+        <button class="nav-item" data-view="my-code" type="button"><span class="nav-icon">♡</span><span>MY CODE</span><span class="nav-count" id="myCodeCount">0</span></button>
+        <button class="nav-item" data-view="projects" type="button"><span class="nav-icon">▢</span><span>프로젝트</span></button>
       </nav>
-
-      <div class="sidebar-tip">
-        <span>TIP</span>
-        <p>이미지만 올리면 코드와 보관은<br />my:code가 알아서 해요.</p>
-      </div>
 
       <div class="sidebar-bottom">
         <div class="usage-mini">
@@ -46,103 +32,77 @@
         </div>
         <button class="account-button" type="button" id="accountButton">
           <span class="avatar">🙂</span>
-          <span class="account-copy"><strong>게스트</strong><small>간편 로그인 준비 중</small></span>
+          <span class="account-copy"><strong id="accountName">게스트</strong><small id="accountSub">간편가입하고 안전하게 보관</small></span>
           <span class="more">···</span>
         </button>
       </div>
     </aside>
 
     <main class="main">
+      <div class="desktop-topbar">
+        <span class="topbar-copy">이미지 → 코드, 그리고 자동 보관</span>
+        <button class="signup-pill" id="signupTopBtn" type="button">간편가입</button>
+      </div>
+
       <header class="mobile-header">
         <a class="brand" href="#upload"><span class="brand-mark">m:</span><span class="brand-name">my<span>:</span>code</span></a>
-        <button class="mobile-upload" id="mobileUploadBtn" type="button">＋ 올리기</button>
+        <button class="signup-pill" id="signupMobileBtn" type="button">간편가입</button>
       </header>
 
-      <section class="view is-visible" id="view-upload" data-view-panel="upload">
-        <div class="welcome-pill">👋 반가워요, 오늘도 가볍게 올려보세요</div>
-        <div class="page-head upload-head">
-          <div>
-            <p class="eyebrow">MY IMAGE → MY CODE</p>
-            <h1>이미지를 올리면<br /><span>코드는 알아서.</span></h1>
-            <p class="lead">변환하고 저장하고 다시 찾는 일까지, 한 번에 끝내세요.</p>
-          </div>
-          <div class="hero-badge" aria-hidden="true">
-            <span>IMG</span>
-            <b>→</b>
-            <span>CODE</span>
-          </div>
+      <section class="view is-visible upload-view" id="view-upload" data-view-panel="upload">
+        <div class="upload-simple-head">
+          <h1>이미지를 올려주세요.</h1>
+          <p>코드로 바꾸고, MY CODE에 자동으로 저장해둘게요.</p>
         </div>
 
-        <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="이미지 업로드">
+        <div class="dropzone main-dropzone" id="dropzone" tabindex="0" role="button" aria-label="이미지 업로드">
           <input id="fileInput" type="file" accept="image/*" multiple hidden />
           <div class="drop-icon">＋</div>
-          <h2>이미지를 톡 올려주세요</h2>
-          <p>끌어다 놓거나, 여기를 눌러 선택하면 끝!</p>
+          <h2>여기에 이미지를 끌어오세요</h2>
+          <p>또는 눌러서 이미지 선택</p>
           <span>JPG · PNG · WEBP · GIF · SVG</span>
-          <div class="drop-helper">여러 장도 한 번에 가능해요 ✨</div>
         </div>
 
-        <div class="instant-note">
-          <span class="status-dot"></span>
-          <p><strong>올리는 순간 자동 저장.</strong> 따로 저장 버튼을 누를 필요 없어요.</p>
-        </div>
+        <div class="auto-save-note"><span class="status-dot"></span><span>변환된 코드는 <strong>MY CODE에 자동 저장</strong>돼요.</span></div>
 
         <div class="upload-results" id="uploadResults" hidden>
-          <div class="section-title-row">
-            <div><p class="eyebrow">JUST MADE</p><h2>방금 만든 코드예요 🎉</h2></div>
-            <button class="text-button" id="goMyCodeBtn" type="button">MY CODE에서 모아보기 →</button>
+          <div class="section-title-row result-heading">
+            <div><p class="eyebrow">READY</p><h2>코드가 준비됐어요.</h2></div>
+            <button class="text-button" id="goMyCodeBtn" type="button">MY CODE 보기 →</button>
           </div>
           <div class="result-list" id="resultList"></div>
+          <div class="saved-callout">✓ 방금 만든 코드는 MY CODE에 자동 저장됐어요.</div>
         </div>
       </section>
 
       <section class="view" id="view-my-code" data-view-panel="my-code">
         <div class="page-head compact-head">
-          <div>
-            <div class="section-emoji">♡</div>
-            <p class="eyebrow">MY CODE</p>
-            <h1>내 코드 보관함</h1>
-            <p class="lead">지금까지 만든 코드가 날짜별로 차곡차곡 쌓여 있어요.</p>
-          </div>
+          <div><p class="eyebrow">MY CODE</p><h1>내 코드</h1><p class="lead">만든 순서대로 자동 저장돼요. 필요한 것만 프로젝트로 묶으면 됩니다.</p></div>
           <button class="outline-button" id="myCodeUploadBtn" type="button">＋ 이미지 올리기</button>
         </div>
-
         <div class="toolbar">
-          <label class="search-box">
-            <span>⌕</span>
-            <input id="searchInput" type="search" placeholder="파일명이나 프로젝트 이름으로 찾기" autocomplete="off" />
-          </label>
+          <label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="파일명 또는 프로젝트 검색" autocomplete="off" /></label>
           <div class="toolbar-actions">
             <button class="outline-button selection-action" id="moveSelectedBtn" type="button" hidden>프로젝트에 담기</button>
             <button class="outline-button selection-action" id="deleteSelectedBtn" type="button" hidden>삭제</button>
           </div>
         </div>
-
         <div class="code-timeline" id="codeTimeline"></div>
         <div class="empty-state" id="myCodeEmpty" hidden>
-          <div class="empty-symbol">♡</div>
-          <h3>아직 보관한 코드가 없어요</h3>
-          <p>이미지 하나만 올려보세요.<br />변환부터 보관까지 자동으로 해둘게요.</p>
-          <button class="primary-button" id="emptyUploadBtn" type="button">첫 이미지 올리기</button>
+          <div class="empty-symbol">♡</div><h3>아직 코드가 없어요</h3><p>이미지 하나만 올리면 여기 자동으로 저장됩니다.</p>
+          <button class="primary-button" id="emptyUploadBtn" type="button">이미지 올리기</button>
         </div>
       </section>
 
       <section class="view" id="view-projects" data-view-panel="projects">
         <div class="page-head compact-head">
-          <div>
-            <div class="section-emoji">▢</div>
-            <p class="eyebrow">PROJECTS</p>
-            <h1>프로젝트별로 쏙쏙</h1>
-            <p class="lead">정리하고 싶은 코드만 골라 폴더처럼 묶어두세요.</p>
-          </div>
+          <div><p class="eyebrow">PROJECTS</p><h1>프로젝트</h1><p class="lead">MY CODE에서 필요한 이미지만 골라 폴더처럼 묶어두세요.</p></div>
           <button class="primary-button" id="newProjectBtn" type="button">＋ 새 프로젝트</button>
         </div>
         <div class="project-grid" id="projectGrid"></div>
         <div class="empty-state" id="projectEmpty" hidden>
-          <div class="empty-symbol">▢</div>
-          <h3>아직 프로젝트가 없어요</h3>
-          <p>먼저 이미지를 올려도 괜찮아요.<br />필요할 때 나중에 프로젝트로 묶으면 돼요.</p>
-          <button class="outline-button" id="emptyNewProjectBtn" type="button">첫 프로젝트 만들기</button>
+          <div class="empty-symbol">▢</div><h3>아직 프로젝트가 없어요</h3><p>이미지를 먼저 올린 뒤 나중에 정리해도 괜찮아요.</p>
+          <button class="outline-button" id="emptyNewProjectBtn" type="button">프로젝트 만들기</button>
         </div>
       </section>
     </main>
@@ -160,14 +120,9 @@
       <div class="detail-layout">
         <div class="detail-preview-wrap"><img id="detailPreview" class="detail-preview" alt="이미지 미리보기" /></div>
         <div class="detail-content">
-          <p class="eyebrow" id="detailDate">MY CODE</p>
-          <h2 id="detailName">image.webp</h2>
-          <div class="detail-meta" id="detailMeta"></div>
+          <p class="eyebrow" id="detailDate">MY CODE</p><h2 id="detailName">image.webp</h2><div class="detail-meta" id="detailMeta"></div>
           <div class="code-blocks" id="detailCodes"></div>
-          <div class="detail-actions">
-            <button class="outline-button" id="detailProjectBtn" type="button">프로젝트에 담기</button>
-            <button class="danger-text" id="detailDeleteBtn" type="button">삭제</button>
-          </div>
+          <div class="detail-actions"><button class="outline-button" id="detailProjectBtn" type="button">프로젝트에 담기</button><button class="danger-text" id="detailDeleteBtn" type="button">삭제</button></div>
         </div>
       </div>
     </div>
@@ -176,29 +131,40 @@
   <dialog class="modal" id="projectModal">
     <form class="modal-card small-modal" id="projectForm" method="dialog">
       <button class="modal-close" data-close-modal="projectModal" type="button" aria-label="닫기">×</button>
-      <div class="modal-emoji">📁</div>
-      <p class="eyebrow">NEW PROJECT</p>
-      <h2>새 프로젝트 만들기</h2>
-      <p class="modal-description">이름만 정하면 바로 만들어져요.</p>
+      <p class="eyebrow">NEW PROJECT</p><h2>새 프로젝트</h2><p class="modal-description">이름만 정하면 바로 만들어져요.</p>
       <label class="field-label" for="projectName">프로젝트 이름</label>
       <input class="text-field" id="projectName" name="projectName" maxlength="40" placeholder="예: 리림 홈페이지" required />
-      <div class="modal-actions"><button class="primary-button full-button" type="submit">프로젝트 만들기</button></div>
+      <div class="modal-actions"><button class="primary-button full-button" type="submit">만들기</button></div>
     </form>
   </dialog>
 
   <dialog class="modal" id="assignModal">
     <div class="modal-card small-modal">
       <button class="modal-close" data-close-modal="assignModal" type="button" aria-label="닫기">×</button>
-      <div class="modal-emoji">🗂️</div>
-      <p class="eyebrow">ADD TO PROJECT</p>
-      <h2>어디에 담을까요?</h2>
-      <p class="modal-description">원하는 프로젝트를 하나 골라주세요.</p>
-      <div class="assign-list" id="assignList"></div>
+      <p class="eyebrow">ADD TO PROJECT</p><h2>어디에 담을까요?</h2><div class="assign-list" id="assignList"></div>
       <button class="outline-button full-button" id="createFromAssignBtn" type="button">＋ 새 프로젝트 만들기</button>
+    </div>
+  </dialog>
+
+  <dialog class="modal auth-modal" id="authModal">
+    <div class="modal-card auth-card">
+      <button class="modal-close" id="authCloseBtn" type="button" aria-label="닫기">×</button>
+      <a class="auth-brand" href="#upload"><span class="brand-mark">m:</span><span class="brand-name">my<span>:</span>code</span></a>
+      <h2>간편하게 시작하세요</h2>
+      <p class="auth-description">가입하면 MY CODE를 내 계정에 이어서 보관할 수 있어요.</p>
+      <button class="google-button" id="googleSignupBtn" type="button"><span class="google-g">G</span> Google로 계속하기</button>
+      <div class="auth-divider"><span>또는</span></div>
+      <form id="emailSignupForm" class="auth-form">
+        <label for="signupEmail">이메일</label>
+        <input id="signupEmail" type="email" placeholder="name@email.com" autocomplete="email" required />
+        <button class="primary-button full-button auth-submit" type="submit">이메일로 계속하기</button>
+      </form>
+      <p class="auth-footnote">복잡한 정보 입력 없이 이메일 하나면 충분해요.</p>
     </div>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="./app.js" defer></script>
+  <script src="./experience.js" defer></script>
 </body>
 </html>
