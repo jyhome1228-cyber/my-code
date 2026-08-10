@@ -62,6 +62,27 @@ const menuOverlay = document.getElementById('menuOverlay');
 const landingUploadButton = document.getElementById('landingUploadButton');
 const pricingMenuButton = document.getElementById('pricingMenuButton');
 
+function syncPrelaunchCopy() {
+  const heroDescription = document.querySelector('.brand-hero-copy > p');
+  if (heroDescription) {
+    heroDescription.innerHTML = '이미지를 올리면 웹에서 쓰기 좋게 가볍게 변환하고,<br>만든 결과는 MY CODE에 자동으로 보관합니다.';
+  }
+
+  const valueCards = document.querySelectorAll('.value-grid article');
+  const codeCard = valueCards[1];
+  if (codeCard) {
+    const title = codeCard.querySelector('h3');
+    const copy = codeCard.querySelector('p');
+    if (title) title.textContent = '코드 내보내기';
+    if (copy) copy.textContent = '외부용 짧은 URL·HTML·CSS 코드는 정식 오픈 시 제공할 예정입니다.';
+  }
+
+  if (authDescription) {
+    authDescription.textContent = '계정과 FREE 플랜 정보는 Firebase에 연결됩니다. 이미지는 현재 이 브라우저에 저장됩니다.';
+  }
+}
+syncPrelaunchCopy();
+
 function openMenu() {
   document.body.classList.add('menu-open');
   menuButton?.setAttribute('aria-expanded', 'true');
@@ -150,11 +171,11 @@ googleSignupBtn?.addEventListener('click', async () => {
   } catch (error) {
     console.error(error);
     if (error?.code === 'auth/operation-not-allowed') {
-      showToast('Firebase 콘솔에서 Google 로그인을 먼저 활성화해주세요.');
+      showToast('Firebase 콘솔에서 Google 로그인을 활성화해주세요.');
     } else if (error?.code === 'auth/popup-closed-by-user') {
       showToast('로그인 창이 닫혔어요.');
     } else if (error?.code === 'auth/unauthorized-domain') {
-      showToast('Firebase Authentication의 승인된 도메인에 현재 사이트를 추가해주세요.');
+      showToast('Firebase Authentication 승인 도메인에 현재 사이트를 추가해주세요.');
     } else {
       showToast('Google 로그인 설정을 확인해주세요.');
     }
@@ -163,7 +184,7 @@ googleSignupBtn?.addEventListener('click', async () => {
 
 emailSignupForm?.addEventListener('submit', event => {
   event.preventDefault();
-  showToast('이메일 로그인은 다음 단계에서 연결하고, 지금은 Google 로그인부터 사용할게요.');
+  showToast('이메일 로그인은 오픈 준비 중입니다. 지금은 Google 로그인을 이용해주세요.');
 });
 
 function updateAccountUI(user = null) {
@@ -172,8 +193,8 @@ function updateAccountUI(user = null) {
     const email = user.email || '';
     const label = user.displayName || email.split('@')[0] || 'MY CODE';
     if (accountName) accountName.textContent = label;
-    if (accountSub) accountSub.textContent = email || 'Firebase 계정';
-    if (authDescription) authDescription.textContent = `${email || label} 계정으로 로그인되어 있어요.`;
+    if (accountSub) accountSub.textContent = 'FREE · 계정 연결됨';
+    if (authDescription) authDescription.textContent = `${email || label} 계정이 연결되어 있어요. 이미지는 현재 이 브라우저에 저장됩니다.`;
     if (googleSignupBtn) googleSignupBtn.innerHTML = '<span class="google-g">G</span> 다른 Google 계정으로 로그인';
     if (emailSignupForm) emailSignupForm.hidden = true;
     if (logoutButton) logoutButton.hidden = false;
@@ -186,8 +207,8 @@ function updateAccountUI(user = null) {
   }
 
   if (accountName) accountName.textContent = '게스트';
-  if (accountSub) accountSub.textContent = '가입하고 MY CODE 보관하기';
-  if (authDescription) authDescription.textContent = '가입하면 MY CODE를 내 계정에 이어서 보관할 수 있어요.';
+  if (accountSub) accountSub.textContent = 'Google 로그인 / FREE';
+  if (authDescription) authDescription.textContent = '계정과 FREE 플랜 정보는 Firebase에 연결됩니다. 이미지는 현재 이 브라우저에 저장됩니다.';
   if (googleSignupBtn) googleSignupBtn.innerHTML = '<span class="google-g">G</span> Google로 계속하기';
   if (emailSignupForm) emailSignupForm.hidden = false;
   if (logoutButton) logoutButton.hidden = true;
@@ -201,29 +222,12 @@ function updateAccountUI(user = null) {
 window.addEventListener('mycode:auth', event => updateAccountUI(event.detail?.user || null));
 firebaseReadyPromise.then(firebase => updateAccountUI(firebase?.getCurrentUser?.() || null));
 
-// app.js의 기존 업로드 함수를 Firebase Storage 우선 흐름으로 교체합니다.
-uploadToApi = async function(blob, filename, id) {
-  const firebase = await firebaseReadyPromise;
-  if (!firebase) throw new Error('FIREBASE_NOT_READY');
-  const user = firebase.getCurrentUser();
-  if (!user) {
-    showToast('로그인하면 Firebase에 영구 저장돼요. 지금은 브라우저에 임시 저장합니다.');
-    throw new Error('AUTH_REQUIRED');
-  }
-
-  try {
-    return await firebase.uploadImage({ blob, filename, id });
-  } catch (error) {
-    console.error(error);
-    if (error?.code === 'storage/unauthorized') {
-      showToast('Storage 보안 규칙 또는 로그인 상태를 확인해주세요.');
-    } else if (String(error?.code || '').startsWith('storage/')) {
-      showToast('Firebase Storage 설정을 확인해주세요.');
-    } else if (String(error?.code || '').startsWith('firestore/')) {
-      showToast('Firestore 설정 또는 보안 규칙을 확인해주세요.');
-    }
-    throw error;
-  }
+// 1차 오픈 전에는 이미지 파일을 외부 서버로 업로드하지 않습니다.
+// app.js가 이 실패를 감지해 IndexedDB 로컬 보관으로 자연스럽게 전환합니다.
+uploadToApi = async function() {
+  const error = new Error('BROWSER_STORAGE_MODE');
+  error.code = 'BROWSER_STORAGE_MODE';
+  throw error;
 };
 
 createPendingCard = function(name) {
@@ -233,7 +237,7 @@ createPendingCard = function(name) {
     <div class="loading-preview"><span class="loading-spinner"></span></div>
     <div class="result-info">
       <strong>${escapeHTML(name)}</strong>
-      <small class="loading-copy">이미지를 코드로 바꾸고 있어요…</small>
+      <small class="loading-copy">이미지를 가볍게 변환하고 있어요…</small>
       <div class="loading-track"><span></span></div>
     </div>
     <div class="result-actions"><span class="processing-pill">변환 중</span></div>
@@ -251,15 +255,13 @@ createPendingCard = function(name) {
 
 createResultCard = async function(item) {
   const previewUrl = await getPreviewUrl(item.id);
-  const firebaseSaved = Boolean(item.storageKey?.startsWith('users/'));
   const exportReady = Boolean(item.publicUrl);
   const element = document.createElement('div');
   element.className = `result-card result-card-ready${exportReady ? '' : ' is-local-only'}`;
   const saved = savingsPercent(item);
-
-  const statusLabel = exportReady ? '짧은 코드 준비 완료' : firebaseSaved ? 'Firebase 저장 완료' : '브라우저 임시 저장';
-  const statusMeta = exportReady ? ' · 바로 복사 가능' : firebaseSaved ? ' · 짧은 주소 준비 중' : ' · 로그인하면 영구 저장';
-  const mainAction = exportReady ? '코드로 내보내기' : firebaseSaved ? '저장 정보 보기' : '코드 미리보기';
+  const statusLabel = exportReady ? '외부 코드 준비 완료' : '이 브라우저에 저장됨';
+  const statusMeta = exportReady ? ' · 바로 복사 가능' : ' · MY CODE 자동 보관';
+  const mainAction = exportReady ? '코드로 내보내기' : '저장 정보 보기';
 
   element.innerHTML = `
     <div class="result-preview-wrap"><img class="result-thumb" src="${previewUrl}" alt="" /><span class="ready-check">✓</span></div>
@@ -270,7 +272,7 @@ createResultCard = async function(item) {
     </div>
     <div class="result-actions result-actions-main">
       <button class="export-button" type="button" data-export>${mainAction} <span>→</span></button>
-      <button class="quick-copy-button" type="button" data-copy-html ${exportReady ? '' : 'disabled'}>${exportReady ? 'HTML 복사' : '짧은 주소 준비 중'}</button>
+      <button class="quick-copy-button" type="button" data-copy-html ${exportReady ? '' : 'disabled'}>${exportReady ? 'HTML 복사' : '외부 코드 준비 중'}</button>
     </div>
   `;
 
@@ -281,7 +283,7 @@ createResultCard = async function(item) {
   element.querySelector('[data-copy-html]')?.addEventListener('click', event => {
     event.stopPropagation();
     if (!item.publicUrl) {
-      showToast(firebaseSaved ? 'Firebase에는 저장됐어요. 짧은 주소 라우트를 연결하면 복사할 수 있어요.' : '로그인 후 Firebase에 저장하면 짧은 주소 발급 단계로 넘어갑니다.');
+      showToast('현재는 브라우저 보관 모드입니다. 외부용 짧은 코드는 정식 오픈 시 제공할 예정입니다.');
       return;
     }
     copyCode(item.id, 'html');
@@ -291,9 +293,8 @@ createResultCard = async function(item) {
 };
 
 buildCodes = async function(item) {
-  const firebaseSaved = Boolean(item.storageKey?.startsWith('users/'));
   if (!item.publicUrl) {
-    const message = firebaseSaved ? 'Firebase 저장 완료 · 짧은 URL 연결 준비 중' : '로그인 후 Firebase 저장이 필요합니다.';
+    const message = '현재 브라우저 보관 모드 · 외부용 URL은 정식 오픈 예정';
     return {
       url: message,
       html: `<img src="${message}" alt="">`,
@@ -312,8 +313,7 @@ copyCode = async function(id, type) {
   const item = state.items.find(entry => entry.id === id);
   if (!item) return;
   if (!item.publicUrl) {
-    const firebaseSaved = Boolean(item.storageKey?.startsWith('users/'));
-    showToast(firebaseSaved ? 'Firebase 저장은 완료됐어요. 짧은 주소 연결 후 복사 기능을 열게요.' : '로그인 후 Firebase에 영구 저장하면 짧은 코드 발급이 가능합니다.');
+    showToast('외부용 짧은 코드는 정식 오픈 시 제공할 예정입니다. 현재 이미지는 이 브라우저의 MY CODE에 저장됩니다.');
     return;
   }
   try {
