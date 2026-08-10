@@ -1,8 +1,8 @@
 # my:code
 
-이미지를 올리면 웹에서 바로 쓸 수 있는 짧은 코드로 바꾸고, 만든 코드를 `MY CODE`에 자동 보관하는 이미지 코드 아카이브.
+이미지를 코드로 간편하게 변환하고, 만든 코드를 `MY CODE`에 편리하게 저장하는 이미지 코드 아카이브.
 
-> 올리고, 복사하세요. 보관은 my:code가 합니다.
+> 이미지를 코드로 간편하게, 그리고 편리하게 저장하세요.
 
 ## 핵심 흐름
 
@@ -11,7 +11,7 @@
    ↓
 WebP 자동 변환
    ↓
-CDN URL / HTML / CSS 코드 생성
+짧은 URL / HTML / CSS 코드 생성
    ↓
 MY CODE 자동 보관
    ↓
@@ -24,8 +24,8 @@ MY CODE 자동 보관
 
 - 좌측 사이드바 없는 일반 웹서비스 구조
 - 중앙 업로드 중심의 간결한 첫 화면
-- 블랙 + 화이트 랜딩페이지
-- 우측 햄버거 메뉴에서 `UPLOAD / MY CODE / PROJECTS / 계정 / 사용량` 접근
+- 블랙 / 화이트 + 딥블루 `#0B3FC7` + 형광그린 `#B7FF00`
+- 우측 햄버거에서 `UPLOAD / MY CODE / PROJECTS / PRICING / 계정 / 사용량` 접근
 - 이미지 드래그 앤 드롭 / 다중 업로드
 - JPG/PNG/WEBP → WebP 자동 변환
 - 업로드 즉시 MY CODE 자동 기록
@@ -33,24 +33,51 @@ MY CODE 자동 보관
 - 프로젝트 폴더 생성 및 분류
 - 반응형 모바일 UI
 
-## 저장 구조
+## Pricing — 오픈 예정
 
-현재 GitHub Pages 미리보기에서는 이미지가 브라우저 IndexedDB에 임시 저장됩니다. 외부 웹사이트에 붙이는 코드는 Base64 방식으로 내보내지 않습니다.
-
-실제 운영 버전은 다음 구조를 사용합니다.
+현재 결제는 연결하지 않고 모두 `오픈 예정`으로만 노출합니다.
 
 ```text
-Firebase Authentication  → 간편가입 / 로그인
-Firestore                → MY CODE / 프로젝트 / 메타데이터
-Cloudflare R2            → 실제 이미지 저장
-CDN                      → 짧은 영구 이미지 URL
+FREE    0원
+BASIC   990원 / 월
+PRO     3,990원 / 월
 ```
 
-R2/CDN이 연결되면 다음처럼 짧은 코드가 발급됩니다.
+세부 저장 용량과 사용량 제한은 운영 테스트 후 확정합니다.
+
+## Firebase 운영 구조
+
+실제 운영 버전은 Firebase 중심으로 구성합니다.
+
+```text
+Firebase Authentication  → Google / 이메일 간편가입
+Cloud Firestore          → MY CODE / 프로젝트 / 사용자 메타데이터
+Firebase Storage         → 실제 이미지 저장
+짧은 URL 라우트          → 사용자에게 짧은 이미지 코드 제공
+```
+
+상세 데이터 구조와 보안 규칙은 `/firebase` 폴더에 준비되어 있습니다.
+
+현재 GitHub Pages 미리보기에서는 이미지가 브라우저 IndexedDB에 임시 저장됩니다. 운영 저장소가 연결되기 전에는 Base64를 외부 코드로 복사하지 않습니다.
+
+## 목표 코드 형태
 
 ```html
-<img src="https://cdn.example.com/image-id.webp" alt="">
+<img src="https://img.example.com/a8F3k.webp" alt="">
 ```
+
+Firebase Storage의 실제 파일 경로와 사용자에게 보여주는 짧은 주소를 분리해, 저장 구조가 바뀌어도 기존 사용자 코드가 최대한 깨지지 않게 설계합니다.
+
+## 다음 구현 순서
+
+1. Firebase 프로젝트 연결
+2. Google / 이메일 Authentication 실제 활성화
+3. Firestore MY CODE / PROJECT 동기화
+4. Firebase Storage 실제 이미지 업로드
+5. 짧은 URL 라우트 구현
+6. 사용자별 사용량 집계
+7. FREE / BASIC / PRO 한도 확정
+8. 정식 오픈 시 결제 연결
 
 ## UX 원칙
 
