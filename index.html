@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="description" content="이미지를 올리면 바로 사용할 수 있는 코드로. CODE IMAGING" />
+  <title>CODE IMAGING</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="주요 메뉴">
+      <a class="brand" href="#upload" aria-label="CODE IMAGING 홈">
+        <span class="brand-mark">CI</span>
+        <span class="brand-name">CODE IMAGING</span>
+      </a>
+
+      <button class="primary-upload" id="sidebarUploadBtn" type="button">
+        <span>＋</span> 이미지 업로드
+      </button>
+
+      <nav class="nav-list">
+        <button class="nav-item is-active" data-view="upload" type="button">
+          <span class="nav-icon">↥</span><span>업로드</span>
+        </button>
+        <button class="nav-item" data-view="my-code" type="button">
+          <span class="nav-icon">⌘</span><span>MY CODE</span>
+          <span class="nav-count" id="myCodeCount">0</span>
+        </button>
+        <button class="nav-item" data-view="projects" type="button">
+          <span class="nav-icon">□</span><span>프로젝트</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="usage-mini">
+          <div class="usage-mini-row"><span>로컬 사용량</span><strong id="usageText">0 MB</strong></div>
+          <div class="usage-track"><span id="usageBar"></span></div>
+        </div>
+        <button class="account-button" type="button" id="accountButton">
+          <span class="avatar">G</span>
+          <span class="account-copy"><strong>게스트</strong><small>로그인 준비 중</small></span>
+          <span class="more">···</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="mobile-header">
+        <a class="brand" href="#upload"><span class="brand-mark">CI</span><span class="brand-name">CODE IMAGING</span></a>
+        <button class="mobile-upload" id="mobileUploadBtn" type="button">＋ 업로드</button>
+      </header>
+
+      <section class="view is-visible" id="view-upload" data-view-panel="upload">
+        <div class="page-head upload-head">
+          <div>
+            <p class="eyebrow">UPLOAD</p>
+            <h1>이미지를 올리면,<br />코드는 자동으로.</h1>
+            <p class="lead">변환하고, 저장하고, 다시 찾는 과정까지 한 번에.</p>
+          </div>
+        </div>
+
+        <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="이미지 업로드">
+          <input id="fileInput" type="file" accept="image/*" multiple hidden />
+          <div class="drop-icon">↥</div>
+          <h2>이미지를 여기에 놓으세요</h2>
+          <p>또는 클릭해서 선택</p>
+          <span>JPG · PNG · WEBP · GIF · SVG</span>
+        </div>
+
+        <div class="instant-note">
+          <span class="status-dot"></span>
+          <p><strong>업로드하면 자동 저장됩니다.</strong> 별도의 저장 버튼이 없습니다.</p>
+        </div>
+
+        <div class="upload-results" id="uploadResults" hidden>
+          <div class="section-title-row">
+            <div><p class="eyebrow">JUST UPLOADED</p><h2>방금 만든 코드</h2></div>
+            <button class="text-button" id="goMyCodeBtn" type="button">MY CODE에서 보기 →</button>
+          </div>
+          <div class="result-list" id="resultList"></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-my-code" data-view-panel="my-code">
+        <div class="page-head compact-head">
+          <div><p class="eyebrow">MY CODE</p><h1>내가 만든 모든 코드</h1><p class="lead">업로드한 순서대로 자동 정리됩니다.</p></div>
+          <button class="outline-button" id="myCodeUploadBtn" type="button">＋ 업로드</button>
+        </div>
+
+        <div class="toolbar">
+          <label class="search-box">
+            <span>⌕</span>
+            <input id="searchInput" type="search" placeholder="파일명 또는 프로젝트 검색" autocomplete="off" />
+          </label>
+          <div class="toolbar-actions">
+            <button class="outline-button selection-action" id="moveSelectedBtn" type="button" hidden>프로젝트로 이동</button>
+            <button class="outline-button selection-action" id="deleteSelectedBtn" type="button" hidden>삭제</button>
+          </div>
+        </div>
+
+        <div class="code-timeline" id="codeTimeline"></div>
+        <div class="empty-state" id="myCodeEmpty" hidden>
+          <div class="empty-symbol">↥</div>
+          <h3>아직 만든 코드가 없어요.</h3>
+          <p>이미지 하나만 올려보세요. 나머지는 자동으로 저장됩니다.</p>
+          <button class="primary-button" id="emptyUploadBtn" type="button">이미지 업로드</button>
+        </div>
+      </section>
+
+      <section class="view" id="view-projects" data-view-panel="projects">
+        <div class="page-head compact-head">
+          <div><p class="eyebrow">PROJECTS</p><h1>필요한 코드만 묶어서</h1><p class="lead">MY CODE는 그대로 두고, 프로젝트별로 가볍게 분류하세요.</p></div>
+          <button class="primary-button" id="newProjectBtn" type="button">＋ 새 프로젝트</button>
+        </div>
+        <div class="project-grid" id="projectGrid"></div>
+        <div class="empty-state" id="projectEmpty" hidden>
+          <div class="empty-symbol">□</div>
+          <h3>프로젝트가 아직 없어요.</h3>
+          <p>코드가 쌓인 뒤 필요한 것만 골라 폴더처럼 묶을 수 있어요.</p>
+          <button class="outline-button" id="emptyNewProjectBtn" type="button">첫 프로젝트 만들기</button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="mobile-nav" aria-label="모바일 메뉴">
+    <button class="mobile-nav-item is-active" data-view="upload" type="button"><span>↥</span><small>업로드</small></button>
+    <button class="mobile-nav-item" data-view="my-code" type="button"><span>⌘</span><small>MY CODE</small></button>
+    <button class="mobile-nav-item" data-view="projects" type="button"><span>□</span><small>프로젝트</small></button>
+  </div>
+
+  <dialog class="modal" id="codeModal">
+    <div class="modal-card wide-modal">
+      <button class="modal-close" data-close-modal="codeModal" type="button" aria-label="닫기">×</button>
+      <div class="detail-layout">
+        <div class="detail-preview-wrap"><img id="detailPreview" class="detail-preview" alt="이미지 미리보기" /></div>
+        <div class="detail-content">
+          <p class="eyebrow" id="detailDate">IMAGE CODE</p>
+          <h2 id="detailName">image.webp</h2>
+          <div class="detail-meta" id="detailMeta"></div>
+          <div class="code-blocks" id="detailCodes"></div>
+          <div class="detail-actions">
+            <button class="outline-button" id="detailProjectBtn" type="button">프로젝트 지정</button>
+            <button class="danger-text" id="detailDeleteBtn" type="button">삭제</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="modal" id="projectModal">
+    <form class="modal-card small-modal" id="projectForm" method="dialog">
+      <button class="modal-close" data-close-modal="projectModal" type="button" aria-label="닫기">×</button>
+      <p class="eyebrow">NEW PROJECT</p>
+      <h2>새 프로젝트 만들기</h2>
+      <label class="field-label" for="projectName">프로젝트 이름</label>
+      <input class="text-field" id="projectName" name="projectName" maxlength="40" placeholder="예: RELIM 홈페이지" required />
+      <div class="modal-actions"><button class="primary-button full-button" type="submit">만들기</button></div>
+    </form>
+  </dialog>
+
+  <dialog class="modal" id="assignModal">
+    <div class="modal-card small-modal">
+      <button class="modal-close" data-close-modal="assignModal" type="button" aria-label="닫기">×</button>
+      <p class="eyebrow">MOVE TO PROJECT</p>
+      <h2>프로젝트 선택</h2>
+      <div class="assign-list" id="assignList"></div>
+      <button class="outline-button full-button" id="createFromAssignBtn" type="button">＋ 새 프로젝트 만들기</button>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./app.js" defer></script>
+</body>
+</html>
