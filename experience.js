@@ -8,6 +8,11 @@ finalBrandStyles.rel = 'stylesheet';
 finalBrandStyles.href = './brand-v2.css';
 document.head.appendChild(finalBrandStyles);
 
+const pricingStyles = document.createElement('link');
+pricingStyles.rel = 'stylesheet';
+pricingStyles.href = './pricing.css';
+document.head.appendChild(pricingStyles);
+
 const noirRuntimeStyles = document.createElement('style');
 noirRuntimeStyles.textContent = `
   .site-header{
@@ -35,6 +40,7 @@ const menuButton = document.getElementById('menuButton');
 const menuCloseButton = document.getElementById('menuCloseButton');
 const menuOverlay = document.getElementById('menuOverlay');
 const landingUploadButton = document.getElementById('landingUploadButton');
+const pricingMenuButton = document.getElementById('pricingMenuButton');
 
 function openMenu() {
   document.body.classList.add('menu-open');
@@ -54,6 +60,12 @@ menuOverlay?.addEventListener('click', closeMenu);
 document.querySelectorAll('.drawer-link').forEach(button => button.addEventListener('click', closeMenu));
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && document.body.classList.contains('menu-open')) closeMenu();
+});
+
+pricingMenuButton?.addEventListener('click', () => {
+  closeMenu();
+  switchView('upload');
+  setTimeout(() => document.getElementById('pricingSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
 });
 
 landingUploadButton?.addEventListener('click', () => {
@@ -89,7 +101,7 @@ emailSignupForm?.addEventListener('submit', event => {
   localStorage.setItem(AUTH_KEY, JSON.stringify({ email, createdAt: new Date().toISOString() }));
   updateAccountUI();
   closeAuth();
-  showToast('가입 UI가 저장됐어요. 다음 단계에서 계정 서버와 연결합니다.');
+  showToast('가입 UI가 저장됐어요. Firebase 계정 연결 후 실제 계정으로 전환됩니다.');
 });
 
 function updateAccountUI() {
@@ -142,11 +154,11 @@ createResultCard = async function(item) {
     <div class="result-info">
       <div class="saved-label">${exportReady ? 'MY CODE에 저장됨' : 'MY CODE에 임시 저장됨'}</div>
       <strong>${escapeHTML(item.name)}</strong>
-      <small>${formatBytes(item.size)}${saved > 0 ? ` · ${saved}% 가볍게 변환` : ''}${exportReady ? ' · CDN 준비 완료' : ' · CDN 연결 대기'}</small>
+      <small>${formatBytes(item.size)}${saved > 0 ? ` · ${saved}% 가볍게 변환` : ''}${exportReady ? ' · 저장 완료' : ' · 운영 저장소 연결 대기'}</small>
     </div>
     <div class="result-actions result-actions-main">
       <button class="export-button" type="button" data-export>${exportReady ? '코드로 내보내기' : '코드 미리보기'} <span>→</span></button>
-      <button class="quick-copy-button" type="button" data-copy-html ${exportReady ? '' : 'disabled'}>${exportReady ? 'HTML 복사' : 'CDN 연결 전'}</button>
+      <button class="quick-copy-button" type="button" data-copy-html ${exportReady ? '' : 'disabled'}>${exportReady ? 'HTML 복사' : '오픈 준비 중'}</button>
     </div>
   `;
 
@@ -157,7 +169,7 @@ createResultCard = async function(item) {
   element.querySelector('[data-copy-html]')?.addEventListener('click', event => {
     event.stopPropagation();
     if (!item.publicUrl) {
-      showToast('CDN 연결 후 짧은 HTML 코드로 복사할 수 있어요.');
+      showToast('Firebase 저장소 연결 후 짧은 HTML 코드로 복사할 수 있어요.');
       return;
     }
     copyCode(item.id, 'html');
@@ -169,9 +181,9 @@ createResultCard = async function(item) {
 buildCodes = async function(item) {
   if (!item.publicUrl) {
     return {
-      url: 'CDN 연결 후 짧은 URL이 생성됩니다.',
-      html: '<img src="CDN 연결 후 생성되는 URL" alt="">',
-      css: 'background-image: url("CDN 연결 후 생성되는 URL");'
+      url: 'Firebase 연결 후 짧은 URL이 생성됩니다.',
+      html: '<img src="Firebase 연결 후 생성되는 URL" alt="">',
+      css: 'background-image: url("Firebase 연결 후 생성되는 URL");'
     };
   }
   const source = item.publicUrl;
@@ -186,7 +198,7 @@ copyCode = async function(id, type) {
   const item = state.items.find(entry => entry.id === id);
   if (!item) return;
   if (!item.publicUrl) {
-    showToast('CDN 연결 후 짧은 코드로 복사할 수 있어요. Base64 복사는 사용하지 않습니다.');
+    showToast('Firebase 저장소 연결 후 짧은 코드로 복사할 수 있어요. Base64 복사는 사용하지 않습니다.');
     return;
   }
   try {
