@@ -1,3 +1,8 @@
+const experienceStyles = document.createElement('link');
+experienceStyles.rel = 'stylesheet';
+experienceStyles.href = './experience.css';
+document.head.appendChild(experienceStyles);
+
 const AUTH_KEY = 'my-code-demo-user-v1';
 
 const authModal = document.getElementById('authModal');
