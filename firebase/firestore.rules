@@ -23,10 +23,16 @@ service cloud.firestore {
       }
     }
 
-    // Short URL mappings are written/read by trusted server code only.
-    // Firebase Admin SDK bypasses these client security rules.
+    // A signed-in user can reserve a short code only for their own image.
+    // Direct client reads stay disabled; the public redirect is served by trusted server code.
     match /shortLinks/{shortCode} {
-      allow read, write: if false;
+      allow read: if false;
+      allow create: if signedIn()
+                    && request.resource.data.ownerUid == request.auth.uid
+                    && request.resource.data.shortCode == shortCode;
+      allow update, delete: if signedIn()
+                            && resource.data.ownerUid == request.auth.uid
+                            && request.resource.data.ownerUid == request.auth.uid;
     }
   }
 }
