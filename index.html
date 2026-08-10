@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="./friendly.css" />
   <link rel="stylesheet" href="./noir.css" />
   <link rel="stylesheet" href="./brand-v2.css" />
+  <link rel="stylesheet" href="./polish-v3.css" />
 </head>
 <body>
   <header class="site-header">
@@ -27,8 +28,8 @@
       <button class="drawer-link" id="pricingMenuButton" type="button"><span>04</span><strong>PRICING</strong></button>
     </nav>
     <div class="drawer-bottom">
-      <div class="drawer-usage"><div><span>STORAGE</span><strong id="usageText">0 MB</strong></div><div class="usage-track"><span id="usageBar"></span></div></div>
-      <button class="drawer-account" id="accountButton" type="button"><span class="avatar">M</span><span class="account-copy"><strong id="accountName">게스트</strong><small id="accountSub">가입하고 MY CODE 보관하기</small></span><span>→</span></button>
+      <div class="drawer-usage"><div><span>LOCAL STORAGE</span><strong id="usageText">0 MB</strong></div><div class="usage-track"><span id="usageBar"></span></div></div>
+      <button class="drawer-account" id="accountButton" type="button"><span class="avatar">M</span><span class="account-copy"><strong id="accountName">게스트</strong><small id="accountSub">Google 로그인 / FREE</small></span><span>→</span></button>
       <button class="drawer-signup" id="signupTopBtn" type="button">간편가입 / 로그인</button>
     </div>
   </aside>
@@ -39,7 +40,7 @@
         <div class="hero-badge-line"><span>IMAGE → CODE</span><i></i><b>AUTO SAVE</b></div>
         <div class="hero-copy brand-hero-copy">
           <h1>이미지를 코드로 <span>간편하게,</span><br>그리고 편리하게 저장하세요.</h1>
-          <p>이미지를 올리면 웹에 바로 쓸 수 있는 코드로 변환하고,<br>만든 코드는 MY CODE에 자동으로 보관합니다.</p>
+          <p>이미지를 올리면 웹에서 쓰기 좋게 가볍게 변환하고,<br>HTML·CSS 코드로 바로 복사하거나 MY CODE에 보관할 수 있습니다.</p>
         </div>
 
         <div class="dropzone main-dropzone brand-dropzone" id="dropzone" tabindex="0" role="button" aria-label="이미지 업로드">
@@ -50,12 +51,12 @@
             <div class="composer-arrow">↗</div>
           </div>
         </div>
-        <div class="auto-save-note"><span class="status-dot"></span><span>변환된 코드는 <strong>MY CODE에 자동 저장</strong>됩니다.</span></div>
+        <div class="auto-save-note"><span class="status-dot"></span><span>변환 결과는 <strong>MY CODE에 자동 저장</strong>됩니다.</span></div>
 
         <div class="upload-results" id="uploadResults" hidden>
           <div class="section-title-row result-heading"><div><p class="eyebrow">READY</p><h2>코드가 준비됐어요.</h2></div><button class="text-button" id="goMyCodeBtn" type="button">MY CODE 보기 →</button></div>
           <div class="result-list" id="resultList"></div>
-          <div class="saved-callout">방금 만든 코드는 MY CODE에 자동 저장됐어요.</div>
+          <div class="saved-callout">현재는 이미지 포함형 코드로 복사됩니다. 정식 오픈 시 짧은 URL 방식도 제공할 예정입니다.</div>
         </div>
       </section>
 
@@ -64,8 +65,8 @@
         <div class="value-heading"><h2>올리기만 하면<br><span>나머지는 자동으로.</span></h2><p>이미지 관리에 필요한 과정을 짧게 줄였습니다.</p></div>
         <div class="value-grid">
           <article><span>01</span><h3>자동 변환</h3><p>이미지를 웹에서 사용하기 좋은 형식으로 가볍게 변환합니다.</p></article>
-          <article><span>02</span><h3>짧은 코드</h3><p>URL, HTML, CSS 코드를 바로 복사해 원하는 곳에 사용할 수 있습니다.</p></article>
-          <article class="lime-card"><span>03</span><h3>자동 저장</h3><p>변환한 코드는 MY CODE에 날짜별로 자동 보관됩니다.</p></article>
+          <article><span>02</span><h3>바로 코드 복사</h3><p>지금은 이미지가 포함된 HTML·CSS 코드를 바로 복사하고, 정식 오픈 시 짧은 URL 방식으로 전환합니다.</p></article>
+          <article class="lime-card"><span>03</span><h3>자동 저장</h3><p>변환한 결과는 MY CODE에 날짜별로 자동 보관됩니다.</p></article>
         </div>
       </section>
 
@@ -75,7 +76,7 @@
         <div class="point-list">
           <div><b>01</b><strong>MY CODE 자동 기록</strong><span>업로드 순서와 날짜별로 차곡차곡</span></div>
           <div><b>02</b><strong>프로젝트 폴더</strong><span>필요한 코드만 골라 한 번에 정리</span></div>
-          <div><b>03</b><strong>검색과 재사용</strong><span>예전에 만든 코드도 바로 찾아 다시 복사</span></div>
+          <div><b>03</b><strong>검색과 재사용</strong><span>예전에 만든 결과도 바로 찾아 다시 복사</span></div>
           <div><b>04</b><strong>한 곳에서 관리</strong><span>이미지와 코드가 따로 흩어지지 않게</span></div>
         </div>
       </section>
@@ -112,7 +113,7 @@
       </section>
 
       <section class="value-section value-black">
-        <div class="black-copy"><span>MY:CODE</span><h2>이미지 한 장이면<br>충분합니다.</h2><p>올리고, 코드로 바꾸고, 저장하세요.</p></div>
+        <div class="black-copy"><span>MY:CODE</span><h2>이미지 한 장이면<br>충분합니다.</h2><p>올리고, 복사하고, 필요할 때 다시 찾으세요.</p></div>
         <button id="landingUploadButton" class="lime-cta" type="button">이미지 올리기 <span>↗</span></button>
       </section>
 
@@ -128,14 +129,14 @@
     </section>
 
     <section class="view inner-view" id="view-my-code" data-view-panel="my-code">
-      <div class="inner-head"><div><p class="mono-label">MY CODE</p><h1>내 코드.</h1><p class="lead">만든 순서대로 자동 저장됩니다. 필요한 것만 프로젝트로 묶으세요.</p></div><button class="outline-button" id="myCodeUploadBtn" type="button">＋ 이미지 올리기</button></div>
+      <div class="inner-head"><div><p class="mono-label">MY CODE</p><h1>내 코드</h1><p class="lead">만든 순서대로 자동 저장됩니다. 필요한 것만 프로젝트로 묶으세요.</p></div><button class="outline-button" id="myCodeUploadBtn" type="button">＋ 이미지 올리기</button></div>
       <div class="toolbar"><label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="파일명 또는 프로젝트 검색" autocomplete="off" /></label><div class="toolbar-actions"><button class="outline-button selection-action" id="moveSelectedBtn" type="button" hidden>프로젝트에 담기</button><button class="outline-button selection-action" id="deleteSelectedBtn" type="button" hidden>삭제</button></div></div>
       <div class="code-timeline" id="codeTimeline"></div>
       <div class="empty-state" id="myCodeEmpty" hidden><div class="empty-symbol">＋</div><h3>아직 코드가 없어요</h3><p>이미지를 하나 올리면 여기 자동으로 저장됩니다.</p><button class="primary-button" id="emptyUploadBtn" type="button">이미지 올리기</button></div>
     </section>
 
     <section class="view inner-view" id="view-projects" data-view-panel="projects">
-      <div class="inner-head"><div><p class="mono-label">PROJECTS</p><h1>프로젝트.</h1><p class="lead">MY CODE에서 필요한 이미지만 골라 폴더처럼 묶어두세요.</p></div><button class="primary-button" id="newProjectBtn" type="button">＋ 새 프로젝트</button></div>
+      <div class="inner-head"><div><p class="mono-label">PROJECTS</p><h1>프로젝트</h1><p class="lead">MY CODE에서 필요한 이미지만 골라 폴더처럼 묶어두세요.</p></div><button class="primary-button" id="newProjectBtn" type="button">＋ 새 프로젝트</button></div>
       <div class="project-grid" id="projectGrid"></div>
       <div class="empty-state" id="projectEmpty" hidden><div class="empty-symbol">□</div><h3>아직 프로젝트가 없어요</h3><p>먼저 이미지를 올리고 나중에 정리해도 괜찮아요.</p><button class="outline-button" id="emptyNewProjectBtn" type="button">프로젝트 만들기</button></div>
     </section>
@@ -144,10 +145,11 @@
   <dialog class="modal" id="codeModal"><div class="modal-card wide-modal"><button class="modal-close" data-close-modal="codeModal" type="button" aria-label="닫기">×</button><div class="detail-layout"><div class="detail-preview-wrap"><img id="detailPreview" class="detail-preview" alt="이미지 미리보기" /></div><div class="detail-content"><p class="eyebrow" id="detailDate">MY CODE</p><h2 id="detailName">image.webp</h2><div class="detail-meta" id="detailMeta"></div><div class="code-blocks" id="detailCodes"></div><div class="detail-actions"><button class="outline-button" id="detailProjectBtn" type="button">프로젝트에 담기</button><button class="danger-text" id="detailDeleteBtn" type="button">삭제</button></div></div></div></div></dialog>
   <dialog class="modal" id="projectModal"><form class="modal-card small-modal" id="projectForm" method="dialog"><button class="modal-close" data-close-modal="projectModal" type="button" aria-label="닫기">×</button><p class="eyebrow">NEW PROJECT</p><h2>새 프로젝트</h2><p class="modal-description">이름만 정하면 바로 만들어집니다.</p><label class="field-label" for="projectName">프로젝트 이름</label><input class="text-field" id="projectName" name="projectName" maxlength="40" placeholder="예: 리림 홈페이지" required /><div class="modal-actions"><button class="primary-button full-button" type="submit">만들기</button></div></form></dialog>
   <dialog class="modal" id="assignModal"><div class="modal-card small-modal"><button class="modal-close" data-close-modal="assignModal" type="button" aria-label="닫기">×</button><p class="eyebrow">ADD TO PROJECT</p><h2>어디에 담을까요?</h2><div class="assign-list" id="assignList"></div><button class="outline-button full-button" id="createFromAssignBtn" type="button">＋ 새 프로젝트 만들기</button></div></dialog>
-  <dialog class="modal auth-modal" id="authModal"><div class="modal-card auth-card"><button class="modal-close" id="authCloseBtn" type="button" aria-label="닫기">×</button><div class="auth-brand">my<span>:</span>code</div><h2>간편하게 시작하세요.</h2><p class="auth-description">가입하면 MY CODE를 내 계정에 이어서 보관할 수 있어요.</p><button class="google-button" id="googleSignupBtn" type="button"><span class="google-g">G</span> Google로 계속하기</button><div class="auth-divider"><span>또는</span></div><form id="emailSignupForm" class="auth-form"><label for="signupEmail">이메일</label><input id="signupEmail" type="email" placeholder="name@email.com" autocomplete="email" required /><button class="primary-button full-button auth-submit" type="submit">이메일로 계속하기</button></form><p class="auth-footnote">복잡한 정보 입력 없이 이메일 하나면 충분해요.</p></div></dialog>
+  <dialog class="modal auth-modal" id="authModal"><div class="modal-card auth-card"><button class="modal-close" id="authCloseBtn" type="button" aria-label="닫기">×</button><div class="auth-brand">my<span>:</span>code</div><h2>간편하게 시작하세요.</h2><p class="auth-description">계정과 FREE 플랜 정보는 Firebase에 연결됩니다. 이미지는 현재 이 브라우저에 저장됩니다.</p><button class="google-button" id="googleSignupBtn" type="button"><span class="google-g">G</span> Google로 계속하기</button><div class="auth-divider"><span>또는</span></div><form id="emailSignupForm" class="auth-form"><label for="signupEmail">이메일</label><input id="signupEmail" type="email" placeholder="name@email.com" autocomplete="email" required /><button class="primary-button full-button auth-submit" type="submit">이메일로 계속하기</button></form><p class="auth-footnote">이미지는 현재 사용 중인 브라우저에 저장됩니다.</p></div></dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="./app.js" defer></script>
   <script src="./experience.js" defer></script>
+  <script src="./polish-v3.js" defer></script>
 </body>
 </html>
