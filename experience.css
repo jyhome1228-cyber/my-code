@@ -146,6 +146,14 @@
 .export-button span { margin-left: 6px; }
 .quick-copy-button { border: 1px solid var(--mc-line); background: #fff; color: #665f6e; }
 .quick-copy-button:hover { background: var(--mc-soft); border-color: #d8d0f3; color: var(--mc-accent-dark); }
+.quick-copy-button:disabled {
+  cursor: not-allowed;
+  border-color: #ece9ef;
+  background: #f7f6f8;
+  color: #aaa5af;
+}
+.is-local-only .saved-label { background: #fff7e7; color: #9a7a35; }
+.is-local-only .export-button { background: #8e85c7; box-shadow: none; }
 
 .result-card-loading { background: linear-gradient(90deg, #fff, #fcfbff, #fff); }
 .loading-preview {
