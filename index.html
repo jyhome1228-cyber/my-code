@@ -24,6 +24,7 @@
       <button class="drawer-link is-active" data-view="upload" type="button"><span>01</span><strong>UPLOAD</strong></button>
       <button class="drawer-link" data-view="my-code" type="button"><span>02</span><strong>MY CODE</strong><em id="myCodeCount">0</em></button>
       <button class="drawer-link" data-view="projects" type="button"><span>03</span><strong>PROJECTS</strong></button>
+      <button class="drawer-link" id="pricingMenuButton" type="button"><span>04</span><strong>PRICING</strong></button>
     </nav>
     <div class="drawer-bottom">
       <div class="drawer-usage"><div><span>STORAGE</span><strong id="usageText">0 MB</strong></div><div class="usage-track"><span id="usageBar"></span></div></div>
@@ -79,6 +80,37 @@
         </div>
       </section>
 
+      <section class="pricing-section" id="pricingSection">
+        <div class="pricing-head">
+          <div><p class="value-kicker">PRICING</p><h2>필요한 만큼,<br><span>가볍게 시작하세요.</span></h2></div>
+          <p>현재는 서비스 준비 단계입니다.<br>모든 요금제는 오픈 예정입니다.</p>
+        </div>
+        <div class="pricing-grid">
+          <article class="price-card">
+            <div class="price-top"><span>FREE</span><b>오픈 예정</b></div>
+            <div class="price-number"><strong>0</strong><em>원</em></div>
+            <p>my:code를 가볍게 시작해보는 기본 플랜</p>
+            <ul><li>이미지 코드 변환</li><li>MY CODE 자동 저장</li><li>프로젝트 정리</li></ul>
+            <button type="button" disabled>오픈 예정</button>
+          </article>
+          <article class="price-card basic-card">
+            <div class="price-top"><span>BASIC</span><b>오픈 예정</b></div>
+            <div class="price-number"><strong>990</strong><em>원 / 월</em></div>
+            <p>이미지를 자주 다루는 개인 작업자를 위한 플랜</p>
+            <ul><li>FREE 기능 포함</li><li>더 넉넉한 사용 범위</li><li>개인 프로젝트 관리</li></ul>
+            <button type="button" disabled>오픈 예정</button>
+          </article>
+          <article class="price-card pro-card">
+            <div class="price-top"><span>PRO</span><b>오픈 예정</b></div>
+            <div class="price-number"><strong>3,990</strong><em>원 / 월</em></div>
+            <p>많은 이미지와 코드를 관리하는 작업자를 위한 플랜</p>
+            <ul><li>BASIC 기능 포함</li><li>확장된 사용 범위</li><li>대량 작업에 맞는 관리</li></ul>
+            <button type="button" disabled>오픈 예정</button>
+          </article>
+        </div>
+        <p class="pricing-note">※ 세부 제공 범위는 정식 오픈 시 함께 안내됩니다.</p>
+      </section>
+
       <section class="value-section value-black">
         <div class="black-copy"><span>MY:CODE</span><h2>이미지 한 장이면<br>충분합니다.</h2><p>올리고, 코드로 바꾸고, 저장하세요.</p></div>
         <button id="landingUploadButton" class="lime-cta" type="button">이미지 올리기 <span>↗</span></button>
@@ -110,11 +142,8 @@
   </main>
 
   <dialog class="modal" id="codeModal"><div class="modal-card wide-modal"><button class="modal-close" data-close-modal="codeModal" type="button" aria-label="닫기">×</button><div class="detail-layout"><div class="detail-preview-wrap"><img id="detailPreview" class="detail-preview" alt="이미지 미리보기" /></div><div class="detail-content"><p class="eyebrow" id="detailDate">MY CODE</p><h2 id="detailName">image.webp</h2><div class="detail-meta" id="detailMeta"></div><div class="code-blocks" id="detailCodes"></div><div class="detail-actions"><button class="outline-button" id="detailProjectBtn" type="button">프로젝트에 담기</button><button class="danger-text" id="detailDeleteBtn" type="button">삭제</button></div></div></div></div></dialog>
-
   <dialog class="modal" id="projectModal"><form class="modal-card small-modal" id="projectForm" method="dialog"><button class="modal-close" data-close-modal="projectModal" type="button" aria-label="닫기">×</button><p class="eyebrow">NEW PROJECT</p><h2>새 프로젝트</h2><p class="modal-description">이름만 정하면 바로 만들어집니다.</p><label class="field-label" for="projectName">프로젝트 이름</label><input class="text-field" id="projectName" name="projectName" maxlength="40" placeholder="예: 리림 홈페이지" required /><div class="modal-actions"><button class="primary-button full-button" type="submit">만들기</button></div></form></dialog>
-
   <dialog class="modal" id="assignModal"><div class="modal-card small-modal"><button class="modal-close" data-close-modal="assignModal" type="button" aria-label="닫기">×</button><p class="eyebrow">ADD TO PROJECT</p><h2>어디에 담을까요?</h2><div class="assign-list" id="assignList"></div><button class="outline-button full-button" id="createFromAssignBtn" type="button">＋ 새 프로젝트 만들기</button></div></dialog>
-
   <dialog class="modal auth-modal" id="authModal"><div class="modal-card auth-card"><button class="modal-close" id="authCloseBtn" type="button" aria-label="닫기">×</button><div class="auth-brand">my<span>:</span>code</div><h2>간편하게 시작하세요.</h2><p class="auth-description">가입하면 MY CODE를 내 계정에 이어서 보관할 수 있어요.</p><button class="google-button" id="googleSignupBtn" type="button"><span class="google-g">G</span> Google로 계속하기</button><div class="auth-divider"><span>또는</span></div><form id="emailSignupForm" class="auth-form"><label for="signupEmail">이메일</label><input id="signupEmail" type="email" placeholder="name@email.com" autocomplete="email" required /><button class="primary-button full-button auth-submit" type="submit">이메일로 계속하기</button></form><p class="auth-footnote">복잡한 정보 입력 없이 이메일 하나면 충분해요.</p></div></dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
