@@ -1,18 +1,14 @@
 # my:code Firebase architecture
 
-현재 1차 검증 단계에서는 **Firebase Storage를 사용하지 않습니다.** Firebase는 로그인과 사용자/플랜 정보에만 사용하고, 이미지는 브라우저 IndexedDB에 저장합니다.
+현재는 Firebase Authentication + Firestore + Storage를 사용하는 1차 운영 구조입니다.
 
-## 현재 사용하는 Firebase 서비스
+## 사용 서비스
 
 - Firebase Authentication: Google 로그인
-- Cloud Firestore: 사용자 계정 / 플랜 정보
+- Cloud Firestore: 사용자 / 이미지 메타데이터 / 프로젝트
+- Cloud Storage for Firebase: 로그인 사용자의 실제 이미지 파일
 
-## 현재 사용하지 않는 서비스
-
-- Cloud Storage for Firebase: 보류
-- Firebase Hosting 기반 짧은 이미지 URL: 보류
-
-## Firestore structure
+## 사용자 구조
 
 ```text
 users/{uid}
@@ -20,20 +16,55 @@ users/{uid}
   displayName
   photoURL
   plan            // free | basic | pro
-  storageMode     // browser
+  storageMode     // firebase
+  createdAt
+  updatedAt
+
+users/{uid}/images/{imageId}
+  imageId
+  originalName
+  displayName
+  storagePath
+  publicUrl
+  format
+  width
+  height
+  originalSize
+  optimizedSize
+  projectId
+  createdAt
+  updatedAt
+
+users/{uid}/projects/{projectId}
+  id
+  name
   createdAt
   updatedAt
 ```
 
-현재 이미지와 프로젝트는 브라우저 IndexedDB / localStorage에 보관합니다. 사용자가 로그인하더라도 이미지 파일 자체는 Firebase에 업로드되지 않습니다.
+## Storage path
 
-## Security
+```text
+users/{uid}/images/{imageId}/optimized.webp
+```
 
-`firestore.rules`는 로그인한 사용자 본인의 `users/{uid}` 데이터만 접근할 수 있도록 설계되어 있습니다. 향후 이미지/프로젝트 클라우드 동기화를 추가할 수 있도록 하위 컬렉션 규칙도 준비되어 있습니다.
+로그인한 사용자 본인의 경로만 읽기/업로드/삭제할 수 있도록 `storage.rules`를 준비했습니다. 업로드 파일은 이미지 형식, 파일당 20MB 미만으로 제한합니다.
+
+## 코드 발급
+
+현재는 Firebase Storage `getDownloadURL()`로 얻은 URL을 `publicUrl`로 사용합니다.
+
+```html
+<img src="https://firebasestorage.googleapis.com/..." alt="">
+```
+
+향후 서비스 도메인이 확정되면 짧은 URL 라우트를 추가할 수 있습니다.
+
+```text
+https://img.<service-domain>/<shortCode>.webp
+```
 
 ## Plans
-
-사이트에는 현재 결제 없이 다음 가격만 `오픈 예정`으로 표시합니다.
 
 ```text
 FREE   0원
@@ -41,26 +72,15 @@ BASIC  990원 / 월
 PRO    3,990원 / 월
 ```
 
-저장 용량과 업로드 한도는 실제 운영 테스트 후 확정합니다.
+결제는 아직 연결하지 않고 모두 `오픈 예정`입니다. 플랜별 실제 저장량/트래픽 한도는 운영 사용량을 보고 확정합니다.
 
-## 향후 Storage 연결 시
+## Firebase Console에서 필요한 설정
 
-```text
-users/{uid}/images/{imageId}/optimized.webp
-```
+1. Authentication → Google 로그인 활성화
+2. Authentication → Authorized domains에 GitHub Pages 도메인 추가
+3. Firestore Database 생성 후 `firestore.rules` 적용
+4. Storage 생성
+5. Storage → Rules에서 `storage.rules` 적용
+6. Google 로그인 후 이미지 업로드 테스트
 
-같은 식으로 실제 파일을 저장하고, 사용자에게는 Firebase의 긴 다운로드 URL을 그대로 보여주지 않고 다음처럼 짧은 주소를 제공하는 방향입니다.
-
-```text
-https://img.<service-domain>/<shortCode>.webp
-```
-
-## 다음 단계
-
-1. Firebase Authentication에서 Google 로그인 활성화
-2. GitHub Pages 도메인을 Authorized domains에 추가
-3. Firestore Rules 적용
-4. Google 로그인 / FREE 플랜 계정 생성 테스트
-5. 이미지 변환 / MY CODE / 프로젝트 UX 테스트
-6. 유료화 반응 확인
-7. 필요 시 Storage 및 짧은 URL 연결
+비로그인 업로드는 브라우저 IndexedDB에만 저장하고, 로그인 후 새로 올린 이미지부터 Firebase Storage에 저장합니다.
