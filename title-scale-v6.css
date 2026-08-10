@@ -1,4 +1,5 @@
 @import url('./layout-v7.css?v=7');
 @import url('./priority-v7.css?v=7');
+@import url('./hosting-v8.css?v=8');
 
-/* v7 supersedes the earlier title-only scale patch. */
+/* v8 supersedes earlier layout experiments and keeps the product upload-first. */
