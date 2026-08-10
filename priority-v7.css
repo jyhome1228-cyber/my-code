@@ -1,0 +1,65 @@
+/* Critical high-specificity overrides to beat dynamically appended legacy styles */
+html body .v4-home .upload-results,
+html body .v4-home .v4-results{
+  width:100%!important;
+  max-width:none!important;
+  margin:22px 0 18px!important;
+  padding:18px!important;
+  border:1px solid #DCE4F4!important;
+  border-radius:18px!important;
+  background:#fff!important;
+}
+html body .v4-home .result-card{
+  grid-template-columns:62px minmax(0,1fr) auto!important;
+  min-height:88px!important;
+  padding:12px 14px!important;
+  gap:14px!important;
+  border:1px solid #DCE4F4!important;
+  border-radius:14px!important;
+  background:#fff!important;
+  box-shadow:none!important;
+}
+html body .v4-home .result-card .result-thumb,
+html body .v4-home .result-preview-wrap,
+html body .v4-home .loading-preview{width:62px!important;height:62px!important;border-radius:11px!important}
+html body .v4-home .result-card-ready .result-info strong{font-size:13.5px!important;line-height:1.35!important;color:#19336f!important}
+html body .v4-home .result-info small{font-size:11px!important;line-height:1.5!important;color:#7280a1!important}
+html body .v4-home .saved-label{font-size:9px!important;background:#EEF3FF!important;color:#0B3FC7!important}
+html body .v4-home .export-button{height:38px!important;padding:0 14px!important;border-radius:10px!important;background:#0B3FC7!important;color:#fff!important;font-size:10.5px!important;box-shadow:none!important}
+html body .v4-home .quick-copy-button{height:38px!important;padding:0 14px!important;border-radius:10px!important;border:1px solid #DCE4F4!important;background:#fff!important;color:#0B3FC7!important;font-size:10.5px!important}
+html body .v4-home .saved-callout{padding:10px 12px!important;border-radius:10px!important;background:#F3F6FF!important;color:#0B3FC7!important;font-size:10.5px!important;line-height:1.5!important;text-align:left!important}
+
+html body .v4-home .v4-section-head h2,
+html body .v4-home .v4-section-head.compact h2,
+html body .v4-home .v4-organize-copy h2{
+  font-size:clamp(26px,2.8vw,32px)!important;
+  line-height:1.13!important;
+  letter-spacing:-.045em!important;
+  font-weight:800!important;
+}
+html body .v4-home .v4-section-head p,
+html body .v4-home .v4-organize-copy p{
+  font-size:13.5px!important;
+  line-height:1.75!important;
+  color:#66769c!important;
+}
+html body .v4-home .v4-card h3{font-size:clamp(20px,2.1vw,26px)!important;line-height:1.15!important}
+html body .v4-home .v4-card-problem ul{font-size:12.5px!important;line-height:1.65!important}
+html body .v4-home .v4-flow-grid p{font-size:12px!important;line-height:1.6!important}
+html body .v4-home .v4-benefit-grid p{font-size:12.5px!important;line-height:1.65!important}
+html body .v4-home .v4-stat p{font-size:11.5px!important;line-height:1.55!important}
+html body .v4-home .v4-price-grid .price-card>p{font-size:12.5px!important;line-height:1.6!important}
+html body .v4-home .v4-price-grid .price-card li{font-size:11.5px!important}
+
+@media(max-width:640px){
+  html body .v4-home .result-card{grid-template-columns:54px 1fr!important}
+  html body .v4-home .result-card .result-thumb,
+  html body .v4-home .result-preview-wrap,
+  html body .v4-home .loading-preview{width:54px!important;height:54px!important}
+  html body .v4-home .result-actions-main{grid-column:1/-1!important;width:100%!important;display:flex!important}
+  html body .v4-home .v4-section-head h2,
+  html body .v4-home .v4-section-head.compact h2,
+  html body .v4-home .v4-organize-copy h2{font-size:25px!important}
+  html body .v4-home .v4-section-head p,
+  html body .v4-home .v4-organize-copy p{font-size:13px!important}
+}
