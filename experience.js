@@ -3,6 +3,17 @@ experienceStyles.rel = 'stylesheet';
 experienceStyles.href = './experience.css';
 document.head.appendChild(experienceStyles);
 
+const noirRuntimeStyles = document.createElement('style');
+noirRuntimeStyles.textContent = `
+  .site-header{
+    background:rgba(255,255,255,.92);
+    border-bottom:1px solid rgba(5,5,5,.08);
+    -webkit-backdrop-filter:blur(14px);
+    backdrop-filter:blur(14px);
+  }
+`;
+document.head.appendChild(noirRuntimeStyles);
+
 const AUTH_KEY = 'my-code-demo-user-v1';
 
 const authModal = document.getElementById('authModal');
