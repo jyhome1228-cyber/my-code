@@ -1,0 +1,248 @@
+/* =========================================================
+   MY:CODE V7 — FINAL LAYOUT OVERRIDES
+   Loaded after all legacy/dynamic styles.
+   Goal: aligned grid, smaller headlines, larger readable body.
+========================================================= */
+:root{
+  --v7-blue:#0B3FC7;
+  --v7-blue-dark:#12357d;
+  --v7-blue-soft:#F5F8FF;
+  --v7-blue-soft-2:#EEF3FF;
+  --v7-text:#19336f;
+  --v7-body:#66769c;
+  --v7-line:#DCE4F4;
+  --v7-white:#fff;
+}
+
+/* global alignment */
+.v4-page{
+  width:min(1120px,calc(100% - 48px))!important;
+  margin:0 auto!important;
+  padding-top:78px!important;
+}
+.v4-page > *{box-sizing:border-box!important}
+
+/* hero */
+.v4-hero{min-height:650px!important;padding:36px 0 54px!important;gap:25px!important}
+.v4-hero-copy{width:min(720px,100%)!important}
+.v4-hero-copy h1{
+  font-size:clamp(32px,3.5vw,44px)!important;
+  line-height:1.12!important;
+  letter-spacing:-.045em!important;
+  font-weight:800!important;
+}
+.v4-hero-copy p{
+  max-width:680px!important;
+  font-size:14px!important;
+  line-height:1.72!important;
+  color:var(--v7-body)!important;
+}
+.v4-eyebrow{font-size:9px!important}
+.v4-trust-row{font-size:10.5px!important;gap:12px!important}
+.v4-hero-tool{width:min(900px,100%)!important}
+.v4-dropzone{
+  min-height:250px!important;
+  border-radius:22px!important;
+  padding:38px 28px!important;
+}
+.v4-dropzone strong{font-size:17px!important}
+.v4-dropzone p{font-size:12.5px!important}
+.v4-dropzone small{font-size:9.5px!important}
+.v4-tool-footer{font-size:10.5px!important;gap:22px!important;margin-top:13px!important}
+
+/* Result panel must align to same page grid, not a narrower floating width */
+.v4-results,
+.upload-results{
+  width:100%!important;
+  max-width:none!important;
+  margin:22px 0 18px!important;
+  padding:18px!important;
+  border-radius:18px!important;
+}
+.result-heading h2{font-size:20px!important;line-height:1.25!important}
+.result-heading .eyebrow{font-size:9px!important}
+.result-heading .text-button{font-size:11px!important}
+.result-card{
+  grid-template-columns:62px minmax(0,1fr) auto!important;
+  min-height:88px!important;
+  padding:12px 14px!important;
+  gap:14px!important;
+  border-radius:14px!important;
+}
+.result-card .result-thumb,.result-preview-wrap,.loading-preview{width:62px!important;height:62px!important}
+.result-card-ready .result-info strong{font-size:13.5px!important}
+.result-info small{font-size:11px!important;line-height:1.45!important}
+.saved-label{font-size:9px!important}
+.export-button,.quick-copy-button{
+  height:38px!important;
+  padding:0 14px!important;
+  border-radius:10px!important;
+  font-size:10.5px!important;
+}
+.export-button{background:var(--v7-blue)!important;color:#fff!important}
+.quick-copy-button{background:#fff!important;color:var(--v7-blue)!important;border-color:var(--v7-line)!important}
+.saved-callout{font-size:10.5px!important;line-height:1.5!important;padding:10px 12px!important}
+
+/* summary cards */
+.v4-stats{margin-top:8px!important;gap:10px!important}
+.v4-stat{min-height:136px!important;padding:18px!important;border-radius:17px!important}
+.v4-stat span{font-size:8px!important}
+.v4-stat strong{
+  font-size:clamp(19px,2vw,26px)!important;
+  line-height:1.05!important;
+  margin:auto 0 8px!important;
+}
+.v4-stat p{font-size:11.5px!important;line-height:1.55!important}
+
+/* shared section hierarchy */
+.v4-section{padding-top:78px!important}
+.v4-section-head{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(320px,.78fr)!important;
+  gap:56px!important;
+  align-items:end!important;
+  margin-bottom:30px!important;
+}
+.v4-section-head>div>span,.v4-organize-copy>span{
+  font-size:8.5px!important;
+  margin-bottom:10px!important;
+}
+.v4-section-head h2,
+.v4-section-head.compact h2,
+.v4-organize-copy h2{
+  font-size:clamp(26px,2.8vw,32px)!important;
+  line-height:1.13!important;
+  letter-spacing:-.045em!important;
+  font-weight:800!important;
+}
+.v4-section-head p,.v4-organize-copy p{
+  font-size:13.5px!important;
+  line-height:1.75!important;
+  color:var(--v7-body)!important;
+}
+
+/* problem / solution layout: precise two-column alignment */
+.v4-mosaic{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  grid-template-rows:1fr .7fr!important;
+  grid-template-areas:"problem solution" "use solution"!important;
+  gap:12px!important;
+  align-items:stretch!important;
+}
+.v4-card{padding:28px!important;border-radius:20px!important}
+.v4-card-problem{min-height:310px!important}
+.v4-card-use{min-height:230px!important}
+.v4-card-solution{min-height:552px!important}
+.v4-card h3{
+  font-size:clamp(20px,2.1vw,26px)!important;
+  line-height:1.15!important;
+  margin:30px 0 18px!important;
+}
+.v4-card-problem ul{font-size:12.5px!important;line-height:1.65!important;gap:7px!important}
+.v4-card-label{font-size:8.5px!important}
+.v4-use-grid{margin-top:28px!important}
+.v4-use-grid span{font-size:11px!important;padding:12px 8px!important}
+.v4-mini-library{margin-top:34px!important;padding:12px!important}
+.v4-mini-library>div{min-height:80px!important;grid-template-columns:52px 1fr 20px!important}
+.v4-mini-library .thumb{width:50px!important;height:50px!important}
+.v4-mini-library b{font-size:12px!important}
+.v4-mini-library small{font-size:10.5px!important;line-height:1.35!important}
+
+/* flow */
+.v4-flow-grid{gap:10px!important}
+.v4-flow-grid article{min-height:230px!important;padding:20px!important;border-radius:17px!important}
+.v4-flow-grid article>span{font-size:8px!important}
+.v4-flow-icon{width:42px!important;height:42px!important;margin-top:28px!important}
+.v4-flow-grid h3{font-size:17px!important;margin:17px 0 8px!important}
+.v4-flow-grid p{font-size:12px!important;line-height:1.6!important}
+
+/* organize */
+.v4-organize{grid-template-columns:.8fr 1.2fr!important;gap:14px!important}
+.v4-organize-copy{padding:36px 30px!important;border-radius:20px!important}
+.v4-organize-copy h2{font-size:clamp(25px,2.6vw,30px)!important}
+.v4-organize-copy p{margin-top:18px!important}
+.v4-checks{margin-top:23px!important}
+.v4-checks span{font-size:10.5px!important;padding:7px 9px!important}
+.v4-organize-board{padding:17px!important;border-radius:20px!important}
+.v4-board-head{font-size:10.5px!important}
+.v4-board-date{font-size:9px!important}
+.v4-board-row{min-height:74px!important;grid-template-columns:48px 1fr 84px 48px 17px!important}
+.v4-board-row i{width:46px!important;height:46px!important}
+.v4-board-row span b{font-size:11.5px!important}
+.v4-board-row small{font-size:9.5px!important}
+.v4-board-row em,.v4-board-row>strong{font-size:9px!important}
+.v4-project-tabs span{font-size:9.5px!important}
+
+/* benefits */
+.v4-benefit-grid{gap:10px!important}
+.v4-benefit-grid article{min-height:190px!important;padding:22px!important;border-radius:17px!important}
+.v4-benefit-grid b{font-size:8px!important}
+.v4-benefit-grid h3{font-size:17px!important;margin:24px 0 10px!important}
+.v4-benefit-grid p{font-size:12.5px!important;line-height:1.65!important}
+
+/* pricing */
+.v4-pricing{padding:78px 0 0!important;margin-top:0!important}
+.v4-pricing .pricing-grid{margin-top:0!important;gap:10px!important}
+.v4-price-grid .price-card{min-height:355px!important;padding:22px!important;border-radius:18px!important}
+.v4-price-grid .price-top>span{font-size:10px!important}
+.v4-price-grid .price-top>b{font-size:8.5px!important}
+.v4-price-grid .price-number{margin:34px 0 18px!important}
+.v4-price-grid .price-number strong{font-size:48px!important}
+.v4-price-grid .price-number em{font-size:10.5px!important}
+.v4-price-grid .price-card>p{font-size:12.5px!important;line-height:1.6!important}
+.v4-price-grid .price-card li{font-size:11.5px!important}
+.v4-price-grid .price-card button{font-size:10.5px!important}
+
+/* final CTA */
+.v4-final-cta{margin-top:78px!important;padding:58px 28px!important;border-radius:22px!important}
+.v4-final-cta h2{font-size:clamp(27px,3vw,34px)!important;line-height:1.12!important}
+.v4-final-cta p{font-size:13.5px!important;line-height:1.65!important}
+.v4-final-button{font-size:11px!important}
+
+/* app views */
+.inner-view>*{max-width:1120px!important}
+.inner-head h1{font-size:34px!important}
+.inner-head .lead{font-size:13.5px!important;line-height:1.7!important}
+.code-name{font-size:12.5px!important}.code-sub{font-size:10.5px!important}
+
+/* Modal readability */
+.detail-content h2{font-size:21px!important}
+.detail-meta{font-size:10.5px!important}
+.code-value{font-size:10.5px!important}
+
+@media(max-width:900px){
+  .v4-page{width:min(100% - 30px,760px)!important}
+  .v4-section-head{grid-template-columns:1fr!important;gap:15px!important}
+  .v4-mosaic{grid-template-columns:1fr!important;grid-template-rows:auto!important;grid-template-areas:"problem" "solution" "use"!important}
+  .v4-card-problem,.v4-card-solution,.v4-card-use{min-height:auto!important}
+  .v4-flow-grid,.v4-benefit-grid,.v4-stats{grid-template-columns:repeat(2,1fr)!important}
+  .v4-organize{grid-template-columns:1fr!important}
+}
+
+@media(max-width:640px){
+  .v4-page{width:calc(100% - 28px)!important;padding-top:70px!important}
+  .v4-hero{min-height:auto!important;padding:26px 0 44px!important}
+  .v4-hero-copy h1{font-size:31px!important}
+  .v4-hero-copy p{font-size:13px!important}
+  .v4-dropzone{min-height:220px!important;padding:30px 18px!important}
+  .v4-tool-footer{flex-wrap:wrap!important;gap:7px 14px!important}
+  .v4-results,.upload-results{padding:13px!important}
+  .result-card{grid-template-columns:54px 1fr!important}
+  .result-card .result-thumb,.result-preview-wrap,.loading-preview{width:54px!important;height:54px!important}
+  .result-actions-main{grid-column:1/-1!important;width:100%!important}
+  .export-button,.quick-copy-button{flex:1!important}
+  .v4-stats,.v4-flow-grid,.v4-benefit-grid{grid-template-columns:1fr!important}
+  .v4-stat{min-height:112px!important}
+  .v4-section{padding-top:58px!important}
+  .v4-section-head h2,.v4-section-head.compact h2,.v4-organize-copy h2{font-size:25px!important}
+  .v4-section-head p,.v4-organize-copy p{font-size:13px!important}
+  .v4-card{padding:22px!important}
+  .v4-card h3{font-size:21px!important}
+  .v4-card-problem ul{font-size:12px!important}
+  .v4-use-grid{grid-template-columns:repeat(2,1fr)!important}
+  .v4-board-row{grid-template-columns:44px 1fr 16px!important}
+  .v4-board-row em,.v4-board-row>strong{display:none!important}
+  .v4-final-cta{margin-top:58px!important;padding:44px 20px!important}
+  .v4-final-cta h2{font-size:27px!important}
+}
