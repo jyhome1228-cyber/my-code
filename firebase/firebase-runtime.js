@@ -41,6 +41,22 @@ function timestampToIso(value) {
   return new Date(value).toISOString();
 }
 
+function randomShortCode(length = 7) {
+  const alphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  const bytes = new Uint8Array(length);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, byte => alphabet[byte % alphabet.length]).join('');
+}
+
+async function reserveShortCode() {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const shortCode = randomShortCode();
+    const snapshot = await getDoc(doc(db, 'shortLinks', shortCode));
+    if (!snapshot.exists()) return shortCode;
+  }
+  throw new Error('SHORT_CODE_GENERATION_FAILED');
+}
+
 async function ensureUserDocument(user) {
   if (!user) return;
   const userRef = doc(db, 'users', user.uid);
@@ -89,6 +105,7 @@ async function uploadImage({ blob, filename, id, metadata = {} }) {
   });
 
   const downloadUrl = await getDownloadURL(result.ref);
+  const shortCode = await reserveShortCode();
   const now = metadata.createdAt || new Date().toISOString();
 
   await setDoc(doc(db, 'users', user.uid, 'images', id), {
@@ -97,6 +114,7 @@ async function uploadImage({ blob, filename, id, metadata = {} }) {
     displayName: filename,
     storagePath,
     publicUrl: downloadUrl,
+    shortCode,
     format: blob.type || 'image/webp',
     width: metadata.width || null,
     height: metadata.height || null,
@@ -107,9 +125,20 @@ async function uploadImage({ blob, filename, id, metadata = {} }) {
     updatedAt: serverTimestamp()
   }, { merge: true });
 
+  await setDoc(doc(db, 'shortLinks', shortCode), {
+    shortCode,
+    ownerUid: user.uid,
+    imageId: id,
+    storagePath,
+    targetUrl: downloadUrl,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
+
   return {
     key: storagePath,
     url: downloadUrl,
+    shortCode,
     provider: 'firebase',
     createdAt: now
   };
@@ -133,13 +162,14 @@ async function listImages() {
       createdAt: timestampToIso(data.createdAt),
       projectId: data.projectId || null,
       publicUrl: data.publicUrl || null,
+      shortCode: data.shortCode || null,
       storageKey: data.storagePath || null,
       storageMode: 'firebase'
     };
   }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
 
-async function deleteImage(id, storagePath) {
+async function deleteImage(id, storagePath, shortCode = null) {
   const user = auth.currentUser;
   if (!user) return;
   if (storagePath) {
@@ -148,6 +178,7 @@ async function deleteImage(id, storagePath) {
     }
   }
   await deleteDoc(doc(db, 'users', user.uid, 'images', id));
+  if (shortCode) await deleteDoc(doc(db, 'shortLinks', shortCode)).catch(() => {});
 }
 
 async function updateImageProject(id, projectId) {
