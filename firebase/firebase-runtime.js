@@ -41,20 +41,11 @@ function timestampToIso(value) {
   return new Date(value).toISOString();
 }
 
-function randomShortCode(length = 7) {
+function randomShortCode(length = 8) {
   const alphabet = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
   const bytes = new Uint8Array(length);
   crypto.getRandomValues(bytes);
   return Array.from(bytes, byte => alphabet[byte % alphabet.length]).join('');
-}
-
-async function reserveShortCode() {
-  for (let attempt = 0; attempt < 8; attempt += 1) {
-    const shortCode = randomShortCode();
-    const snapshot = await getDoc(doc(db, 'shortLinks', shortCode));
-    if (!snapshot.exists()) return shortCode;
-  }
-  throw new Error('SHORT_CODE_GENERATION_FAILED');
 }
 
 async function ensureUserDocument(user) {
@@ -105,7 +96,7 @@ async function uploadImage({ blob, filename, id, metadata = {} }) {
   });
 
   const downloadUrl = await getDownloadURL(result.ref);
-  const shortCode = await reserveShortCode();
+  const shortCode = randomShortCode();
   const now = metadata.createdAt || new Date().toISOString();
 
   await setDoc(doc(db, 'users', user.uid, 'images', id), {
@@ -125,15 +116,21 @@ async function uploadImage({ blob, filename, id, metadata = {} }) {
     updatedAt: serverTimestamp()
   }, { merge: true });
 
-  await setDoc(doc(db, 'shortLinks', shortCode), {
-    shortCode,
-    ownerUid: user.uid,
-    imageId: id,
-    storagePath,
-    targetUrl: downloadUrl,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp()
-  });
+  // Short-link mapping is optional until the updated Firestore Rules + Hosting function are deployed.
+  // A failure here must never make the actual image upload fail.
+  try {
+    await setDoc(doc(db, 'shortLinks', shortCode), {
+      shortCode,
+      ownerUid: user.uid,
+      imageId: id,
+      storagePath,
+      targetUrl: downloadUrl,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.info('Short-link mapping is not active yet.', error?.code || error);
+  }
 
   return {
     key: storagePath,
