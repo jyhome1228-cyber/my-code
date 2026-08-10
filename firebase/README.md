@@ -1,13 +1,16 @@
 # my:code Firebase architecture
 
-이 폴더는 my:code를 Firebase 기반 운영 서비스로 전환하기 위한 준비 구조입니다.
+현재 1차 검증 단계에서는 **Firebase Storage를 사용하지 않습니다.** Firebase는 로그인과 사용자/플랜 정보에만 사용하고, 이미지는 브라우저 IndexedDB에 저장합니다.
 
-## Services
+## 현재 사용하는 Firebase 서비스
 
-- Firebase Authentication: Google / 이메일 간편가입
-- Cloud Firestore: 사용자, MY CODE 이미지 메타데이터, 프로젝트
-- Cloud Storage for Firebase: 실제 이미지 파일
-- Firebase Hosting + trusted server route: 짧은 이미지 URL 연결 예정
+- Firebase Authentication: Google 로그인
+- Cloud Firestore: 사용자 계정 / 플랜 정보
+
+## 현재 사용하지 않는 서비스
+
+- Cloud Storage for Firebase: 보류
+- Firebase Hosting 기반 짧은 이미지 URL: 보류
 
 ## Firestore structure
 
@@ -15,66 +18,22 @@
 users/{uid}
   email
   displayName
+  photoURL
   plan            // free | basic | pro
-  createdAt
-
-users/{uid}/images/{imageId}
-  originalName
-  displayName
-  storagePath
-  shortCode
-  publicUrl
-  format
-  width
-  height
-  originalSize
-  optimizedSize
-  projectId
+  storageMode     // browser
   createdAt
   updatedAt
-
-users/{uid}/projects/{projectId}
-  name
-  createdAt
-  updatedAt
-
-shortLinks/{shortCode}
-  ownerUid
-  imageId
-  storagePath
-  createdAt
 ```
 
-`shortLinks`는 브라우저에서 직접 수정하지 않고, 신뢰할 수 있는 서버 코드에서만 생성/조회하는 전제로 설계합니다.
+현재 이미지와 프로젝트는 브라우저 IndexedDB / localStorage에 보관합니다. 사용자가 로그인하더라도 이미지 파일 자체는 Firebase에 업로드되지 않습니다.
 
-## Storage path
+## Security
 
-```text
-users/{uid}/images/{imageId}/original.ext
-users/{uid}/images/{imageId}/optimized.webp
-```
-
-한 이미지의 표시 이름이 바뀌어도 실제 저장 키는 `imageId`를 유지해서 기존 링크가 깨지지 않도록 합니다.
-
-## Short URL target
-
-최종적으로 사용자에게 보이는 코드는 Firebase 원본 다운로드 URL을 그대로 노출하지 않고 다음처럼 짧게 제공하는 방향입니다.
-
-```text
-https://img.<service-domain>/<shortCode>.webp
-```
-
-예:
-
-```html
-<img src="https://img.example.com/a8F3k.webp" alt="">
-```
-
-짧은 주소는 Hosting/서버 라우트에서 `shortCode`를 실제 Storage 파일과 연결합니다.
+`firestore.rules`는 로그인한 사용자 본인의 `users/{uid}` 데이터만 접근할 수 있도록 설계되어 있습니다. 향후 이미지/프로젝트 클라우드 동기화를 추가할 수 있도록 하위 컬렉션 규칙도 준비되어 있습니다.
 
 ## Plans
 
-현재 사이트에는 결제 기능을 연결하지 않고 전부 `오픈 예정`으로 표시합니다.
+사이트에는 현재 결제 없이 다음 가격만 `오픈 예정`으로 표시합니다.
 
 ```text
 FREE   0원
@@ -82,17 +41,26 @@ BASIC  990원 / 월
 PRO    3,990원 / 월
 ```
 
-실제 저장 용량, 월 업로드량, 이미지 요청량 제한은 운영 테스트 후 확정합니다. 지금 단계에서는 가격만 노출하고 제한 수치를 약속하지 않습니다.
+저장 용량과 업로드 한도는 실제 운영 테스트 후 확정합니다.
 
-## Next connection steps
+## 향후 Storage 연결 시
 
-1. Firebase 프로젝트 생성
-2. Web App 등록 후 `firebase-config.example.js`의 값 확보
-3. Authentication에서 Google / 이메일 로그인 활성화
-4. Firestore 생성 및 `firestore.rules` 적용
-5. Storage 생성 및 `storage.rules` 적용
-6. 프론트의 IndexedDB 저장을 Firestore + Storage 동기화 방식으로 전환
-7. 짧은 URL 라우트 구현
-8. 사용자별 plan / usage 집계 연결
+```text
+users/{uid}/images/{imageId}/optimized.webp
+```
 
-현재 GitHub Pages 미리보기는 서버가 연결되지 않아 로컬 IndexedDB를 사용하며, Base64 코드는 외부 코드로 내보내지 않습니다.
+같은 식으로 실제 파일을 저장하고, 사용자에게는 Firebase의 긴 다운로드 URL을 그대로 보여주지 않고 다음처럼 짧은 주소를 제공하는 방향입니다.
+
+```text
+https://img.<service-domain>/<shortCode>.webp
+```
+
+## 다음 단계
+
+1. Firebase Authentication에서 Google 로그인 활성화
+2. GitHub Pages 도메인을 Authorized domains에 추가
+3. Firestore Rules 적용
+4. Google 로그인 / FREE 플랜 계정 생성 테스트
+5. 이미지 변환 / MY CODE / 프로젝트 UX 테스트
+6. 유료화 반응 확인
+7. 필요 시 Storage 및 짧은 URL 연결
