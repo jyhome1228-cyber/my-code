@@ -1,4 +1,9 @@
 // my:code landing — upload-first blue-only refinement
+const headlineScaleStyles = document.createElement('link');
+headlineScaleStyles.rel = 'stylesheet';
+headlineScaleStyles.href = './headline-v6.css';
+document.head.appendChild(headlineScaleStyles);
+
 (() => {
   const fileInput = document.getElementById('fileInput');
   const home = document.getElementById('view-upload');
