@@ -1,150 +1,238 @@
-// my:code landing — upload-first blue-only refinement
+// my:code v8 — simple image hosting UX
 const headlineScaleStyles = document.createElement('link');
 headlineScaleStyles.rel = 'stylesheet';
 headlineScaleStyles.href = './headline-v6.css';
 document.head.appendChild(headlineScaleStyles);
 
 (() => {
-  const fileInput = document.getElementById('fileInput');
-  const home = document.getElementById('view-upload');
-  const uploadButton = document.getElementById('v4UploadButton');
+  const shortCodeById = new Map();
 
-  uploadButton?.addEventListener('click', () => fileInput?.click());
+  const originalUploadToApiV8 = uploadToApi;
+  uploadToApi = async function(blob, filename, id) {
+    const result = await originalUploadToApiV8(blob, filename, id);
+    if (result?.shortCode) shortCodeById.set(id, result.shortCode);
+    return result;
+  };
 
-  // HERO: the upload experience is the main product, copy stays concise.
-  const heroEyebrow = document.querySelector('.v4-eyebrow');
+  function shortBase() {
+    const base = window.MYCODE_SHORT_BASE || window.MyCodeFirebase?.shortBase || '';
+    return String(base).replace(/\/$/, '');
+  }
+
+  function getShortCode(item) {
+    return item?.shortCode || shortCodeById.get(item?.id) || null;
+  }
+
+  function getImageAddress(item) {
+    const code = getShortCode(item);
+    const base = shortBase();
+    if (base && code) return `${base}/i/${code}`;
+    return item?.publicUrl || null;
+  }
+
+  function compactAddress(address) {
+    if (!address) return '로그인 후 업로드하면 이미지 주소가 생성됩니다.';
+    if (address.length <= 74) return address;
+    try {
+      const url = new URL(address);
+      const tail = decodeURIComponent(url.pathname).split('/').filter(Boolean).pop() || 'image';
+      return `${url.host}/…/${tail}`;
+    } catch (_) {
+      return `${address.slice(0, 42)}…${address.slice(-20)}`;
+    }
+  }
+
+  async function writeClipboard(value, successMessage) {
+    try {
+      await navigator.clipboard.writeText(value);
+      showToast(successMessage);
+    } catch (error) {
+      console.error(error);
+      showToast('복사하지 못했습니다.');
+    }
+  }
+
+  const eyebrow = document.querySelector('.v4-eyebrow');
   const heroTitle = document.querySelector('.v4-hero-copy h1');
   const heroCopy = document.querySelector('.v4-hero-copy p');
+  const trust = document.querySelector('.v4-trust-row');
   const dropTitle = document.querySelector('.v4-dropzone strong');
   const dropCopy = document.querySelector('.v4-dropzone p');
   const toolFooter = document.querySelector('.v4-tool-footer');
 
-  if (heroEyebrow) heroEyebrow.innerHTML = '<span class="v4-dot"></span> IMAGE TO CODE · MY CODE';
-  if (heroTitle) heroTitle.innerHTML = '이미지를 올리고,<br><em>바로 코드로.</em>';
-  if (heroCopy) heroCopy.innerHTML = '드래그 한 번으로 이미지 최적화부터 URL·HTML·CSS 코드 생성,<br>MY CODE 저장까지 한 번에 처리하세요.';
+  if (eyebrow) eyebrow.innerHTML = '<span class="v4-dot"></span> SIMPLE IMAGE HOSTING';
+  if (heroTitle) heroTitle.innerHTML = '이미지를 올리면,<br><em>주소가 바로.</em>';
+  if (heroCopy) heroCopy.innerHTML = '이미지를 업로드하면 웹에서 바로 사용할 수 있는 이미지 주소를 만들고,<br>필요하면 &lt;img src="..."&gt; 한 줄도 바로 복사할 수 있어요.';
+  if (trust) trust.innerHTML = '<span>로그인 시 Firebase 저장</span><i></i><span>MY CODE 자동 보관</span><i></i><span>WebP 자동 최적화</span>';
   if (dropTitle) dropTitle.textContent = '이미지를 여기에 올려주세요';
   if (dropCopy) dropCopy.textContent = '드래그하거나 클릭해서 파일 선택';
-  if (toolFooter) toolFooter.innerHTML = '<span>WebP 자동 최적화</span><span>로그인 시 Firebase 저장</span><span>MY CODE 자동 기록</span>';
+  if (toolFooter) toolFooter.innerHTML = '<span>이미지 주소 생성</span><span>한 줄 HTML 복사</span><span>MY CODE 자동 저장</span>';
 
-  // Summary cards: concise functional hierarchy.
-  const stats = [...document.querySelectorAll('.v4-stat')];
-  const statContent = [
-    ['3 TYPES', 'URL · HTML · CSS', '필요한 코드 형식을 바로 선택'],
-    ['AUTO', 'MY CODE', '업로드한 이미지를 자동으로 기록'],
-    ['WEBP', '가볍게', '웹 사용에 맞게 이미지 최적화'],
-    ['SEARCH', '다시 찾기', '파일명과 프로젝트로 빠르게 검색']
-  ];
-  stats.forEach((card, index) => {
-    const data = statContent[index];
-    if (!data) return;
-    const label = card.querySelector('span');
-    const title = card.querySelector('strong');
-    const copy = card.querySelector('p');
-    if (label) label.textContent = data[0];
-    if (title) title.textContent = data[1];
-    if (copy) copy.textContent = data[2];
-  });
+  const resultHeading = document.querySelector('.result-heading h2');
+  if (resultHeading) resultHeading.textContent = '이미지 주소가 준비됐어요.';
+  const resultEyebrow = document.querySelector('.result-heading .eyebrow');
+  if (resultEyebrow) resultEyebrow.textContent = 'READY TO COPY';
 
-  // Why section.
-  const whyHead = document.querySelector('.v4-why .v4-section-head');
-  if (whyHead) {
-    const kicker = whyHead.querySelector('span');
-    const title = whyHead.querySelector('h2');
-    const copy = whyHead.querySelector('p');
-    if (kicker) kicker.textContent = 'WHY MY:CODE';
-    if (title) title.innerHTML = '이미지 작업의 반복을<br>한 번으로 줄이세요.';
-    if (copy) copy.innerHTML = '업로드한 위치를 다시 찾고, 링크를 만들고, 코드를 복사하는 일을 반복하지 않도록<br>이미지와 코드를 하나의 작업 흐름으로 묶었습니다.';
+  const pricing = document.getElementById('pricingSection');
+  if (pricing && !document.querySelector('.host-simple-info')) {
+    const section = document.createElement('section');
+    section.className = 'host-simple-info';
+    section.innerHTML = `
+      <div class="host-info-head">
+        <span>HOW IT WORKS</span>
+        <h2>올리고, 주소 복사. 그게 전부예요.</h2>
+        <p>복잡한 코드 생성 도구가 아니라 이미지 호스팅을 더 편하게 쓰기 위한 서비스입니다. 업로드한 이미지는 MY CODE에 자동으로 남아 나중에도 다시 주소를 복사할 수 있어요.</p>
+      </div>
+      <div class="host-steps">
+        <article class="host-step"><b>01 · UPLOAD</b><h3>이미지를 올리세요</h3><p>JPG, PNG, WEBP 등 이미지를 드래그하거나 클릭해 업로드합니다. 필요한 이미지는 WebP로 자동 최적화합니다.</p></article>
+        <article class="host-step"><b>02 · ADDRESS</b><h3>주소가 생성됩니다</h3><p>로그인 상태에서는 Firebase Storage에 저장하고 외부 웹페이지에서 사용할 수 있는 이미지 주소를 생성합니다.</p></article>
+        <article class="host-step"><b>03 · COPY</b><h3>복사해서 붙여넣으세요</h3><p>이미지 주소를 그대로 복사하거나 &lt;img src="이미지주소" alt=""&gt; 한 줄을 복사해 바로 사용합니다.</p></article>
+      </div>
+      <div class="host-mycode-callout">
+        <div><h3>한 번 올린 이미지는 MY CODE에.</h3><p>파일명으로 다시 찾고, 이미지 주소나 HTML 한 줄을 언제든 다시 복사하세요.</p></div>
+        <button type="button" data-host-mycode>MY CODE 보기 →</button>
+      </div>
+    `;
+    pricing.parentNode.insertBefore(section, pricing);
+    section.querySelector('[data-host-mycode]')?.addEventListener('click', () => switchView('my-code'));
   }
 
-  const problemTitle = document.querySelector('.v4-card-problem h3');
-  const problemList = document.querySelector('.v4-card-problem ul');
-  if (problemTitle) problemTitle.innerHTML = '이미지 하나 쓰는데<br>과정이 너무 많았다면.';
-  if (problemList) problemList.innerHTML = '<li>이미지 호스팅 위치를 다시 찾고</li><li>주소를 복사해 코드를 만들고</li><li>파일과 링크를 따로 관리하고</li><li>나중에 다시 찾느라 시간을 쓰고</li>';
-
-  const solutionTitle = document.querySelector('.v4-card-solution h3');
-  if (solutionTitle) solutionTitle.innerHTML = 'my:code에서는<br><em>올리는 순간 정리가 시작됩니다.</em>';
-
-  const useTitle = document.querySelector('.v4-card-use h3');
-  if (useTitle) useTitle.textContent = '웹 작업 어디서든.';
-
-  // Flow section.
-  const flowHead = document.querySelector('.v4-flow > .v4-section-head');
-  if (flowHead) {
-    const title = flowHead.querySelector('h2');
-    const copy = flowHead.querySelector('p');
-    if (title) title.innerHTML = '업로드부터 재사용까지,<br>네 단계면 충분합니다.';
-    if (copy) copy.innerHTML = '복잡한 설정 없이 이미지부터 올리세요.<br>정리는 작업이 끝난 뒤 해도 됩니다.';
-  }
-
-  const flowCards = [...document.querySelectorAll('.v4-flow-grid article')];
-  const flows = [
-    ['업로드', '이미지를 드래그하거나 클릭해 한 장 또는 여러 장을 올립니다.'],
-    ['자동 최적화', '웹 사용에 맞는 WebP 형식으로 가볍게 변환합니다.'],
-    ['코드 생성', 'URL·HTML·CSS 중 필요한 형태를 바로 복사합니다.'],
-    ['MY CODE', '이미지와 코드를 기록하고 프로젝트별로 다시 정리합니다.']
-  ];
-  flowCards.forEach((card, index) => {
-    const data = flows[index];
-    if (!data) return;
-    const title = card.querySelector('h3');
-    const copy = card.querySelector('p');
-    if (title) title.textContent = data[0];
-    if (copy) copy.textContent = data[1];
-  });
-
-  // Organize section.
-  const organizeTitle = document.querySelector('.v4-organize-copy h2');
-  const organizeCopy = document.querySelector('.v4-organize-copy p');
-  if (organizeTitle) organizeTitle.innerHTML = '먼저 만들고,<br><em>정리는 나중에.</em>';
-  if (organizeCopy) organizeCopy.innerHTML = '폴더를 만들고 시작할 필요가 없습니다. MY CODE가 먼저 자동으로 쌓이고,<br>필요한 이미지만 선택해 프로젝트로 묶으면 됩니다.';
-
-  // Benefits section.
-  const benefitHead = document.querySelector('.v4-benefits .v4-section-head');
-  if (benefitHead) {
-    const title = benefitHead.querySelector('h2');
-    const copy = benefitHead.querySelector('p');
-    if (title) title.innerHTML = '이미지 코드를 자주 쓰는<br>실무자를 위해.';
-    if (copy) copy.innerHTML = '아임웹, 카페24, GitHub Pages, HTML 퍼블리싱처럼<br>이미지 주소와 코드를 반복해서 다루는 작업에 집중했습니다.';
-  }
-
-  const benefitCards = [...document.querySelectorAll('.v4-benefit-grid article')];
-  const benefits = [
-    ['이미지와 코드를 함께', '파일과 URL을 따로 보관하지 않고 하나의 MY CODE 항목으로 관리합니다.'],
-    ['다시 만들 필요 없이', '이전에 만든 URL·HTML·CSS 코드를 찾아 바로 재사용할 수 있습니다.'],
-    ['작업 흐름을 끊지 않고', '프로젝트 생성보다 업로드를 먼저. 정리는 필요해질 때 시작합니다.'],
-    ['필요한 만큼만', 'FREE로 시작하고 BASIC·PRO는 실제 사용량에 맞춰 선택할 수 있게 준비합니다.']
-  ];
-  benefitCards.forEach((card, index) => {
-    const data = benefits[index];
-    if (!data) return;
-    const title = card.querySelector('h3');
-    const copy = card.querySelector('p');
-    if (title) title.textContent = data[0];
-    if (copy) copy.textContent = data[1];
-  });
-
-  // Pricing copy remains upcoming, but make the proposition clearer.
-  const pricingHead = document.querySelector('.v4-pricing .v4-section-head');
-  if (pricingHead) {
-    const title = pricingHead.querySelector('h2');
-    const copy = pricingHead.querySelector('p');
-    if (title) title.innerHTML = '무료로 시작하고,<br>필요할 때 확장하세요.';
-    if (copy) copy.innerHTML = 'FREE · BASIC 990원 · PRO 3,990원<br>현재 모든 유료 요금제는 오픈 예정입니다.';
-  }
+  const pricingTitle = document.querySelector('.v4-pricing .v4-section-head h2');
+  const pricingCopy = document.querySelector('.v4-pricing .v4-section-head p');
+  if (pricingTitle) pricingTitle.innerHTML = '이미지 호스팅,<br>가볍게 시작하세요.';
+  if (pricingCopy) pricingCopy.innerHTML = 'FREE로 먼저 사용하고 필요할 때 확장하는 구조입니다.<br>BASIC 990원 · PRO 3,990원은 오픈 예정입니다.';
 
   const finalTitle = document.querySelector('.v4-final-cta h2');
   const finalCopy = document.querySelector('.v4-final-cta p');
-  if (finalTitle) finalTitle.innerHTML = '이미지 한 장부터<br>바로 시작하세요.';
-  if (finalCopy) finalCopy.textContent = '올리고, 코드로 바꾸고, MY CODE에서 다시 찾으세요.';
+  if (finalTitle) finalTitle.innerHTML = '이미지 올리고,<br>주소만 복사하세요.';
+  if (finalCopy) finalCopy.textContent = '나머지는 my:code가 정리해둘게요.';
 
-  // No decorative reveal animation: keep interaction immediate and calm.
-  document.querySelectorAll('.v4-reveal').forEach(target => target.classList.remove('v4-reveal','is-visible'));
+  buildCodes = async function(item) {
+    const address = getImageAddress(item);
+    if (address) {
+      return {
+        url: address,
+        html: `<img src="${address}" alt="">`,
+        css: `background-image: url("${address}");`
+      };
+    }
 
-  // Return to the uploader when the upload view is selected.
-  document.querySelectorAll('[data-view="upload"]').forEach(button => {
-    button.addEventListener('click', () => {
-      if (!home) return;
-      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    const blob = await getBlob(item.id);
+    if (!blob) throw new Error('이미지 데이터를 찾을 수 없습니다.');
+    const dataUrl = await mycodeBlobToDataURL(blob);
+    return {
+      url: dataUrl,
+      html: `<img src="${dataUrl}" alt="">`,
+      css: `background-image: url("${dataUrl}");`
+    };
+  };
+
+  copyCode = async function(id, type) {
+    const item = state.items.find(entry => entry.id === id);
+    if (!item) return;
+    const codes = await buildCodes(item);
+    const actualType = type === 'html' ? 'html' : 'url';
+    await writeClipboard(codes[actualType], actualType === 'html' ? 'HTML 한 줄을 복사했어요.' : '이미지 주소를 복사했어요.');
+  };
+
+  createResultCard = async function(item) {
+    if (!item.shortCode && shortCodeById.has(item.id)) {
+      item.shortCode = shortCodeById.get(item.id);
+      saveItems();
+    }
+
+    const previewUrl = await getPreviewUrl(item.id);
+    const address = getImageAddress(item);
+    const html = address ? `<img src="${address}" alt="">` : null;
+    const saved = savingsPercent(item);
+    const element = document.createElement('article');
+    element.className = 'host-result-card';
+    element.innerHTML = `
+      <div class="host-result-preview"><img src="${previewUrl}" alt=""></div>
+      <div class="host-result-main">
+        <div class="host-result-meta"><strong>${escapeHTML(item.name)}</strong><span>${formatBytes(item.size)}${saved > 0 ? ` · ${saved}% 절약` : ''}</span></div>
+        <div class="host-field">
+          <span class="host-field-label">이미지 주소</span>
+          <span class="host-field-value" title="${escapeHTML(address || '')}">${escapeHTML(compactAddress(address))}</span>
+          <button class="host-copy" type="button" data-copy-address ${address ? '' : 'disabled'}>주소 복사</button>
+        </div>
+        <div class="host-field">
+          <span class="host-field-label">HTML 한 줄</span>
+          <span class="host-field-value">${html ? escapeHTML(`<img src="${compactAddress(address)}" alt="">`) : '로그인 후 주소가 생성되면 사용할 수 있어요.'}</span>
+          <button class="host-copy secondary" type="button" data-copy-html ${html ? '' : 'disabled'}>&lt;img&gt; 복사</button>
+        </div>
+        <div class="host-note">${address ? '외부 웹페이지에서 바로 사용할 수 있는 주소예요. MY CODE에도 자동 저장됩니다.' : '현재 브라우저에는 저장됐어요. 외부 이미지 주소를 만들려면 Google 로그인 후 다시 업로드해주세요.'}</div>
+      </div>
+    `;
+
+    element.querySelector('[data-copy-address]')?.addEventListener('click', event => {
+      event.stopPropagation();
+      if (address) writeClipboard(address, '이미지 주소를 복사했어요.');
     });
+    element.querySelector('[data-copy-html]')?.addEventListener('click', event => {
+      event.stopPropagation();
+      if (html) writeClipboard(html, 'HTML 한 줄을 복사했어요.');
+    });
+    element.addEventListener('click', () => openDetail(item.id));
+    return element;
+  };
+
+  createCodeRow = async function(item) {
+    const previewUrl = await getPreviewUrl(item.id);
+    const address = getImageAddress(item);
+    const row = document.createElement('article');
+    row.className = 'host-code-row';
+    row.dataset.id = item.id;
+    row.innerHTML = `
+      <input class="code-check" type="checkbox" aria-label="${escapeHTML(item.name)} 선택" ${state.selected.has(item.id) ? 'checked' : ''}>
+      <img class="code-thumb" src="${previewUrl}" alt="">
+      <div class="host-code-main"><span class="host-code-name">${escapeHTML(item.name)}</span><span class="host-code-url">${escapeHTML(compactAddress(address))}</span></div>
+      <div class="host-code-actions"><button type="button" data-address ${address ? '' : 'disabled'}>주소 복사</button><button type="button" data-html ${address ? '' : 'disabled'}>&lt;img&gt; 복사</button></div>
+    `;
+    const checkbox = row.querySelector('.code-check');
+    checkbox.addEventListener('click', event => event.stopPropagation());
+    checkbox.addEventListener('change', () => {
+      checkbox.checked ? state.selected.add(item.id) : state.selected.delete(item.id);
+      updateSelectionActions();
+    });
+    row.querySelector('[data-address]')?.addEventListener('click', event => { event.stopPropagation(); if (address) writeClipboard(address, '이미지 주소를 복사했어요.'); });
+    row.querySelector('[data-html]')?.addEventListener('click', event => { event.stopPropagation(); if (address) writeClipboard(`<img src="${address}" alt="">`, 'HTML 한 줄을 복사했어요.'); });
+    row.addEventListener('click', () => openDetail(item.id));
+    return row;
+  };
+
+  openDetail = async function(id) {
+    const item = state.items.find(entry => entry.id === id);
+    if (!item) return;
+    state.currentDetailId = id;
+    const project = state.projects.find(entry => entry.id === item.projectId);
+    const previewUrl = await getPreviewUrl(id);
+    const address = getImageAddress(item);
+    const html = address ? `<img src="${address}" alt="">` : '';
+
+    el.detailPreview.src = previewUrl;
+    el.detailDate.textContent = 'MY CODE';
+    el.detailName.textContent = item.name;
+    el.detailMeta.innerHTML = [
+      item.width && item.height ? `${item.width} × ${item.height}` : null,
+      formatBytes(item.size),
+      project ? project.name : '미분류',
+      address ? '이미지 주소 사용 가능' : '브라우저 보관'
+    ].filter(Boolean).map(value => `<span>${escapeHTML(String(value))}</span>`).join('');
+
+    el.detailCodes.innerHTML = `
+      <div class="host-detail-fields">
+        <div class="host-field"><span class="host-field-label">이미지 주소</span><span class="host-field-value" title="${escapeHTML(address || '')}">${escapeHTML(compactAddress(address))}</span><button class="host-copy" type="button" data-detail-address ${address ? '' : 'disabled'}>주소 복사</button></div>
+        <div class="host-field"><span class="host-field-label">HTML 한 줄</span><span class="host-field-value">${html ? escapeHTML(`<img src="${compactAddress(address)}" alt="">`) : '로그인 후 이미지 주소를 만들 수 있어요.'}</span><button class="host-copy secondary" type="button" data-detail-html ${address ? '' : 'disabled'}>&lt;img&gt; 복사</button></div>
+        <p class="host-detail-help">이미지 주소를 그대로 사용하거나 HTML에서 필요한 경우 한 줄 태그를 복사하면 됩니다.</p>
+      </div>
+    `;
+    el.detailCodes.querySelector('[data-detail-address]')?.addEventListener('click', () => address && writeClipboard(address, '이미지 주소를 복사했어요.'));
+    el.detailCodes.querySelector('[data-detail-html]')?.addEventListener('click', () => address && writeClipboard(html, 'HTML 한 줄을 복사했어요.'));
+    el.codeModal.showModal();
+  };
+
+  document.querySelectorAll('[data-view="upload"]').forEach(button => {
+    button.addEventListener('click', () => requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: 'smooth' })));
   });
 })();
