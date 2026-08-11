@@ -1,15 +1,15 @@
 const hostFinalStyles = document.createElement('link');
 hostFinalStyles.rel = 'stylesheet';
-hostFinalStyles.href = './host-v9.css?v=12';
+hostFinalStyles.href = './host-v9.css?v=13';
 document.head.appendChild(hostFinalStyles);
 
 let firebaseLoadError = null;
 const firebaseReadyPromise = new Promise(resolve => {
   const script = document.createElement('script');
-  script.src = './firebase/firebase-config.js';
+  script.src = './firebase/firebase-config.js?v=13';
   script.onload = async () => {
     try {
-      await import('./firebase/firebase-runtime.js');
+      await import('./firebase/firebase-runtime.js?v=13');
       resolve(window.MyCodeFirebase || null);
     } catch (error) {
       firebaseLoadError = error;
