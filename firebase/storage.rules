@@ -2,23 +2,15 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    function signedIn() {
-      return request.auth != null;
-    }
-
-    function isOwner(userId) {
-      return signedIn() && request.auth.uid == userId;
-    }
-
-    match /users/{userId}/images/{allPaths=**} {
-      allow read: if isOwner(userId);
-
-      allow create, update: if isOwner(userId)
-                            && request.resource != null
-                            && request.resource.size < 20 * 1024 * 1024
-                            && request.resource.contentType.matches('image/.*');
-
-      allow delete: if isOwner(userId);
+    // Public image-hosting area used by my:code.
+    // Anyone can upload an image, but only image files under 10 MB are accepted.
+    // Existing files cannot be overwritten or deleted from the public client.
+    match /public/{allPaths=**} {
+      allow read: if true;
+      allow create: if request.resource != null
+                    && request.resource.size < 10 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*');
+      allow update, delete: if false;
     }
   }
 }
