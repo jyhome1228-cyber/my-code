@@ -4,123 +4,46 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0b3fc7" />
-  <meta name="description" content="이미지를 올리고 바로 주소를 복사하는 간단한 이미지 호스팅 서비스 my:code" />
-  <title>my:code — 간단한 이미지 호스팅</title>
-  <link rel="stylesheet" href="./styles.css" />
-  <link rel="stylesheet" href="./friendly.css" />
-  <link rel="stylesheet" href="./noir.css" />
-  <link rel="stylesheet" href="./experience.css" />
-  <link rel="stylesheet" href="./host-v9.css?v=13" />
-  <link rel="stylesheet" href="./host-v11.css?v=11" />
+  <meta name="description" content="이미지를 올리고 바로 이미지 주소와 img 태그를 복사하는 my:code" />
+  <title>my:code — 이미지 주소 바로 만들기</title>
+  <link rel="stylesheet" href="./simple-host.css?v=1" />
 </head>
 <body>
-  <header class="site-header host-header">
-    <button class="site-logo is-active" data-view="upload" type="button" aria-label="my:code 홈">my<span>:</span>code</button>
-    <div class="host-header-actions">
-      <span class="host-beta">BETA</span>
-      <button class="menu-button" id="menuButton" type="button" aria-label="메뉴 열기" aria-expanded="false"><span></span><span></span></button>
-    </div>
+  <header class="topbar">
+    <div class="logo">my<span>:</span>code</div>
+    <span class="badge">BETA</span>
   </header>
 
-  <div class="menu-overlay" id="menuOverlay"></div>
-  <aside class="menu-drawer" id="menuDrawer" aria-label="메뉴">
-    <div class="drawer-head"><span class="drawer-logo">my<span>:</span>code</span><button class="drawer-close" id="menuCloseButton" type="button" aria-label="메뉴 닫기">×</button></div>
-    <nav class="drawer-nav">
-      <button class="drawer-link is-active" data-view="upload" type="button"><span>01</span><strong>UPLOAD</strong></button>
-      <button class="drawer-link" data-view="my-code" type="button"><span>02</span><strong>MY CODE</strong><em id="myCodeCount">0</em></button>
-      <button class="drawer-link" data-view="projects" type="button"><span>03</span><strong>PROJECTS</strong></button>
-      <button class="drawer-link" id="pricingMenuButton" type="button"><span>04</span><strong>PRICING</strong></button>
-    </nav>
-    <div class="drawer-bottom">
-      <div class="drawer-usage"><div><span>STORAGE</span><strong id="usageText">0 MB</strong></div><div class="usage-track"><span id="usageBar"></span></div></div>
-      <button class="drawer-account" id="accountButton" type="button"><span class="avatar">M</span><span class="account-copy"><strong id="accountName">게스트</strong><small id="accountSub">로그인 없이 바로 사용</small></span><span>→</span></button>
-      <button class="drawer-signup" id="signupTopBtn" type="button">계정 연결</button>
+  <main class="page">
+    <section class="hero">
+      <p class="kicker">SIMPLE IMAGE HOSTING</p>
+      <h1>이미지를 올리면,<br><span>주소가 바로.</span></h1>
+      <p>이미지를 올리고 주소를 복사하세요.<br>필요하면 <code>&lt;img src="..."&gt;</code> 한 줄도 바로 복사할 수 있어요.</p>
+    </section>
+
+    <section class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="이미지 업로드">
+      <input id="fileInput" type="file" accept="image/*" multiple hidden />
+      <div class="upload-icon">＋</div>
+      <strong>이미지를 여기에 올려주세요</strong>
+      <p>드래그하거나 클릭해서 파일 선택</p>
+      <small>JPG · PNG · WEBP · GIF · SVG · 여러 장 가능</small>
+    </section>
+
+    <div class="meta">
+      <span>로그인 없이 사용</span>
+      <span>Firebase Storage 저장</span>
+      <span>주소 즉시 복사</span>
     </div>
-  </aside>
 
-  <main class="main host-main">
-    <section class="view is-visible host-home" id="view-upload" data-view-panel="upload">
-      <div class="host-shell">
-        <section class="host-hero">
-          <div class="host-hero-copy">
-            <p class="host-kicker">SIMPLE IMAGE HOSTING</p>
-            <h1>이미지를 올리면,<br><span>주소가 바로.</span></h1>
-            <p class="host-lead">이미지를 올리고 주소를 복사하세요.<br>필요하면 <code>&lt;img src="..."&gt;</code> 한 줄도 바로 복사할 수 있어요.</p>
-          </div>
+    <section class="results" id="results" aria-live="polite"></section>
 
-          <div class="dropzone main-dropzone host-dropzone" id="dropzone" tabindex="0" role="button" aria-label="이미지 업로드">
-            <input id="fileInput" type="file" accept="image/*" multiple hidden />
-            <div class="host-upload-icon">＋</div>
-            <strong>이미지를 여기에 올려주세요</strong>
-            <p>드래그하거나 클릭해서 파일 선택</p>
-            <small>JPG · PNG · WEBP · GIF · SVG · 여러 장 업로드 가능</small>
-          </div>
-          <div class="host-upload-meta"><span>로그인 없이 주소 생성</span><span>WebP 자동 최적화</span><span>MY CODE 자동 보관</span></div>
-        </section>
-
-        <section class="upload-results host-results" id="uploadResults" hidden>
-          <div class="section-title-row result-heading">
-            <div><p class="eyebrow">READY TO COPY</p><h2>이미지 주소가 준비됐어요.</h2></div>
-            <button class="text-button" id="goMyCodeBtn" type="button">MY CODE 보기 →</button>
-          </div>
-          <div class="result-list" id="resultList"></div>
-          <div class="saved-callout" hidden></div>
-        </section>
-
-        <section class="host-mycode-banner">
-          <div><p>MY CODE</p><h2>올린 이미지는<br>다시 찾을 수 있게.</h2><span>파일명으로 검색하고 주소나 img 태그를 언제든 다시 복사하세요.</span></div>
-          <button type="button" data-view="my-code">MY CODE 보기 →</button>
-        </section>
-
-        <section class="host-pricing" id="pricingSection">
-          <div class="host-section-head pricing-head-simple">
-            <p>PRICING · OPEN SOON</p>
-            <h2>무료로 시작하고,<br>필요할 때 확장하세요.</h2>
-            <span>현재 유료 요금제는 오픈 예정입니다.</span>
-          </div>
-          <div class="host-price-grid">
-            <article><div><b>FREE</b><em>오픈 예정</em></div><strong>0원</strong><p>가볍게 이미지 호스팅을 시작하는 기본 플랜</p><button disabled>오픈 예정</button></article>
-            <article class="featured"><div><b>BASIC</b><em>오픈 예정</em></div><strong>990원 <small>/ 월</small></strong><p>이미지를 자주 올리고 관리하는 개인 사용자를 위한 플랜</p><button disabled>오픈 예정</button></article>
-            <article><div><b>PRO</b><em>오픈 예정</em></div><strong>3,990원 <small>/ 월</small></strong><p>더 많은 이미지와 프로젝트를 관리하기 위한 확장 플랜</p><button disabled>오픈 예정</button></article>
-          </div>
-        </section>
-      </div>
-
-      <footer class="site-footer host-footer">
-        <div class="footer-top"><div class="footer-brand">my<span>:</span>code</div><p>Upload. Copy. Use.</p></div>
-        <div class="footer-rule"></div>
-        <div class="footer-bottom">
-          <div><strong>소스트 스테이블랩스</strong><span>SOST STABLE LABS</span></div>
-          <div class="footer-links"><a href="https://sostlabs.com/" target="_blank" rel="noreferrer">SOSTLABS.COM ↗</a><span>my:code service</span></div>
-          <div class="footer-copy">© 2026 SOST STABLE LABS. ALL RIGHTS RESERVED.</div>
-        </div>
-      </footer>
-    </section>
-
-    <section class="view inner-view" id="view-my-code" data-view-panel="my-code">
-      <div class="inner-head"><div><p class="mono-label">MY CODE</p><h1>내 이미지</h1><p class="lead">한 번 올린 이미지를 다시 찾고 주소를 바로 복사하세요.</p></div><button class="outline-button" id="myCodeUploadBtn" type="button">＋ 이미지 올리기</button></div>
-      <div class="toolbar"><label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="파일명 또는 프로젝트 검색" autocomplete="off" /></label><div class="toolbar-actions"><button class="outline-button selection-action" id="moveSelectedBtn" type="button" hidden>프로젝트에 담기</button><button class="outline-button selection-action" id="deleteSelectedBtn" type="button" hidden>삭제</button></div></div>
-      <div class="code-timeline" id="codeTimeline"></div>
-      <div class="empty-state" id="myCodeEmpty" hidden><div class="empty-symbol">＋</div><h3>아직 이미지가 없어요</h3><p>이미지를 하나 올리면 여기 자동으로 저장됩니다.</p><button class="primary-button" id="emptyUploadBtn" type="button">이미지 올리기</button></div>
-    </section>
-
-    <section class="view inner-view" id="view-projects" data-view-panel="projects">
-      <div class="inner-head"><div><p class="mono-label">PROJECTS</p><h1>프로젝트</h1><p class="lead">필요한 이미지만 프로젝트별로 묶어 정리하세요.</p></div><button class="primary-button" id="newProjectBtn" type="button">＋ 새 프로젝트</button></div>
-      <div class="project-grid" id="projectGrid"></div>
-      <div class="empty-state" id="projectEmpty" hidden><div class="empty-symbol">□</div><h3>아직 프로젝트가 없어요</h3><p>먼저 이미지를 올리고 나중에 정리해도 괜찮아요.</p><button class="outline-button" id="emptyNewProjectBtn" type="button">프로젝트 만들기</button></div>
-    </section>
+    <footer class="footer">
+      <div><strong>소스트 스테이블랩스</strong><br>SOST STABLE LABS</div>
+      <div>© 2026 SOST STABLE LABS</div>
+    </footer>
   </main>
 
-  <dialog class="modal" id="codeModal"><div class="modal-card wide-modal"><button class="modal-close" data-close-modal="codeModal" type="button" aria-label="닫기">×</button><div class="detail-layout"><div class="detail-preview-wrap"><img id="detailPreview" class="detail-preview" alt="이미지 미리보기" /></div><div class="detail-content"><p class="eyebrow" id="detailDate">MY CODE</p><h2 id="detailName">image.webp</h2><div class="detail-meta" id="detailMeta"></div><div class="code-blocks" id="detailCodes"></div><div class="detail-actions"><button class="outline-button" id="detailProjectBtn" type="button">프로젝트에 담기</button><button class="danger-text" id="detailDeleteBtn" type="button">삭제</button></div></div></div></div></dialog>
-  <dialog class="modal" id="projectModal"><form class="modal-card small-modal" id="projectForm" method="dialog"><button class="modal-close" data-close-modal="projectModal" type="button" aria-label="닫기">×</button><p class="eyebrow">NEW PROJECT</p><h2>새 프로젝트</h2><p class="modal-description">이름만 정하면 바로 만들어집니다.</p><label class="field-label" for="projectName">프로젝트 이름</label><input class="text-field" id="projectName" name="projectName" maxlength="40" placeholder="예: 리림 홈페이지" required /><div class="modal-actions"><button class="primary-button full-button" type="submit">만들기</button></div></form></dialog>
-  <dialog class="modal" id="assignModal"><div class="modal-card small-modal"><button class="modal-close" data-close-modal="assignModal" type="button" aria-label="닫기">×</button><p class="eyebrow">ADD TO PROJECT</p><h2>어디에 담을까요?</h2><div class="assign-list" id="assignList"></div><button class="outline-button full-button" id="createFromAssignBtn" type="button">＋ 새 프로젝트 만들기</button></div></dialog>
-  <dialog class="modal auth-modal" id="authModal"><div class="modal-card auth-card"><button class="modal-close" id="authCloseBtn" type="button" aria-label="닫기">×</button><div class="auth-brand">my<span>:</span>code</div><h2>계정 연결</h2><p class="auth-description">로그인 없이도 바로 사용할 수 있어요. Google 계정을 연결하면 MY CODE를 계정으로 이어서 관리할 수 있습니다.</p><button class="google-button" id="googleSignupBtn" type="button"><span class="google-g">G</span> Google 계정 연결하기</button><div class="auth-divider"><span>또는</span></div><form id="emailSignupForm" class="auth-form"><label for="signupEmail">이메일</label><input id="signupEmail" type="email" placeholder="name@email.com" autocomplete="email" required /><button class="primary-button full-button auth-submit" type="submit">이메일로 계속하기</button></form><p class="auth-footnote">계정 연결은 선택사항입니다.</p></div></dialog>
-
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="./app.js" defer></script>
-  <script src="./experience.js" defer></script>
-  <script src="./polish-v3.js" defer></script>
-  <script src="./host-v9.js" defer></script>
-  <script src="./host-v10.js" defer></script>
+  <script src="./firebase/firebase-config.js?v=20"></script>
+  <script type="module" src="./simple-host.js?v=20"></script>
 </body>
 </html>
