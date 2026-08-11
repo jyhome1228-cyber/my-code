@@ -21,7 +21,7 @@ import {
 import {
   getStorage,
   ref,
-  uploadBytesResumable,
+  uploadBytes,
   getDownloadURL,
   deleteObject
 } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js';
@@ -70,7 +70,6 @@ async function ensureUserDocument(user) {
 async function ensureGuestSession() {
   if (auth.currentUser) return auth.currentUser;
   const result = await signInAnonymously(auth);
-  // Account metadata is useful, but it must never block image hosting.
   ensureUserDocument(result.user).catch(error => console.info('User metadata sync skipped.', error?.code || error));
   return result.user;
 }
@@ -94,14 +93,21 @@ async function logout() {
   await signOut(auth);
 }
 
-function runUpload(storageRef, blob, metadata, onProgress) {
-  return new Promise((resolve, reject) => {
-    const task = uploadBytesResumable(storageRef, blob, metadata);
-    task.on('state_changed', snapshot => {
-      const progress = snapshot.totalBytes ? Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100) : 0;
-      onProgress?.(Math.max(0, Math.min(100, progress)));
-    }, reject, () => resolve(task.snapshot));
-  });
+async function runUpload(storageRef, blob, metadata, onProgress) {
+  let fakeProgress = 4;
+  onProgress?.(fakeProgress);
+  const timer = setInterval(() => {
+    fakeProgress = Math.min(88, fakeProgress + Math.max(2, Math.round((90 - fakeProgress) * 0.12)));
+    onProgress?.(fakeProgress);
+  }, 240);
+
+  try {
+    const snapshot = await uploadBytes(storageRef, blob, metadata);
+    onProgress?.(100);
+    return snapshot;
+  } finally {
+    clearInterval(timer);
+  }
 }
 
 async function persistImageMetadata(user, id, payload, shortCode, downloadUrl) {
@@ -162,7 +168,6 @@ async function uploadImage({ blob, filename, id, metadata = {}, onProgress }) {
     updatedAt: serverTimestamp()
   };
 
-  // Do not await Firestore. The user already has a usable hosted URL at this point.
   persistImageMetadata(user, id, firestorePayload, shortCode, downloadUrl);
 
   return {
