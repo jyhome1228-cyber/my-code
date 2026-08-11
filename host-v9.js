@@ -1,17 +1,32 @@
 // my:code v9 — upload -> image address -> copy
 const hostV9Styles = document.createElement('link');
 hostV9Styles.rel = 'stylesheet';
-hostV9Styles.href = './host-v9.css?v=9';
+hostV9Styles.href = './host-v9.css?v=12';
 document.head.appendChild(hostV9Styles);
 
 (() => {
   const shortCodeById = new Map();
-  const previousUploadToApi = uploadToApi;
 
+  // Users do not need to press a login button. Firebase anonymous auth runs invisibly
+  // before the upload so Storage security can remain user-scoped.
   uploadToApi = async function(blob, filename, id) {
-    const result = await previousUploadToApi(blob, filename, id);
-    if (result?.shortCode) shortCodeById.set(id, result.shortCode);
-    return result;
+    const firebase = await firebaseReadyPromise;
+    if (!firebase?.storageEnabled) throw new Error('FIREBASE_STORAGE_NOT_READY');
+
+    try {
+      await firebase.ensureGuestSession?.();
+      const result = await firebase.uploadImage({ blob, filename, id });
+      if (result?.shortCode) shortCodeById.set(id, result.shortCode);
+      return result;
+    } catch (error) {
+      console.error('Guest image upload failed', error);
+      if (error?.code === 'auth/operation-not-allowed') {
+        showToast('Firebase에서 익명 로그인을 활성화해주세요.');
+      } else if (String(error?.code || '').startsWith('storage/')) {
+        showToast('Firebase Storage 설정을 확인해주세요.');
+      }
+      throw error;
+    }
   };
 
   function shortBase() {
@@ -30,7 +45,7 @@ document.head.appendChild(hostV9Styles);
   }
 
   function compactAddress(value) {
-    if (!value) return '로그인 후 업로드하면 이미지 주소가 생성됩니다.';
+    if (!value) return '이미지 주소를 생성하지 못했습니다.';
     if (value.length <= 82) return value;
     try {
       const url = new URL(value);
@@ -43,7 +58,7 @@ document.head.appendChild(hostV9Styles);
 
   async function hostCopy(value, message) {
     if (!value) {
-      showToast('Google 로그인 후 업로드하면 외부 이미지 주소를 만들 수 있어요.');
+      showToast('이미지 주소 생성 설정을 확인해주세요.');
       return;
     }
     try {
@@ -54,10 +69,6 @@ document.head.appendChild(hostV9Styles);
       showToast('복사하지 못했습니다.');
     }
   }
-
-  // Keep the product copy singular and clear.
-  const authDescription = document.querySelector('#authModal .auth-description');
-  if (authDescription) authDescription.textContent = 'Google 로그인하면 이미지를 Firebase에 저장하고 외부에서 쓸 이미지 주소를 만들 수 있어요.';
 
   createResultCard = async function(item) {
     const previewUrl = await getPreviewUrl(item.id);
@@ -81,14 +92,13 @@ document.head.appendChild(hostV9Styles);
         <div class="host-field">
           <span class="host-field-label">이미지 주소</span>
           <span class="host-field-value" title="${escapeHTML(address || '')}">${escapeHTML(compactAddress(address))}</span>
-          <button class="host-copy" type="button" data-host-address ${address ? '' : 'disabled'}>주소 복사</button>
+          <button class="host-copy" type="button" data-host-address ${address ? '' : 'disabled'}>복사</button>
         </div>
         <div class="host-field">
           <span class="host-field-label">IMG 태그</span>
           <span class="host-field-value">${escapeHTML(html || '<img src="이미지주소" alt="">')}</span>
           <button class="host-copy secondary" type="button" data-host-html ${html ? '' : 'disabled'}>&lt;img&gt; 복사</button>
         </div>
-        <div class="host-note">${address ? '이 주소는 외부 웹사이트의 이미지 src에 그대로 사용할 수 있어요.' : '현재 이미지는 브라우저에만 저장됐어요. 로그인 후 다시 올리면 외부 이미지 주소가 생성됩니다.'}</div>
       </div>
     `;
     element.querySelector('[data-host-address]')?.addEventListener('click', event => {
@@ -105,9 +115,7 @@ document.head.appendChild(hostV9Styles);
 
   buildCodes = async function(item) {
     const address = getImageAddress(item);
-    if (!address) {
-      return { url: '', html: '', css: '' };
-    }
+    if (!address) return { url: '', html: '', css: '' };
     return {
       url: address,
       html: `<img src="${address}" alt="">`,
@@ -120,7 +128,7 @@ document.head.appendChild(hostV9Styles);
     if (!item) return;
     const codes = await buildCodes(item);
     if (!codes[type]) {
-      showToast('Google 로그인 후 업로드하면 외부 이미지 주소를 만들 수 있어요.');
+      showToast('이미지 주소 생성 설정을 확인해주세요.');
       return;
     }
     const label = type === 'url' ? '이미지 주소' : type === 'html' ? '<img> 한 줄' : '코드';
@@ -140,7 +148,7 @@ document.head.appendChild(hostV9Styles);
       <img class="code-thumb" src="${previewUrl}" alt="">
       <div class="code-main">
         <span class="code-name">${escapeHTML(item.name)}</span>
-        <span class="code-sub">${formatBytes(item.size)} · ${formatTime(item.createdAt)}${projectName ? ` · ${escapeHTML(projectName)}` : ''}${address ? ' · 주소 사용 가능' : ' · 로컬 저장'}</span>
+        <span class="code-sub">${formatBytes(item.size)} · ${formatTime(item.createdAt)}${projectName ? ` · ${escapeHTML(projectName)}` : ''}</span>
       </div>
       <div class="host-code-actions">
         <button class="primary" type="button" data-host-row-address ${address ? '' : 'disabled'}>주소 복사</button>
@@ -181,14 +189,13 @@ document.head.appendChild(hostV9Styles);
     el.detailMeta.innerHTML = [
       item.width && item.height ? `${item.width} × ${item.height}` : null,
       formatBytes(item.size),
-      project ? project.name : '미분류',
-      address ? '외부 주소 사용 가능' : '브라우저 보관'
+      project ? project.name : '미분류'
     ].filter(Boolean).map(value => `<span>${escapeHTML(String(value))}</span>`).join('');
 
     el.detailCodes.innerHTML = `
       <div class="host-detail-block">
-        <div class="host-detail-head"><span>이미지 주소</span><button type="button" data-detail-host-address ${address ? '' : 'disabled'}>주소 복사</button></div>
-        <p class="host-detail-value">${escapeHTML(address || '로그인 후 업로드하면 이미지 주소가 생성됩니다.')}</p>
+        <div class="host-detail-head"><span>이미지 주소</span><button type="button" data-detail-host-address ${address ? '' : 'disabled'}>복사</button></div>
+        <p class="host-detail-value">${escapeHTML(address || '이미지 주소를 생성하지 못했습니다.')}</p>
       </div>
       <div class="host-detail-block">
         <div class="host-detail-head"><span>IMG 태그</span><button type="button" data-detail-host-html ${html ? '' : 'disabled'}>&lt;img&gt; 복사</button></div>
@@ -200,11 +207,10 @@ document.head.appendChild(hostV9Styles);
     el.codeModal.showModal();
   };
 
-  // Clean up wording left by older scripts after they run.
   requestAnimationFrame(() => {
     const title = document.querySelector('.host-results .result-heading h2');
     if (title) title.textContent = '이미지 주소가 준비됐어요.';
     const callout = document.querySelector('.host-results .saved-callout');
-    if (callout) callout.textContent = '업로드한 이미지는 MY CODE에도 자동으로 저장됩니다.';
+    if (callout) callout.hidden = true;
   });
 })();
