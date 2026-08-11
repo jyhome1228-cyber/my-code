@@ -3,6 +3,8 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
+  signInAnonymously,
+  linkWithPopup,
   onAuthStateChanged,
   signOut
 } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js';
@@ -56,6 +58,7 @@ async function ensureUserDocument(user) {
     email: user.email || '',
     displayName: user.displayName || '',
     photoURL: user.photoURL || '',
+    isAnonymous: Boolean(user.isAnonymous),
     plan: snapshot.exists() ? (snapshot.data()?.plan || 'free') : 'free',
     storageMode: 'firebase',
     updatedAt: serverTimestamp()
@@ -64,7 +67,23 @@ async function ensureUserDocument(user) {
   await setDoc(userRef, base, { merge: true });
 }
 
+async function ensureGuestSession() {
+  if (auth.currentUser) return auth.currentUser;
+  const result = await signInAnonymously(auth);
+  await ensureUserDocument(result.user);
+  return result.user;
+}
+
 async function signInWithGoogle() {
+  if (auth.currentUser?.isAnonymous) {
+    try {
+      const result = await linkWithPopup(auth.currentUser, googleProvider);
+      await ensureUserDocument(result.user);
+      return result.user;
+    } catch (error) {
+      if (error?.code !== 'auth/credential-already-in-use') throw error;
+    }
+  }
   const result = await signInWithPopup(auth, googleProvider);
   await ensureUserDocument(result.user);
   return result.user;
@@ -75,12 +94,7 @@ async function logout() {
 }
 
 async function uploadImage({ blob, filename, id, metadata = {} }) {
-  const user = auth.currentUser;
-  if (!user) {
-    const error = new Error('AUTH_REQUIRED');
-    error.code = 'AUTH_REQUIRED';
-    throw error;
-  }
+  const user = auth.currentUser || await ensureGuestSession();
 
   const extension = (filename.split('.').pop() || 'webp').toLowerCase();
   const storagePath = `users/${user.uid}/images/${id}/optimized.${extension}`;
@@ -116,8 +130,6 @@ async function uploadImage({ blob, filename, id, metadata = {} }) {
     updatedAt: serverTimestamp()
   }, { merge: true });
 
-  // Short-link mapping is optional until the updated Firestore Rules + Hosting function are deployed.
-  // A failure here must never make the actual image upload fail.
   try {
     await setDoc(doc(db, 'shortLinks', shortCode), {
       shortCode,
@@ -224,6 +236,7 @@ window.MyCodeFirebase = {
   db,
   storage,
   signInWithGoogle,
+  ensureGuestSession,
   logout,
   ensureUserDocument,
   uploadImage,
