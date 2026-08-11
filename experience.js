@@ -1,3 +1,8 @@
+const hostFinalStyles = document.createElement('link');
+hostFinalStyles.rel = 'stylesheet';
+hostFinalStyles.href = './host-v9.css?v=11';
+document.head.appendChild(hostFinalStyles);
+
 let firebaseLoadError = null;
 const firebaseReadyPromise = new Promise(resolve => {
   const script = document.createElement('script');
