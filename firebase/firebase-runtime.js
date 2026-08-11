@@ -21,7 +21,7 @@ import {
 import {
   getStorage,
   ref,
-  uploadBytes,
+  uploadBytesResumable,
   getDownloadURL,
   deleteObject
 } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js';
@@ -70,7 +70,8 @@ async function ensureUserDocument(user) {
 async function ensureGuestSession() {
   if (auth.currentUser) return auth.currentUser;
   const result = await signInAnonymously(auth);
-  await ensureUserDocument(result.user);
+  // Account metadata is useful, but it must never block image hosting.
+  ensureUserDocument(result.user).catch(error => console.info('User metadata sync skipped.', error?.code || error));
   return result.user;
 }
 
@@ -78,14 +79,14 @@ async function signInWithGoogle() {
   if (auth.currentUser?.isAnonymous) {
     try {
       const result = await linkWithPopup(auth.currentUser, googleProvider);
-      await ensureUserDocument(result.user);
+      ensureUserDocument(result.user).catch(console.error);
       return result.user;
     } catch (error) {
       if (error?.code !== 'auth/credential-already-in-use') throw error;
     }
   }
   const result = await signInWithPopup(auth, googleProvider);
-  await ensureUserDocument(result.user);
+  ensureUserDocument(result.user).catch(console.error);
   return result.user;
 }
 
@@ -93,27 +94,58 @@ async function logout() {
   await signOut(auth);
 }
 
-async function uploadImage({ blob, filename, id, metadata = {} }) {
-  const user = auth.currentUser || await ensureGuestSession();
+function runUpload(storageRef, blob, metadata, onProgress) {
+  return new Promise((resolve, reject) => {
+    const task = uploadBytesResumable(storageRef, blob, metadata);
+    task.on('state_changed', snapshot => {
+      const progress = snapshot.totalBytes ? Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100) : 0;
+      onProgress?.(Math.max(0, Math.min(100, progress)));
+    }, reject, () => resolve(task.snapshot));
+  });
+}
 
+async function persistImageMetadata(user, id, payload, shortCode, downloadUrl) {
+  try {
+    await setDoc(doc(db, 'users', user.uid, 'images', id), payload, { merge: true });
+  } catch (error) {
+    console.info('Image metadata sync skipped.', error?.code || error);
+  }
+
+  try {
+    await setDoc(doc(db, 'shortLinks', shortCode), {
+      shortCode,
+      ownerUid: user.uid,
+      imageId: id,
+      storagePath: payload.storagePath,
+      targetUrl: downloadUrl,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.info('Short-link mapping is not active yet.', error?.code || error);
+  }
+}
+
+async function uploadImage({ blob, filename, id, metadata = {}, onProgress }) {
+  const user = auth.currentUser || await ensureGuestSession();
   const extension = (filename.split('.').pop() || 'webp').toLowerCase();
   const storagePath = `users/${user.uid}/images/${id}/optimized.${extension}`;
   const storageRef = ref(storage, storagePath);
 
-  const result = await uploadBytes(storageRef, blob, {
+  const snapshot = await runUpload(storageRef, blob, {
     contentType: blob.type || 'image/webp',
     cacheControl: 'public,max-age=31536000',
     customMetadata: {
       imageId: id,
       originalName: metadata.originalName || filename
     }
-  });
+  }, onProgress);
 
-  const downloadUrl = await getDownloadURL(result.ref);
+  const downloadUrl = await getDownloadURL(snapshot.ref);
   const shortCode = randomShortCode();
   const now = metadata.createdAt || new Date().toISOString();
 
-  await setDoc(doc(db, 'users', user.uid, 'images', id), {
+  const firestorePayload = {
     imageId: id,
     originalName: metadata.originalName || filename,
     displayName: filename,
@@ -128,21 +160,10 @@ async function uploadImage({ blob, filename, id, metadata = {} }) {
     projectId: metadata.projectId || null,
     createdAt: metadata.createdAt ? metadata.createdAt : serverTimestamp(),
     updatedAt: serverTimestamp()
-  }, { merge: true });
+  };
 
-  try {
-    await setDoc(doc(db, 'shortLinks', shortCode), {
-      shortCode,
-      ownerUid: user.uid,
-      imageId: id,
-      storagePath,
-      targetUrl: downloadUrl,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-  } catch (error) {
-    console.info('Short-link mapping is not active yet.', error?.code || error);
-  }
+  // Do not await Firestore. The user already has a usable hosted URL at this point.
+  persistImageMetadata(user, id, firestorePayload, shortCode, downloadUrl);
 
   return {
     key: storagePath,
@@ -186,7 +207,7 @@ async function deleteImage(id, storagePath, shortCode = null) {
       if (error?.code !== 'storage/object-not-found') throw error;
     }
   }
-  await deleteDoc(doc(db, 'users', user.uid, 'images', id));
+  await deleteDoc(doc(db, 'users', user.uid, 'images', id)).catch(() => {});
   if (shortCode) await deleteDoc(doc(db, 'shortLinks', shortCode)).catch(() => {});
 }
 
@@ -224,10 +245,8 @@ async function listProjects() {
   }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
 
-onAuthStateChanged(auth, async user => {
-  if (user) {
-    try { await ensureUserDocument(user); } catch (error) { console.error(error); }
-  }
+onAuthStateChanged(auth, user => {
+  if (user) ensureUserDocument(user).catch(error => console.info('User metadata sync skipped.', error?.code || error));
   window.dispatchEvent(new CustomEvent('mycode:auth', { detail: { user } }));
 });
 
