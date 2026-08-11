@@ -1,6 +1,6 @@
 const hostFinalStyles = document.createElement('link');
 hostFinalStyles.rel = 'stylesheet';
-hostFinalStyles.href = './host-v9.css?v=11';
+hostFinalStyles.href = './host-v9.css?v=12';
 document.head.appendChild(hostFinalStyles);
 
 let firebaseLoadError = null;
@@ -118,7 +118,7 @@ googleSignupBtn?.addEventListener('click', async () => {
     const user = await firebase.signInWithGoogle();
     updateAccountUI(user);
     closeAuth();
-    showToast('Google 계정으로 로그인했어요.');
+    showToast('Google 계정으로 연결했어요.');
   } catch (error) {
     console.error(error);
     if (error?.code === 'auth/operation-not-allowed') {
@@ -140,12 +140,14 @@ emailSignupForm?.addEventListener('submit', event => {
 
 function updateAccountUI(user = null) {
   const logoutButton = document.getElementById('firebaseLogoutBtn');
-  if (user) {
+  const isAnonymous = Boolean(user?.isAnonymous);
+
+  if (user && !isAnonymous) {
     const email = user.email || '';
     const label = user.displayName || email.split('@')[0] || 'MY CODE';
     if (accountName) accountName.textContent = label;
-    if (accountSub) accountSub.textContent = 'FREE · Firebase 연결됨';
-    if (authDescription) authDescription.textContent = `${email || label} 계정으로 로그인되어 있어요. 업로드 이미지는 Firebase에 저장됩니다.`;
+    if (accountSub) accountSub.textContent = 'FREE · 계정 연결됨';
+    if (authDescription) authDescription.textContent = `${email || label} 계정으로 연결되어 있어요. 기존 이미지도 계속 사용할 수 있습니다.`;
     if (googleSignupBtn) googleSignupBtn.innerHTML = '<span class="google-g">G</span> 다른 Google 계정으로 로그인';
     if (emailSignupForm) emailSignupForm.hidden = true;
     if (logoutButton) logoutButton.hidden = false;
@@ -158,14 +160,14 @@ function updateAccountUI(user = null) {
   }
 
   if (accountName) accountName.textContent = '게스트';
-  if (accountSub) accountSub.textContent = 'Google 로그인 / FREE';
-  if (authDescription) authDescription.textContent = 'Google 로그인하면 이미지를 Firebase에 저장하고 외부 이미지 주소를 만들 수 있어요.';
-  if (googleSignupBtn) googleSignupBtn.innerHTML = '<span class="google-g">G</span> Google로 계속하기';
+  if (accountSub) accountSub.textContent = '로그인 없이 바로 사용';
+  if (authDescription) authDescription.textContent = '로그인 없이도 이미지 주소를 만들 수 있어요. Google 계정을 연결하면 MY CODE를 계정으로 이어서 관리할 수 있습니다.';
+  if (googleSignupBtn) googleSignupBtn.innerHTML = '<span class="google-g">G</span> Google 계정 연결하기';
   if (emailSignupForm) emailSignupForm.hidden = false;
   if (logoutButton) logoutButton.hidden = true;
   [signupTopBtn, signupMobileBtn].forEach(button => {
     if (!button) return;
-    button.textContent = '간편가입 / 로그인';
+    button.textContent = '계정 연결';
     button.classList.remove('is-signed');
   });
 }
