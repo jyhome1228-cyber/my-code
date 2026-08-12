@@ -2,21 +2,18 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    function signedIn() {
-      return request.auth != null;
-    }
-
-    function isOwner(userId) {
-      return signedIn() && request.auth.uid == userId;
-    }
-
-    match /users/{userId}/images/{allPaths=**} {
-      allow read: if isOwner(userId);
-      allow create: if isOwner(userId)
+    match /images/{userId}/{allPaths=**} {
+      allow create: if request.auth != null
+                    && request.auth.uid == userId
                     && request.resource != null
                     && request.resource.size < 10 * 1024 * 1024
                     && request.resource.contentType.matches('image/.*');
-      allow update, delete: if isOwner(userId);
+
+      allow read: if request.auth != null
+                  && request.auth.uid == userId;
+
+      allow update, delete: if request.auth != null
+                            && request.auth.uid == userId;
     }
   }
 }
