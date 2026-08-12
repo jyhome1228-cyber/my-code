@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0b3fc7" />
-  <meta name="description" content="이미지를 올리고 바로 이미지 주소와 img 태그를 복사하는 my:code" />
-  <title>my:code — 이미지 주소 바로 만들기</title>
-  <link rel="stylesheet" href="./simple-host.css?v=4" />
+  <meta name="description" content="이미지를 올리고 바로 img 코드를 복사하는 my:code" />
+  <title>my:code — 이미지 올리고 코드 복사</title>
+  <link rel="stylesheet" href="./simple-host.css?v=100" />
 </head>
 <body>
   <header class="topbar">
@@ -16,9 +16,9 @@
 
   <main class="page">
     <section class="hero">
-      <p class="kicker">SIMPLE IMAGE HOSTING</p>
-      <h1>이미지를 올리면,<br><span>주소가 바로.</span></h1>
-      <p>이미지를 올리고 주소를 복사하세요.<br>필요하면 <code>&lt;img src="..."&gt;</code> 한 줄도 바로 복사할 수 있어요.</p>
+      <p class="kicker">IMAGE → CODE</p>
+      <h1>이미지를 올리고,<br><span>코드만 복사하세요.</span></h1>
+      <p>이미지 하나 올리면 웹에서 바로 쓸 수 있는 주소와<br><code>&lt;img src="..."&gt;</code> 한 줄을 만들어드려요.</p>
     </section>
 
     <section class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="이미지 업로드">
@@ -26,13 +26,13 @@
       <div class="upload-icon">＋</div>
       <strong>이미지를 여기에 올려주세요</strong>
       <p>드래그하거나 클릭해서 파일 선택</p>
-      <small>JPG · PNG · WEBP · GIF · SVG · 여러 장 가능</small>
+      <small>JPG · PNG · WEBP · GIF · SVG · 10MB 이하</small>
     </section>
 
     <div class="meta">
-      <span>로그인 없이 사용</span>
-      <span>Firebase Storage 저장</span>
-      <span>주소 즉시 복사</span>
+      <span>계정 입력 없음</span>
+      <span>이미지 주소 생성</span>
+      <span>IMG 코드 복사</span>
     </div>
 
     <section class="results" id="results" aria-live="polite"></section>
@@ -43,7 +43,7 @@
     </footer>
   </main>
 
-  <script src="./firebase/firebase-config.js?v=31"></script>
-  <script type="module" src="./simple-host.js?v=31"></script>
+  <script src="./firebase/firebase-config.js?v=100"></script>
+  <script type="module" src="./simple-host.js?v=100"></script>
 </body>
 </html>
