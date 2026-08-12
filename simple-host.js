@@ -1,23 +1,15 @@
 const config = window.MYCODE_FIREBASE_CONFIG;
-if (!config?.apiKey || !config?.storageBucket) {
-  throw new Error('Firebase 설정이 없습니다.');
-}
+if (!config?.projectId) throw new Error('Firebase 설정이 없습니다.');
 
 const fileInput = document.getElementById('fileInput');
 const dropzone = document.getElementById('dropzone');
 const results = document.getElementById('results');
-const bucket = config.storageBucket;
-const apiKey = config.apiKey;
+const uploadEndpoint = `https://us-central1-${config.projectId}.cloudfunctions.net/uploadImage`;
 
 function formatBytes(bytes) {
   if (!Number.isFinite(bytes) || bytes <= 0) return '0 KB';
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-}
-
-function safeName(name) {
-  const base = String(name || 'image').replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/-+/g, '-');
-  return base || 'image';
 }
 
 function escapeHtml(value) {
@@ -26,16 +18,6 @@ function escapeHtml(value) {
 
 function wait(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function fetchWithTimeout(url, options = {}, ms = 15000) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), ms);
-  try {
-    return await fetch(url, { ...options, signal: controller.signal });
-  } finally {
-    clearTimeout(timer);
-  }
 }
 
 async function copyText(text, button) {
@@ -53,12 +35,12 @@ function makeLoadingCard(file) {
   const card = document.createElement('article');
   card.className = 'loading-card';
   card.innerHTML = `
-    <div class="loader"><span class="spinner"></span><span class="percent">8%</span></div>
+    <div class="loader"><span class="spinner"></span><span class="percent">5%</span></div>
     <div class="loading-copy">
       <strong>${escapeHtml(file.name)}</strong>
       <span>이미지를 준비하는 중…</span>
       <div class="progress"><i></i></div>
-      <div class="stage"><b class="on">준비</b><b>익명 연결</b><b>업로드</b><b>주소 생성</b></div>
+      <div class="stage"><b class="on">준비</b><b>업로드</b><b>주소 생성</b></div>
     </div>
   `;
 
@@ -66,35 +48,19 @@ function makeLoadingCard(file) {
   const bar = card.querySelector('.progress i');
   const percent = card.querySelector('.percent');
   const stages = [...card.querySelectorAll('.stage b')];
-  let timer = null;
-  let progressValue = 8;
 
   function paint(value, text, stageIndex) {
-    progressValue = Math.max(0, Math.min(99, Math.round(value)));
-    bar.style.width = `${progressValue}%`;
-    percent.textContent = `${progressValue}%`;
+    const p = Math.max(0, Math.min(100, Math.round(value)));
+    bar.style.width = `${p}%`;
+    percent.textContent = `${p}%`;
     label.textContent = text;
     stages.forEach((node, index) => node.classList.toggle('on', index === stageIndex));
-  }
-
-  function startUploadMotion() {
-    clearInterval(timer);
-    timer = setInterval(() => {
-      if (progressValue < 90) {
-        progressValue += progressValue < 60 ? 4 : 2;
-        paint(progressValue, 'Firebase Storage에 업로드하는 중…', 2);
-      }
-    }, 260);
   }
 
   return {
     card,
     paint,
-    startUploadMotion,
-    stop() { if (timer) clearInterval(timer); timer = null; },
-    finish() { this.stop(); paint(100, '주소 생성 완료', 3); },
     fail(message) {
-      this.stop();
       card.className = 'error-card';
       card.innerHTML = `<strong>업로드하지 못했어요.</strong><span>${escapeHtml(message)}</span><button type="button" class="retry-btn">다시 시도</button>`;
       card.querySelector('.retry-btn')?.addEventListener('click', () => {
@@ -116,7 +82,7 @@ function createResultCard(file, url) {
       <div class="file-line"><strong>${escapeHtml(file.name)}</strong><span>${formatBytes(file.size)}</span></div>
       <div class="field"><label>이미지 주소</label><code title="${escapeHtml(url)}">${escapeHtml(url)}</code><button class="copy">주소 복사</button></div>
       <div class="field"><label>IMG 태그</label><code>${escapeHtml(html)}</code><button class="copy secondary">&lt;img&gt; 복사</button></div>
-      <div class="note">이 주소는 아임웹, 카페24, HTML 등 다른 곳의 이미지 <code>src</code>에 그대로 사용할 수 있습니다.</div>
+      <div class="note">이 주소를 아임웹 코드 보기, 카페24, HTML의 <code>src</code>에 그대로 붙여 넣으면 됩니다.</div>
     </div>
   `;
   const buttons = card.querySelectorAll('.copy');
@@ -125,91 +91,51 @@ function createResultCard(file, url) {
   return card;
 }
 
-async function createAnonymousSession() {
-  const cached = sessionStorage.getItem('mycode-anon-auth-v1');
-  if (cached) {
-    try {
-      const parsed = JSON.parse(cached);
-      if (parsed.idToken && parsed.localId && Date.now() < parsed.expiresAt) return parsed;
-    } catch (_) {}
-  }
+function uploadViaFunction(file, onProgress) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const query = `?name=${encodeURIComponent(file.name || 'image')}`;
+    xhr.open('POST', `${uploadEndpoint}${query}`, true);
+    xhr.timeout = 45000;
+    xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
 
-  const response = await fetchWithTimeout(
-    `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${encodeURIComponent(apiKey)}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ returnSecureToken: true })
-    },
-    10000
-  );
+    xhr.upload.onprogress = event => {
+      if (!event.lengthComputable) return;
+      onProgress?.(Math.round((event.loaded / event.total) * 100));
+    };
 
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    const message = payload?.error?.message || `Auth HTTP ${response.status}`;
-    const error = new Error(message);
-    error.stage = 'auth';
-    error.status = response.status;
-    throw error;
-  }
+    xhr.onload = () => {
+      let payload = null;
+      try { payload = JSON.parse(xhr.responseText || '{}'); } catch (_) {}
+      if (xhr.status >= 200 && xhr.status < 300 && payload?.url) {
+        resolve(payload);
+        return;
+      }
+      const error = new Error(payload?.message || payload?.error || `HTTP ${xhr.status}`);
+      error.status = xhr.status;
+      reject(error);
+    };
 
-  const session = {
-    idToken: payload.idToken,
-    localId: payload.localId,
-    expiresAt: Date.now() + (Number(payload.expiresIn || 3600) - 120) * 1000
-  };
-  sessionStorage.setItem('mycode-anon-auth-v1', JSON.stringify(session));
-  return session;
-}
-
-async function uploadWithToken(file, uid, idToken, path) {
-  const endpoint = `https://firebasestorage.googleapis.com/v0/b/${encodeURIComponent(bucket)}/o?uploadType=media&name=${encodeURIComponent(path)}`;
-  const response = await fetchWithTimeout(endpoint, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${idToken}`,
-      'Content-Type': file.type || 'application/octet-stream'
-    },
-    body: file
-  }, 15000);
-
-  const raw = await response.text();
-  let payload = null;
-  try { payload = raw ? JSON.parse(raw) : null; } catch (_) {}
-
-  if (!response.ok) {
-    const message = payload?.error?.message || raw || `Storage HTTP ${response.status}`;
-    const error = new Error(message);
-    error.stage = 'storage';
-    error.status = response.status;
-    error.uid = uid;
-    throw error;
-  }
-
-  return payload || {};
-}
-
-function hostedUrl(path, payload) {
-  const encodedPath = encodeURIComponent(path);
-  const token = String(payload?.downloadTokens || payload?.downloadToken || '').split(',')[0].trim();
-  const base = `https://firebasestorage.googleapis.com/v0/b/${encodeURIComponent(bucket)}/o/${encodedPath}?alt=media`;
-  return token ? `${base}&token=${encodeURIComponent(token)}` : base;
+    xhr.onerror = () => reject(Object.assign(new Error('NETWORK_OR_CORS'), { code: 'NETWORK_OR_CORS' }));
+    xhr.ontimeout = () => reject(Object.assign(new Error('UPLOAD_TIMEOUT'), { code: 'UPLOAD_TIMEOUT' }));
+    xhr.send(file);
+  });
 }
 
 function readableError(error) {
-  if (error?.name === 'AbortError') return 'Firebase 응답이 없어 15초 후 중단했어요. 네트워크 또는 Storage 설정을 확인해주세요.';
-  if (error?.stage === 'auth') {
-    if (/OPERATION_NOT_ALLOWED/i.test(error.message)) return 'Firebase 익명 로그인이 아직 비활성화되어 있어요.';
-    return `익명 연결 실패: ${error.message}`;
+  if (error?.code === 'NETWORK_OR_CORS') {
+    return '업로드 Function에 연결하지 못했어요. Firebase Function 배포 상태를 확인해주세요.';
   }
-  if (error?.stage === 'storage') {
-    if (error.status === 401) return 'Storage 인증 토큰이 거부됐어요.';
-    if (error.status === 403) return 'Storage Rules가 업로드를 막고 있어요. /users/{uid}/images 경로 규칙을 확인해주세요.';
-    if (error.status === 404) return 'Firebase Storage 버킷을 찾을 수 없어요.';
-    return `Storage 업로드 실패: ${error.message}`;
+  if (error?.code === 'UPLOAD_TIMEOUT') {
+    return '업로드 응답이 45초 동안 없어 중단했어요.';
   }
-  if (error?.message?.toLowerCase().includes('failed to fetch')) return 'Firebase 요청이 브라우저에서 차단됐어요. 네트워크/CORS를 확인해주세요.';
-  return error?.message || '알 수 없는 오류가 발생했습니다.';
+  if (error?.status === 404) {
+    return 'uploadImage Function이 아직 배포되지 않았어요.';
+  }
+  if (error?.status === 413) return '10MB 이하 이미지로 올려주세요.';
+  if (error?.status === 415) return '이미지 파일만 올릴 수 있어요.';
+  if (error?.status >= 500) return `Firebase 서버 업로드 실패: ${error.message}`;
+  return error?.message || '업로드하지 못했습니다.';
 }
 
 async function uploadOne(file) {
@@ -225,30 +151,23 @@ async function uploadOne(file) {
   results.prepend(loading.card);
 
   try {
-    loading.paint(12, '이미지를 확인하는 중…', 0);
-    await wait(100);
+    loading.paint(8, '이미지를 확인하는 중…', 0);
+    await wait(80);
+    loading.paint(15, 'Firebase에 업로드를 시작하는 중…', 1);
 
-    loading.paint(28, '익명 세션을 연결하는 중…', 1);
-    const auth = await createAnonymousSession();
+    const payload = await uploadViaFunction(file, progress => {
+      const visual = 15 + Math.round(progress * 0.75);
+      loading.paint(Math.min(90, visual), '이미지를 업로드하는 중…', 1);
+    });
 
-    const id = crypto.randomUUID();
-    const path = `users/${auth.localId}/images/${id}/${safeName(file.name)}`;
+    loading.paint(96, '이미지 주소를 만드는 중…', 2);
+    await wait(120);
+    loading.paint(100, '완료', 2);
 
-    loading.paint(42, 'Firebase Storage에 업로드하는 중…', 2);
-    loading.startUploadMotion();
-    const payload = await uploadWithToken(file, auth.localId, auth.idToken, path);
-
-    loading.stop();
-    loading.paint(94, '이미지 주소를 만드는 중…', 3);
-    const url = hostedUrl(path, payload);
-    await wait(140);
-    loading.finish();
-
-    const resultCard = createResultCard(file, url);
-    setTimeout(() => loading.card.replaceWith(resultCard), 180);
+    const resultCard = createResultCard(file, payload.url);
+    setTimeout(() => loading.card.replaceWith(resultCard), 160);
   } catch (error) {
-    console.error('[my:code REST upload]', error);
-    sessionStorage.removeItem('mycode-anon-auth-v1');
+    console.error('[my:code function upload]', error);
     loading.fail(readableError(error));
   }
 }
