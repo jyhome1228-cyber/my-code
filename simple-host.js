@@ -162,7 +162,7 @@ async function uploadOne(file) {
     const user = await getGuestUser();
 
     loading.stage('이미지를 Firebase Storage에 올리는 중…', 1);
-    const objectPath = `images/${user.uid}/${crypto.randomUUID()}-${safeFilename(file.name)}`;
+    const objectPath = `users/${user.uid}/images/${crypto.randomUUID()}/${safeFilename(file.name)}`;
     const storageRef = ref(storage, objectPath);
 
     const snapshot = await withTimeout(
