@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="마이코드 - 이미지를 WebP로 변환하고 Firebase Storage CDN URL로 관리하는 이미지 도구" />
+  <meta name="theme-color" content="#f6f6f2" />
+  <title>마이코드 | MY CODE</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="마이코드 홈">
+      <span class="brand-mark">M</span>
+      <span>
+        <strong>MY CODE</strong>
+        <small>IMAGE CDN TOOL</small>
+      </span>
+    </a>
+    <div class="header-status">
+      <span class="status-dot" id="firebaseStatusDot"></span>
+      <span id="firebaseStatus">Firebase 연결 대기</span>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="hero">
+      <p class="eyebrow">MY CODE / IMAGE TOOL</p>
+      <h1>이미지를 올리고,<br />바로 코드로 사용하세요.</h1>
+      <p class="hero-copy">JPG · PNG 이미지를 WebP로 변환하고, Firebase Storage 연결 후 CDN URL까지 한 번에 관리합니다.</p>
+    </section>
+
+    <section class="workspace" aria-label="이미지 변환 도구">
+      <aside class="settings-panel">
+        <div class="panel-heading">
+          <span>01</span>
+          <h2>변환 설정</h2>
+        </div>
+
+        <label class="field">
+          <span>출력 포맷</span>
+          <select id="formatSelect">
+            <option value="image/webp" selected>WebP</option>
+            <option value="image/jpeg">JPG</option>
+            <option value="image/png">PNG</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>이미지 품질 <b id="qualityValue">85</b>%</span>
+          <input id="qualityRange" type="range" min="50" max="100" value="85" />
+        </label>
+
+        <label class="field">
+          <span>최대 가로폭</span>
+          <select id="maxWidthSelect">
+            <option value="0">원본 유지</option>
+            <option value="1200">1200px</option>
+            <option value="1600">1600px</option>
+            <option value="2000" selected>2000px</option>
+            <option value="3000">3000px</option>
+          </select>
+        </label>
+
+        <div class="setting-note">
+          원본 비율은 자동으로 유지됩니다. PNG 투명 배경은 WebP/PNG에서 보존됩니다.
+        </div>
+      </aside>
+
+      <div class="upload-panel">
+        <div class="panel-heading">
+          <span>02</span>
+          <h2>이미지 업로드</h2>
+        </div>
+
+        <button class="dropzone" id="dropzone" type="button">
+          <span class="drop-icon">＋</span>
+          <strong>이미지를 여기에 놓으세요</strong>
+          <span>또는 클릭해서 파일 선택</span>
+          <small>JPG · PNG · WEBP / 여러 장 선택 가능</small>
+        </button>
+        <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden />
+      </div>
+    </section>
+
+    <section class="result-section">
+      <div class="result-head">
+        <div>
+          <p class="eyebrow">RESULT</p>
+          <h2>변환된 이미지</h2>
+        </div>
+        <div class="result-actions">
+          <span id="fileCount">0개 파일</span>
+          <button class="text-button" id="clearButton" type="button">전체 비우기</button>
+        </div>
+      </div>
+
+      <div class="empty-state" id="emptyState">
+        아직 변환된 이미지가 없습니다.
+      </div>
+      <div class="result-grid" id="resultGrid"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>MY CODE</span>
+    <span>Image conversion & CDN workspace.</span>
+  </footer>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
