@@ -1,11 +1,5 @@
-import { firebaseConfig } from "./firebase-config.js";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-storage.js";
+const WORKER_API = "https://cool-bar-7c8d.planus253.workers.dev";
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 const fileInput = document.querySelector("#fileInput");
 const dropzone = document.querySelector("#dropzone");
@@ -13,21 +7,25 @@ const resultGrid = document.querySelector("#resultGrid");
 const emptyState = document.querySelector("#emptyState");
 const fileCount = document.querySelector("#fileCount");
 const clearButton = document.querySelector("#clearButton");
-const firebaseStatus = document.querySelector("#firebaseStatus");
-const firebaseStatusDot = document.querySelector("#firebaseStatusDot");
+const serviceStatus = document.querySelector("#serviceStatus");
+const serviceStatusDot = document.querySelector("#serviceStatusDot");
 
 const items = new Map();
-let storage = null;
 
-try {
-  const app = initializeApp(firebaseConfig);
-  storage = getStorage(app, `gs://${firebaseConfig.storageBucket}`);
-  firebaseStatus.textContent = "Firebase 연결됨";
-  firebaseStatusDot.classList.add("ready");
-} catch (error) {
-  console.error("Firebase 초기화 오류:", error);
-  firebaseStatus.textContent = "Firebase 연결 오류";
-  firebaseStatusDot.classList.add("error");
+checkWorker();
+
+async function checkWorker() {
+  try {
+    const response = await fetch(WORKER_API, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    serviceStatus.textContent = "Cloudflare R2 연결됨";
+    serviceStatusDot.classList.add("ready");
+  } catch (error) {
+    console.error("Worker 연결 확인 실패:", error);
+    serviceStatus.textContent = "R2 연결 확인 필요";
+    serviceStatusDot.classList.add("error");
+  }
 }
 
 dropzone.addEventListener("click", () => fileInput.click());
@@ -69,6 +67,12 @@ async function handleFiles(fileList) {
     items.set(item.id, item);
     const card = renderCard(item);
     updateCount();
+
+    if (file.size > MAX_FILE_SIZE) {
+      card.querySelector(".card-status").textContent = "파일은 최대 10MB까지 업로드할 수 있습니다.";
+      continue;
+    }
+
     uploadItem(item, card);
   }
 
@@ -105,7 +109,7 @@ function renderCard(item) {
       </div>
 
       <div class="progress"><i></i></div>
-      <div class="card-status">업로드 준비 중...</div>
+      <div class="card-status">R2 업로드 준비 중...</div>
 
       <div class="code-grid" hidden>
         <div class="code-row">
@@ -127,9 +131,7 @@ function renderCard(item) {
     </div>
   `;
 
-  const removeButton = card.querySelector(".remove-button");
-  removeButton.addEventListener("click", () => removeItem(item, card));
-
+  card.querySelector(".remove-button").addEventListener("click", () => removeItem(item, card));
   resultGrid.prepend(card);
   return card;
 }
@@ -139,44 +141,31 @@ async function uploadItem(item, card) {
   const status = card.querySelector(".card-status");
   const codeGrid = card.querySelector(".code-grid");
 
-  if (!storage) {
-    status.textContent = "Firebase 연결을 확인해주세요.";
-    return;
-  }
-
   try {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const safeName = sanitizeFileName(item.file.name);
-    const storageRef = ref(storage, `images/${year}/${month}/${Date.now()}-${safeName}`);
+    progressBar.style.width = "35%";
+    status.textContent = "Cloudflare R2에 업로드 중...";
 
-    const task = uploadBytesResumable(storageRef, item.file, {
-      contentType: item.file.type || "application/octet-stream",
-      cacheControl: "public,max-age=31536000"
+    const response = await fetch(`${WORKER_API}/upload`, {
+      method: "POST",
+      headers: {
+        "Content-Type": item.file.type || "application/octet-stream",
+        "X-File-Name": encodeURIComponent(item.file.name)
+      },
+      body: item.file
     });
 
-    item.downloadUrl = await new Promise((resolve, reject) => {
-      task.on(
-        "state_changed",
-        (snapshot) => {
-          const percent = snapshot.totalBytes
-            ? (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-            : 0;
-          progressBar.style.width = `${percent}%`;
-          status.textContent = `업로드 중 ${Math.round(percent)}%`;
-        },
-        reject,
-        async () => {
-          try {
-            resolve(await getDownloadURL(task.snapshot.ref));
-          } catch (error) {
-            reject(error);
-          }
-        }
-      );
-    });
+    let payload = {};
+    try {
+      payload = await response.json();
+    } catch (_) {
+      // Worker가 JSON이 아닌 오류 응답을 반환하는 경우를 처리합니다.
+    }
 
+    if (!response.ok || !payload.url) {
+      throw new Error(payload.error || `업로드 실패 (HTTP ${response.status})`);
+    }
+
+    item.downloadUrl = payload.url;
     progressBar.style.width = "100%";
     status.textContent = "완료 · 아래 코드를 바로 사용할 수 있습니다.";
 
@@ -192,8 +181,9 @@ async function uploadItem(item, card) {
     bindCopy(card.querySelector(".copy-html"), htmlCode);
     bindCopy(card.querySelector(".copy-css"), cssCode);
   } catch (error) {
-    console.error("Firebase Storage 업로드 오류:", error);
-    status.textContent = readableStorageError(error);
+    console.error("Cloudflare R2 업로드 오류:", error);
+    progressBar.style.width = "0%";
+    status.textContent = `업로드 실패 · ${error.message || "Worker/R2 설정을 확인해주세요."}`;
   }
 }
 
@@ -221,44 +211,12 @@ function updateCount() {
   emptyState.hidden = count > 0;
 }
 
-function sanitizeFileName(name) {
-  const lastDot = name.lastIndexOf(".");
-  const rawBase = lastDot > -1 ? name.slice(0, lastDot) : name;
-  const ext = lastDot > -1 ? name.slice(lastDot).toLowerCase() : "";
-  const base = rawBase
-    .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-zA-Z0-9가-힣_-]/g, "")
-    .replace(/-+/g, "-") || "image";
-
-  return `${base}${ext}`;
-}
-
 function formatBytes(bytes) {
   if (!bytes) return "0 B";
   const units = ["B", "KB", "MB", "GB"];
   const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
   const value = bytes / Math.pow(1024, index);
   return `${value.toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
-}
-
-function readableStorageError(error) {
-  const code = error?.code || "unknown";
-
-  if (code === "storage/unauthorized") {
-    return "업로드 권한이 거부됐습니다. Firebase Storage 규칙 게시 상태를 확인해주세요.";
-  }
-  if (code === "storage/bucket-not-found") {
-    return "Storage 버킷을 찾지 못했습니다.";
-  }
-  if (code === "storage/quota-exceeded") {
-    return "Storage 사용량 한도를 초과했습니다.";
-  }
-  if (code === "storage/retry-limit-exceeded") {
-    return "업로드 시간이 초과됐습니다. 다시 시도해주세요.";
-  }
-
-  return `업로드 실패 · ${code}`;
 }
 
 function escapeHtml(value) {
