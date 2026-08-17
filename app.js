@@ -19,11 +19,13 @@ async function checkWorker() {
     const response = await fetch(WORKER_API, { cache: "no-store" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-    serviceStatus.textContent = "Cloudflare R2 연결됨";
+    serviceStatus.textContent = "R2 연결됨";
+    serviceStatusDot.classList.remove("error");
     serviceStatusDot.classList.add("ready");
   } catch (error) {
     console.error("Worker 연결 확인 실패:", error);
     serviceStatus.textContent = "R2 연결 확인 필요";
+    serviceStatusDot.classList.remove("ready");
     serviceStatusDot.classList.add("error");
   }
 }
@@ -50,9 +52,7 @@ dropzone.addEventListener("drop", (event) => {
 });
 
 clearButton.addEventListener("click", () => {
-  for (const item of items.values()) {
-    URL.revokeObjectURL(item.previewUrl);
-  }
+  for (const item of items.values()) URL.revokeObjectURL(item.previewUrl);
   items.clear();
   resultGrid.innerHTML = "";
   updateCount();
@@ -69,6 +69,7 @@ async function handleFiles(fileList) {
     updateCount();
 
     if (file.size > MAX_FILE_SIZE) {
+      card.dataset.state = "error";
       card.querySelector(".card-status").textContent = "파일은 최대 10MB까지 업로드할 수 있습니다.";
       continue;
     }
@@ -94,6 +95,7 @@ function renderCard(item) {
   const card = document.createElement("article");
   card.className = "result-card";
   card.dataset.id = item.id;
+  card.dataset.state = "uploading";
 
   card.innerHTML = `
     <div class="preview-wrap">
@@ -142,6 +144,7 @@ async function uploadItem(item, card) {
   const codeGrid = card.querySelector(".code-grid");
 
   try {
+    card.dataset.state = "uploading";
     progressBar.style.width = "35%";
     status.textContent = "Cloudflare R2에 업로드 중...";
 
@@ -155,11 +158,7 @@ async function uploadItem(item, card) {
     });
 
     let payload = {};
-    try {
-      payload = await response.json();
-    } catch (_) {
-      // Worker가 JSON이 아닌 오류 응답을 반환하는 경우를 처리합니다.
-    }
+    try { payload = await response.json(); } catch (_) {}
 
     if (!response.ok || !payload.url) {
       throw new Error(payload.error || `업로드 실패 (HTTP ${response.status})`);
@@ -167,6 +166,7 @@ async function uploadItem(item, card) {
 
     item.downloadUrl = payload.url;
     progressBar.style.width = "100%";
+    card.dataset.state = "done";
     status.textContent = "완료 · 아래 코드를 바로 사용할 수 있습니다.";
 
     const htmlCode = `<img src="${item.downloadUrl}" alt="">`;
@@ -183,6 +183,7 @@ async function uploadItem(item, card) {
   } catch (error) {
     console.error("Cloudflare R2 업로드 오류:", error);
     progressBar.style.width = "0%";
+    card.dataset.state = "error";
     status.textContent = `업로드 실패 · ${error.message || "Worker/R2 설정을 확인해주세요."}`;
   }
 }
@@ -192,9 +193,7 @@ function bindCopy(button, value) {
     await navigator.clipboard.writeText(value);
     const original = button.textContent;
     button.textContent = "완료";
-    setTimeout(() => {
-      button.textContent = original;
-    }, 900);
+    setTimeout(() => { button.textContent = original; }, 900);
   });
 }
 
