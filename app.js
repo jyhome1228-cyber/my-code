@@ -30,12 +30,13 @@ const firebaseReady = Object.values(firebaseConfig).every(
 if (firebaseReady) {
   try {
     const app = initializeApp(firebaseConfig);
-    storage = getStorage(app);
-    firebaseStatus.textContent = "Firebase 연결됨";
+    // 버킷을 명시적으로 지정해 GitHub Pages 환경에서도 기본 버킷 오인식을 방지합니다.
+    storage = getStorage(app, `gs://${firebaseConfig.storageBucket}`);
+    firebaseStatus.textContent = "Firebase 설정됨";
     firebaseStatusDot.classList.add("ready");
   } catch (error) {
-    console.error(error);
-    firebaseStatus.textContent = "Firebase 연결 오류";
+    console.error("Firebase 초기화 오류:", error);
+    firebaseStatus.textContent = `Firebase 연결 오류${error?.code ? ` · ${error.code}` : ""}`;
   }
 } else {
   firebaseStatus.textContent = "Firebase 설정 필요";
@@ -160,7 +161,7 @@ function renderCard(item) {
         <span>${savingRate(item.originalFile.size, item.blob.size)}</span>
       </div>
       <div class="progress"><i></i></div>
-      <div class="card-status">${storage ? "Firebase 업로드 준비됨" : "Firebase 설정 후 CDN 업로드 가능"}</div>
+      <div class="card-status">${storage ? "Firebase 업로드 준비됨" : "Firebase 연결을 확인하세요"}</div>
       <div class="card-actions">
         <button class="card-button download-button" type="button">파일 저장</button>
         <button class="card-button primary upload-button" type="button" ${storage ? "" : "disabled"}>CDN 업로드</button>
@@ -195,9 +196,11 @@ function renderCard(item) {
       uploadButton.textContent = "업로드 완료";
       copyButton.disabled = false;
     } catch (error) {
-      console.error(error);
-      status.textContent = "업로드 실패 · Storage Rules / 설정을 확인하세요";
+      console.error("Firebase Storage 업로드 오류:", error);
+      const message = readableStorageError(error);
+      status.textContent = message;
       uploadButton.disabled = false;
+      alert(message);
     }
   });
 
@@ -249,6 +252,28 @@ function uploadToFirebase(item, onProgress) {
       }
     );
   });
+}
+
+function readableStorageError(error) {
+  const code = error?.code || "unknown";
+
+  if (code === "storage/unauthorized") {
+    return "업로드 권한이 거부됐습니다. Firebase Storage > 규칙에서 변경사항을 '게시'했는지 확인해주세요. (storage/unauthorized)";
+  }
+  if (code === "storage/bucket-not-found") {
+    return "Firebase Storage 버킷을 찾지 못했습니다. 버킷 생성/설정을 확인해주세요. (storage/bucket-not-found)";
+  }
+  if (code === "storage/quota-exceeded") {
+    return "Firebase Storage 사용량 한도를 초과했습니다. (storage/quota-exceeded)";
+  }
+  if (code === "storage/retry-limit-exceeded") {
+    return "업로드 연결 시간이 초과됐습니다. 네트워크 상태를 확인한 뒤 다시 시도해주세요. (storage/retry-limit-exceeded)";
+  }
+  if (code === "storage/unauthenticated") {
+    return "Firebase 인증이 필요한 상태입니다. (storage/unauthenticated)";
+  }
+
+  return `업로드 실패 · ${code}${error?.message ? ` · ${error.message}` : ""}`;
 }
 
 function loadImage(file) {
