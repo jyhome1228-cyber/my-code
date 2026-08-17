@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="마이코드 - 이미지를 업로드하고 웹사이트용 이미지 URL과 HTML, CSS 코드를 바로 생성하는 도구" />
+  <meta name="description" content="마이코드 - 이미지를 업로드하고 웹사이트용 이미지 URL과 HTML, CSS 코드를 바로 생성하는 이미지 워크스페이스" />
   <meta name="theme-color" content="#ff6a00" />
   <title>마이코드 | MY CODE</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -14,16 +15,19 @@
 <body>
   <header class="site-header">
     <a class="brand" href="./" aria-label="마이코드 홈">
-      <span class="brand-mark">M/</span>
+      <span class="brand-mark" aria-hidden="true">M/</span>
       <span class="brand-copy">
         <strong>MY CODE</strong>
         <small>IMAGE URL WORKSPACE</small>
       </span>
     </a>
 
-    <div class="header-status">
-      <span class="status-dot" id="serviceStatusDot"></span>
-      <span id="serviceStatus">Cloudflare R2 확인 중</span>
+    <div class="header-tools">
+      <span class="infra-label">R2 · WORKER</span>
+      <div class="header-status" aria-live="polite">
+        <span class="status-dot" id="serviceStatusDot"></span>
+        <span id="serviceStatus">Cloudflare R2 확인 중</span>
+      </div>
     </div>
   </header>
 
@@ -33,28 +37,38 @@
         <p class="eyebrow"><span></span> IMAGE URL · HTML · CSS</p>
         <h1>이미지를 올리고,<br />바로 웹 코드로.</h1>
         <p class="intro-copy">파일을 끌어놓으면 Cloudflare R2에 저장하고 웹사이트에서 바로 사용할 수 있는 이미지 URL과 코드를 자동으로 만듭니다.</p>
+        <div class="intro-tags" aria-label="마이코드 주요 기능">
+          <span>Drag & Drop</span>
+          <span>Direct URL</span>
+          <span>HTML</span>
+          <span>CSS</span>
+        </div>
       </div>
 
-      <div class="flow-card" aria-label="마이코드 사용 흐름">
-        <div class="flow-step"><b>01</b><span>UPLOAD</span><p>이미지 업로드</p></div>
-        <div class="flow-line"></div>
-        <div class="flow-step"><b>02</b><span>STORE</span><p>R2 저장</p></div>
-        <div class="flow-line"></div>
-        <div class="flow-step"><b>03</b><span>USE</span><p>코드 복사</p></div>
-      </div>
+      <aside class="flow-card" aria-label="마이코드 사용 흐름">
+        <div class="flow-head">
+          <span>HOW IT WORKS</span>
+          <b>3 STEPS</b>
+        </div>
+        <div class="flow-grid">
+          <div class="flow-step"><b>01</b><span>UPLOAD</span><p>이미지 업로드</p></div>
+          <div class="flow-step"><b>02</b><span>STORE</span><p>R2 저장</p></div>
+          <div class="flow-step"><b>03</b><span>USE</span><p>코드 복사</p></div>
+        </div>
+      </aside>
     </section>
 
-    <section class="upload-section">
+    <section class="workspace-section">
       <div class="section-bar">
         <div>
           <p class="eyebrow"><span></span> UPLOAD</p>
           <h2>이미지 업로드</h2>
         </div>
-        <span class="section-note">JPG · PNG · WEBP · GIF / 최대 10MB</span>
+        <span class="section-note">JPG · PNG · WEBP · GIF / 파일당 최대 10MB</span>
       </div>
 
       <button class="dropzone" id="dropzone" type="button">
-        <span class="drop-icon">＋</span>
+        <span class="drop-icon" aria-hidden="true">＋</span>
         <strong>이미지를 여기에 놓으세요</strong>
         <span>또는 클릭해서 파일 선택</span>
         <small>여러 장을 한 번에 올릴 수 있습니다.</small>
@@ -76,15 +90,21 @@
 
       <div class="empty-state" id="emptyState">
         <span class="empty-mark">M/</span>
-        <p>이미지를 올리면 URL, HTML, CSS 코드가 여기에 생성됩니다.</p>
+        <div>
+          <strong>아직 생성된 코드가 없습니다.</strong>
+          <p>이미지를 올리면 URL, HTML, CSS 코드가 이곳에 나타납니다.</p>
+        </div>
       </div>
       <div class="result-list" id="resultGrid"></div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <strong>MY CODE</strong>
-    <span>Simple image infrastructure for web makers.</span>
+    <div>
+      <strong>MY CODE</strong>
+      <span>Simple image infrastructure for web makers.</span>
+    </div>
+    <span>Cloudflare R2 · Workers</span>
   </footer>
 
   <script type="module" src="./app.js"></script>
