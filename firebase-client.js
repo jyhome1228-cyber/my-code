@@ -8,3 +8,17 @@ export const firebaseConfig = {
   messagingSenderId: "268885401102",
   appId: "1:268885401102:web:9c7608b60f41002262265f"
 };
+
+// app.js / mycloud.js가 로드되는 페이지에서 공통 헤더·푸터 메뉴를 동기화합니다.
+const syncSiteNav = () => {
+  const nav = document.querySelector('.platform-nav');
+  if (nav) {
+    nav.innerHTML = `<a href="./product.html">Product</a><a href="./workspace.html">Workspace</a><a href="./pricing.html">Pricing</a><a href="./magazine.html">Magazine</a><a href="./faq.html">FAQ</a><a href="./mycloud.html">My Cloud</a>`;
+  }
+  document.querySelectorAll('.company-footer-bottom > div').forEach((links) => {
+    links.innerHTML = `<a href="./product.html">Product</a><a href="./pricing.html">Pricing</a><a href="./magazine.html">Magazine</a><a href="./faq.html">FAQ</a><a href="./refund-policy.html">환불규정</a><a href="./mycloud.html">My Cloud</a>`;
+  });
+};
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncSiteNav, { once: true });
+else syncSiteNav();
