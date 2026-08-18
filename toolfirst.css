@@ -1,0 +1,126 @@
+/* MY CODE — utility-first homepage: show the real tool before marketing */
+
+.tool-first {
+  padding: 54px 0 50px;
+}
+
+.tool-first-heading {
+  max-width: 720px;
+  margin: 0 0 28px;
+}
+
+.tool-first-heading .eyebrow {
+  margin-bottom: 12px !important;
+  color: #d95600 !important;
+}
+
+.tool-first-heading h1 {
+  margin: 0;
+  max-width: 700px;
+  color: #171717;
+  font-size: clamp(36px, 3.6vw, 50px);
+  font-weight: 520;
+  line-height: 1.1;
+  letter-spacing: -.047em;
+}
+
+.tool-first-heading > p:last-child {
+  max-width: 650px;
+  margin: 18px 0 0;
+  color: #77716c;
+  font-size: 16px;
+  line-height: 1.72;
+}
+
+.tool-window.live-product-window {
+  width: 100% !important;
+  margin: 0 auto !important;
+  border: 1px solid #eadfd7 !important;
+  border-radius: 20px !important;
+  background: #fff !important;
+  box-shadow: 0 22px 60px rgba(84, 50, 25, .075) !important;
+}
+
+.tool-window .product-window-bar {
+  background: #fffdfb !important;
+}
+
+.tool-window .live-window-body {
+  min-height: 420px !important;
+}
+
+.tool-window .live-upload-pane,
+.tool-window .live-result-pane {
+  min-height: 330px;
+}
+
+.tool-window .hero-live-dropzone {
+  height: 274px !important;
+}
+
+.tool-first-note {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+  color: #938d87;
+  font-size: 12px;
+}
+
+.tool-first-note i {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #c9c0b9;
+}
+
+/* The homepage starts as a product, not a landing-page advertisement. */
+.value-band {
+  margin-top: 0 !important;
+}
+
+.product-story-section {
+  padding-top: 112px !important;
+}
+
+@media (max-width: 1120px) {
+  .tool-first {
+    padding-top: 44px;
+  }
+
+  .tool-window .live-upload-pane,
+  .tool-window .live-result-pane {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .tool-first {
+    padding: 34px 0 34px;
+  }
+
+  .tool-first-heading {
+    margin-bottom: 22px;
+  }
+
+  .tool-first-heading h1 {
+    font-size: clamp(31px, 9vw, 38px);
+    line-height: 1.12;
+  }
+
+  .tool-first-heading > p:last-child {
+    margin-top: 14px;
+    font-size: 15px;
+  }
+
+  .tool-window.live-product-window {
+    border-radius: 15px !important;
+  }
+
+  .tool-first-note {
+    gap: 8px;
+    font-size: 10px;
+    line-height: 1.5;
+  }
+}
