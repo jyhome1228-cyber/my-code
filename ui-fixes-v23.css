@@ -1,0 +1,118 @@
+/* MY CODE — regression fixes v23 */
+:root {
+  --orange: #fb5d00;
+  --orange-dark: #d95200;
+  --orange-soft: #fff3ea;
+}
+
+/* Generated result header: keep count and clear control on one baseline. */
+.home-simple-page .simple-result-head {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 18px !important;
+  margin: 0 0 14px !important;
+}
+
+.home-simple-page .simple-result-head h2 {
+  margin: 0 !important;
+  line-height: 1.25 !important;
+}
+
+.home-simple-page .simple-result-actions {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+
+.home-simple-page .simple-result-actions > span,
+.home-simple-page .simple-result-actions > span > b {
+  display: inline-flex !important;
+  align-items: center !important;
+  height: 32px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+.home-simple-page .simple-result-actions .quiet-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  margin: 0 !important;
+  padding: 0 11px !important;
+  border: 1px solid #e5ddd6 !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  color: #77716c !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+}
+
+.home-simple-page .simple-result-actions .quiet-button:hover {
+  border-color: rgba(251,93,0,.38) !important;
+  background: #fff8f3 !important;
+  color: #fb5d00 !important;
+}
+
+/* Keep all major home section headings optically centered. */
+.home-simple-page .home-section-heading,
+.home-simple-page .home-section-heading.event-heading {
+  width: min(760px, 100%) !important;
+  margin: 0 auto 48px !important;
+  text-align: center !important;
+}
+
+.home-simple-page .home-section-heading .home-section-kicker,
+.home-simple-page .home-section-heading h2 {
+  width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  text-align: center !important;
+}
+
+/* Cards stay readable; only section headings/CTAs are centered. */
+.home-simple-page .home-info-card,
+.home-simple-page .home-event-card {
+  text-align: left !important;
+}
+
+.home-simple-page .home-event-card a {
+  align-self: center !important;
+  text-align: center !important;
+}
+
+/* Prevent card/result overflow on narrow screens. */
+.result-card,
+.result-card *,
+.auth-dialog,
+.auth-dialog * {
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  .home-simple-page .simple-result-head {
+    gap: 10px !important;
+  }
+
+  .home-simple-page .simple-result-actions {
+    gap: 6px !important;
+  }
+
+  .home-simple-page .simple-result-actions .quiet-button {
+    height: 30px !important;
+    min-height: 30px !important;
+    padding-inline: 9px !important;
+  }
+
+  .home-simple-page .home-section-heading,
+  .home-simple-page .home-section-heading.event-heading {
+    margin-bottom: 32px !important;
+  }
+}
