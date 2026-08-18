@@ -10,35 +10,44 @@ export const firebaseConfig = {
 };
 
 const loadSharedHeaderStyle = () => {
-  if (document.querySelector('link[data-mycode-header]')) return;
+  if (document.querySelector('link[href*="header-consistency.css"]')) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './header-consistency.css?v=20260818-22';
+  link.href = './header-consistency.css?v=20260818-23';
   link.dataset.mycodeHeader = 'true';
   document.head.appendChild(link);
 };
 
 const loadAuthModalFixStyle = () => {
-  if (document.querySelector('link[data-mycode-auth-fix]')) return;
+  if (document.querySelector('link[href*="auth-modal-fix.css"]')) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './auth-modal-fix.css?v=20260818-22';
+  link.href = './auth-modal-fix.css?v=20260818-23';
   link.dataset.mycodeAuthFix = 'true';
   document.head.appendChild(link);
 };
 
 const loadHomeCenterStyle = () => {
   if (!document.body?.classList.contains('home-simple-page')) return;
-  if (document.querySelector('link[data-mycode-home-center]')) return;
+  if (document.querySelector('link[href*="home-center-v22.css"]')) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './home-center-v22.css?v=20260818-22';
+  link.href = './home-center-v22.css?v=20260818-23';
   link.dataset.mycodeHomeCenter = 'true';
   document.head.appendChild(link);
 };
 
+const loadUiFixStyle = () => {
+  if (!document.body?.classList.contains('home-simple-page')) return;
+  if (document.querySelector('link[href*="ui-fixes-v23.css"]')) return;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = './ui-fixes-v23.css?v=20260818-23';
+  document.head.appendChild(link);
+};
+
 const forceOrangeFavicon = () => {
-  const href = './mycode-favicon-orange-20260818.svg?v=20260818-22';
+  const href = './mycode-favicon-orange-20260818.svg?v=20260818-23';
   document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach((node) => node.remove());
 
   const icon = document.createElement('link');
@@ -49,7 +58,7 @@ const forceOrangeFavicon = () => {
 
   const shortcut = document.createElement('link');
   shortcut.rel = 'shortcut icon';
-  shortcut.href = './favicon.ico?v=20260818-22';
+  shortcut.href = './favicon.ico?v=20260818-23';
   document.head.appendChild(shortcut);
 
   let theme = document.querySelector('meta[name="theme-color"]');
@@ -65,6 +74,7 @@ const syncSiteNav = () => {
   loadSharedHeaderStyle();
   loadAuthModalFixStyle();
   loadHomeCenterStyle();
+  loadUiFixStyle();
   forceOrangeFavicon();
 
   const nav = document.querySelector('.platform-nav');
