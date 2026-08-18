@@ -1,3 +1,7 @@
+const siteNavScript = document.createElement('script');
+siteNavScript.src = './site-nav.js?v=20260818-14';
+document.head.appendChild(siteNavScript);
+
 const pricingStyle = document.createElement('link');
 pricingStyle.rel = 'stylesheet';
 pricingStyle.href = './pricing-toggle.css?v=20260818-14';
@@ -27,9 +31,7 @@ function updatePricing(mode) {
     if (plan === 'enterprise') {
       priceEl.textContent = '별도 문의';
       cycleEl.textContent = '';
-      detailEl.textContent = mode === 'yearly'
-        ? '연간 계약 조건 별도 협의'
-        : '기업별 계약 및 결제 조건 협의';
+      detailEl.textContent = mode === 'yearly' ? '연간 계약 조건 별도 협의' : '기업별 계약 및 결제 조건 협의';
       return;
     }
 
@@ -43,7 +45,6 @@ function updatePricing(mode) {
         detailEl.textContent = '연간 결제도 0원';
         return;
       }
-
       const effectiveMonthly = Math.round(yearly / 12);
       priceEl.textContent = formatWon(yearly);
       cycleEl.textContent = '/ 년';
@@ -59,11 +60,9 @@ function updatePricing(mode) {
   if (annualPaymentNote) annualPaymentNote.hidden = mode !== 'yearly';
 }
 
-billingButtons.forEach((button) => {
-  button.addEventListener('click', () => updatePricing(button.dataset.billing));
-});
+billingButtons.forEach((button) => button.addEventListener('click', () => updatePricing(button.dataset.billing)));
 
-// Pricing 페이지는 항상 월간 결제 상태로 시작합니다.
+// Pricing 페이지에 들어올 때는 항상 월간 결제가 기본입니다.
 updatePricing('monthly');
 
 const pricingNote = document.querySelector('.pricing-note');
