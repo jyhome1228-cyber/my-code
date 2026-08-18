@@ -16,6 +16,8 @@ import {
   collection,
   addDoc,
   getDocs,
+  getDoc,
+  setDoc,
   deleteDoc,
   doc,
   query,
@@ -26,6 +28,8 @@ import {
 const WORKER_API = 'https://cool-bar-7c8d.planus253.workers.dev';
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const GUEST_USE_KEY = 'mycode_guest_trial_used_v1';
+const USER_FREE_LIMIT = 3;
+const USER_USAGE_CACHE_PREFIX = 'mycode_user_free_uses_v1_';
 
 const fileInput = document.querySelector('#fileInput');
 const dropzone = document.querySelector('#dropzone');
@@ -64,6 +68,8 @@ let libraryAssets = [];
 let auth = null;
 let db = null;
 let authReady = false;
+let userFreeUses = 0;
+let uploadSessionBusy = false;
 
 initFirebase();
 checkWorker();
@@ -80,7 +86,13 @@ function initFirebase() {
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
       authReady = true;
+      if (user) {
+        userFreeUses = await loadUserFreeUses(user);
+      } else {
+        userFreeUses = 0;
+      }
       updateAccountUI();
+      updateUsageHint();
       updateResultSaveButtons();
       if (user) {
         await loadLibrary();
@@ -93,6 +105,7 @@ function initFirebase() {
     authReady = true;
     console.error('Firebase account initialization failed:', error);
     if (authMessage) authMessage.textContent = '계정 기능 초기화에 실패했습니다. Firebase 설정을 확인해주세요.';
+    updateUsageHint();
   }
 }
 
@@ -235,7 +248,8 @@ function updateAccountUI() {
     const name = currentUser.displayName || currentUser.email || 'MY CODE USER';
     if (accountButton) accountButton.textContent = '로그아웃';
     if (accountPanelButton) accountPanelButton.textContent = '로그아웃';
-    if (accountSummary) accountSummary.textContent = `${name} 계정으로 로그인되어 있습니다. 생성한 이미지와 코드는 My Cloud에 저장되어 다음 작업에서도 다시 사용할 수 있습니다.`;
+    const remaining = Math.max(0, USER_FREE_LIMIT - userFreeUses);
+    if (accountSummary) accountSummary.textContent = `${name} 계정 · 무료 사용 ${userFreeUses}/${USER_FREE_LIMIT}회 · ${remaining}회 남음`;
     if (libraryLocked) libraryLocked.hidden = true;
     if (libraryTools) libraryTools.hidden = false;
     if (libraryCount) libraryCount.textContent = '불러오는 중';
@@ -250,7 +264,7 @@ function updateAccountUI() {
 }
 
 async function handleFiles(fileList) {
-  if (!fileList) return;
+  if (!fileList || uploadSessionBusy) return;
   await waitForAuthState();
 
   const imageFiles = [...fileList].filter((file) => file.type.startsWith('image/'));
@@ -274,30 +288,55 @@ async function handleFiles(fileList) {
   }
 
   if (!currentUser && hasUsedGuestTrial()) {
-    const message = '첫 무료 사용이 끝났어요. 계속 이미지를 올리려면 회원가입 또는 로그인이 필요합니다.';
+    const message = '첫 무료 사용이 끝났어요. 두 번째 업로드부터 로그인 또는 회원가입이 필요합니다.';
     showNotice(message, 'auth', 7000);
-    openAuthDialog('첫 1회 체험을 사용했습니다. 계속 사용하려면 회원가입 또는 로그인해주세요.');
+    openAuthDialog('첫 1회 무료 이용을 사용했습니다. 계속 사용하려면 로그인 또는 회원가입해주세요.');
     resetFileInput();
     return;
   }
 
-  if (!currentUser) {
-    markGuestTrialUsed();
+  if (currentUser && userFreeUses >= USER_FREE_LIMIT) {
+    showNotice('로그인 무료 3회를 모두 사용했습니다. 계속 사용하려면 Pricing에서 요금제를 선택해주세요.', 'auth', 8000);
+    resetFileInput();
+    return;
   }
 
-  for (const file of files) {
-    const item = createItem(file);
-    items.set(item.id, item);
-    const card = renderResultCard(item);
-    updateCount();
-    uploadItem(item, card);
+  uploadSessionBusy = true;
+  const uploadTasks = [];
+
+  try {
+    for (const file of files) {
+      const item = createItem(file);
+      items.set(item.id, item);
+      const card = renderResultCard(item);
+      updateCount();
+      uploadTasks.push(uploadItem(item, card));
+    }
+
+    const results = await Promise.allSettled(uploadTasks);
+    const succeeded = results.some((result) => result.status === 'fulfilled' && result.value === true);
+
+    if (succeeded) {
+      if (currentUser) {
+        await incrementUserFreeUse();
+        const remaining = Math.max(0, USER_FREE_LIMIT - userFreeUses);
+        if (remaining > 0) {
+          showNotice(`무료 사용 ${userFreeUses}/${USER_FREE_LIMIT}회 · ${remaining}회 남았습니다.`, 'info', 5200);
+        } else {
+          showNotice('무료 3회를 모두 사용했습니다. 다음 업로드부터 요금제 선택이 필요합니다.', 'auth', 6500);
+        }
+      } else {
+        markGuestTrialUsed();
+        showNotice('첫 1회 무료 이용을 완료했습니다. 다음 업로드부터 로그인 또는 회원가입이 필요합니다.', 'info', 5200);
+      }
+      updateAccountUI();
+      updateUsageHint();
+    }
+  } finally {
+    uploadSessionBusy = false;
+    resetFileInput();
   }
 
-  if (!currentUser) {
-    showNotice('첫 무료 사용을 진행합니다. 다음 업로드부터는 회원가입 또는 로그인이 필요해요.', 'info', 5200);
-  }
-
-  resetFileInput();
   document.querySelector('#result')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
@@ -378,11 +417,13 @@ async function uploadItem(item, card) {
     bindCopy(card.querySelector('.copy-css'), item.cssCode);
 
     if (currentUser) await saveResultItem(item, card, true);
+    return true;
   } catch (error) {
     console.error('Image upload error:', error);
     progressBar.style.width = '0%';
     card.dataset.state = 'error';
     status.textContent = `업로드 실패 · ${error.message || '잠시 후 다시 시도해주세요.'}`;
+    return false;
   }
 }
 
@@ -533,6 +574,69 @@ function updateResultSaveButtons() {
     button.disabled = false;
     button.textContent = currentUser ? 'My Cloud 저장' : '로그인 후 저장';
   });
+}
+
+async function loadUserFreeUses(user) {
+  const cached = readUserUsageCache(user.uid);
+  if (!db) return cached;
+  try {
+    const ref = doc(db, 'users', user.uid);
+    const snapshot = await getDoc(ref);
+    const remote = snapshot.exists() ? Number(snapshot.data()?.freeUploadsUsed || 0) : 0;
+    const used = Math.max(cached, Math.max(0, Math.min(USER_FREE_LIMIT, remote)));
+    writeUserUsageCache(user.uid, used);
+    if (!snapshot.exists() || remote !== used) {
+      await setDoc(ref, { freeUploadsUsed: used, freeUploadsUpdatedAt: serverTimestamp() }, { merge: true });
+    }
+    return used;
+  } catch (error) {
+    console.warn('Free usage load fallback:', error);
+    return cached;
+  }
+}
+
+async function incrementUserFreeUse() {
+  if (!currentUser) return;
+  userFreeUses = Math.min(USER_FREE_LIMIT, userFreeUses + 1);
+  writeUserUsageCache(currentUser.uid, userFreeUses);
+  if (!db) return;
+  try {
+    await setDoc(doc(db, 'users', currentUser.uid), {
+      freeUploadsUsed: userFreeUses,
+      freeUploadsUpdatedAt: serverTimestamp()
+    }, { merge: true });
+  } catch (error) {
+    console.warn('Free usage save fallback:', error);
+  }
+}
+
+function readUserUsageCache(uid) {
+  try {
+    return Math.max(0, Math.min(USER_FREE_LIMIT, Number(localStorage.getItem(`${USER_USAGE_CACHE_PREFIX}${uid}`) || 0)));
+  } catch (_) {
+    return 0;
+  }
+}
+
+function writeUserUsageCache(uid, value) {
+  try {
+    localStorage.setItem(`${USER_USAGE_CACHE_PREFIX}${uid}`, String(value));
+  } catch (_) {}
+}
+
+function updateUsageHint() {
+  const note = document.querySelector('.simple-trial-note');
+  if (!note) return;
+  if (currentUser) {
+    const remaining = Math.max(0, USER_FREE_LIMIT - userFreeUses);
+    note.textContent = remaining > 0
+      ? `로그인 무료 사용 ${userFreeUses}/${USER_FREE_LIMIT}회 · ${remaining}회 남음`
+      : '무료 3회를 모두 사용했습니다 · 이후 요금제 선택이 필요합니다.';
+    return;
+  }
+  note.textContent = hasUsedGuestTrial()
+    ? '첫 무료 이용을 사용했습니다 · 다음 업로드부터 로그인 또는 회원가입이 필요합니다.'
+    : '첫 1회 무료 이용 가능 · 이후 로그인 또는 회원가입이 필요합니다.';
 }
 
 function bindCopy(button, value) {
