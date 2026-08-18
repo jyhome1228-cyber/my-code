@@ -1,10 +1,18 @@
+const pricingStyle = document.createElement('link');
+pricingStyle.rel = 'stylesheet';
+pricingStyle.href = './pricing-toggle.css?v=20260818-11';
+document.head.appendChild(pricingStyle);
+
 const billingButtons = [...document.querySelectorAll('[data-billing]')];
 const planCards = [...document.querySelectorAll('.pricing-card[data-plan]')];
 const annualPaymentNote = document.querySelector('#annualPaymentNote');
+const BILLING_KEY = 'mycode_billing_cycle';
 
 const formatWon = (value) => `${Number(value).toLocaleString('ko-KR')}원`;
 
 function updatePricing(mode) {
+  localStorage.setItem(BILLING_KEY, mode);
+
   billingButtons.forEach((button) => {
     const active = button.dataset.billing === mode;
     button.classList.toggle('is-active', active);
@@ -58,4 +66,5 @@ billingButtons.forEach((button) => {
   button.addEventListener('click', () => updatePricing(button.dataset.billing));
 });
 
-updatePricing('monthly');
+const savedBilling = localStorage.getItem(BILLING_KEY);
+updatePricing(savedBilling === 'yearly' ? 'yearly' : 'monthly');
