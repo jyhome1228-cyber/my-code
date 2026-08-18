@@ -1,21 +1,15 @@
-import { firebaseConfig } from './firebase-client.js';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js';
-import { getFirestore, collection, getDocs, getDoc, deleteDoc, doc, query, orderBy } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js';
+import { auth, db } from './firebase-core.js?v=20260818-32';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js';
+import { collection, getDocs, getDoc, deleteDoc, doc, query, orderBy } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js';
+import './auth-signup.js?v=20260818-32';
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
 const PAID_PLANS = new Set(['STARTER', 'STANDARD', 'PRO', 'TEAM', 'ENTERPRISE']);
-setPersistence(auth, browserLocalPersistence).catch(() => {});
 
 const loginButton = document.querySelector('#cloudLoginButton');
 const logoutButton = document.querySelector('#cloudLogoutButton');
 const lockedLoginButton = document.querySelector('#cloudLockedLoginButton');
 const authDialog = document.querySelector('#authDialog');
-const googleButton = document.querySelector('#googleLoginButton');
 const emailLoginButton = document.querySelector('#emailLoginButton');
-const emailSignupButton = document.querySelector('#emailSignupButton');
 const emailInput = document.querySelector('#authEmail');
 const passwordInput = document.querySelector('#authPassword');
 const authMessage = document.querySelector('#authMessage');
@@ -51,14 +45,6 @@ authDialog?.addEventListener('click', (event) => {
   if (event.target === authDialog) authDialog.close();
 });
 
-googleButton?.addEventListener('click', async () => {
-  setBusy(true);
-  clearAuthMessage();
-  try { await signInWithPopup(auth, new GoogleAuthProvider()); authDialog.close(); }
-  catch (e) { if (authMessage) authMessage.textContent = authError(e); }
-  finally { setBusy(false); }
-});
-
 emailLoginButton?.addEventListener('click', async () => {
   const email = emailInput?.value.trim() || '';
   const password = passwordInput?.value || '';
@@ -68,23 +54,14 @@ emailLoginButton?.addEventListener('click', async () => {
   }
   setBusy(true);
   clearAuthMessage();
-  try { await signInWithEmailAndPassword(auth, email, password); authDialog.close(); }
-  catch (e) { if (authMessage) authMessage.textContent = authError(e); }
-  finally { setBusy(false); }
-});
-
-emailSignupButton?.addEventListener('click', async () => {
-  const email = emailInput?.value.trim() || '';
-  const password = passwordInput?.value || '';
-  if (!email || password.length < 6) {
-    if (authMessage) authMessage.textContent = '이메일과 6자 이상의 비밀번호를 입력해주세요.';
-    return;
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    authDialog.close();
+  } catch (e) {
+    if (authMessage) authMessage.textContent = authError(e);
+  } finally {
+    setBusy(false);
   }
-  setBusy(true);
-  clearAuthMessage();
-  try { await createUserWithEmailAndPassword(auth, email, password); authDialog.close(); }
-  catch (e) { if (authMessage) authMessage.textContent = authError(e); }
-  finally { setBusy(false); }
 });
 
 passwordInput?.addEventListener('keydown', (event) => {
@@ -111,6 +88,9 @@ onAuthStateChanged(auth, async (user) => {
     resetAccountProfile();
     updateStats();
   }
+}, (error) => {
+  console.error('[MY CODE] Firebase auth state error:', error);
+  if (accountName) accountName.textContent = '계정 정보를 불러오지 못했습니다.';
 });
 
 function openLogin() {
@@ -122,7 +102,7 @@ async function loadAccountProfile() {
   if (!currentUser) return;
   const display = currentUser.displayName || currentUser.email?.split('@')[0] || 'MY CODE USER';
   if (userName) userName.textContent = display;
-  if (userEmail) userEmail.textContent = currentUser.email || 'Google 계정';
+  if (userEmail) userEmail.textContent = currentUser.email || '—';
 
   let planName = 'FREE';
   let usedToday = false;
@@ -132,6 +112,7 @@ async function loadAccountProfile() {
       const data = snapshot.data() || {};
       planName = String(data.plan || 'FREE').toUpperCase();
       usedToday = data.dailyFreeDate === todayKey() && data.dailyFreeUsed === true;
+      if (data.name && userName) userName.textContent = data.name;
     }
   } catch (e) {
     console.warn('Account profile fallback:', e);
@@ -286,8 +267,37 @@ function bindCopy(button, value) {
   });
 }
 
-function clearAuthMessage() { if (authMessage) authMessage.textContent = ''; }
-function setBusy(v) { [googleButton,emailLoginButton,emailSignupButton].forEach(b => { if(b) b.disabled=v; }); }
-function formatBytes(bytes) { if (!bytes) return '0 B'; const u=['B','KB','MB','GB']; const i=Math.min(Math.floor(Math.log(bytes)/Math.log(1024)),u.length-1); return `${(bytes/Math.pow(1024,i)).toFixed(i?1:0)} ${u[i]}`; }
-function authError(e) { const c=e?.code||''; if(c.includes('popup-closed')) return '로그인 창이 닫혔습니다.'; if(c.includes('unauthorized-domain')) return 'Firebase 승인 도메인에 현재 사이트 주소를 추가해주세요.'; if(c.includes('operation-not-allowed')) return 'Firebase에서 해당 로그인 방식을 활성화해주세요.'; if(c.includes('invalid-credential')) return '이메일 또는 비밀번호를 확인해주세요.'; if(c.includes('email-already-in-use')) return '이미 가입된 이메일입니다.'; if(c.includes('weak-password')) return '비밀번호는 6자 이상이어야 합니다.'; return '로그인 처리 중 오류가 발생했습니다.'; }
-function escapeHtml(v) { return String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
+function clearAuthMessage() {
+  if (authMessage) authMessage.textContent = '';
+}
+
+function setBusy(value) {
+  if (emailLoginButton) emailLoginButton.disabled = value;
+}
+
+function formatBytes(bytes) {
+  if (!bytes) return '0 B';
+  const units = ['B','KB','MB','GB'];
+  const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  return `${(bytes / Math.pow(1024, index)).toFixed(index ? 1 : 0)} ${units[index]}`;
+}
+
+function authError(error) {
+  const code = error?.code || '';
+  if (code.includes('unauthorized-domain')) return 'Firebase 승인 도메인에 현재 사이트 주소를 추가해주세요.';
+  if (code.includes('operation-not-allowed')) return 'Firebase에서 이메일/비밀번호 로그인을 활성화해주세요.';
+  if (code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found')) return '이메일 또는 비밀번호를 확인해주세요.';
+  if (code.includes('too-many-requests')) return '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.';
+  if (code.includes('network-request-failed')) return '네트워크 연결을 확인해주세요.';
+  if (code.includes('api-key-not-valid')) return 'Firebase 웹 앱 설정의 API Key가 유효하지 않습니다.';
+  return code ? `로그인 오류: ${code}` : '로그인 처리 중 오류가 발생했습니다.';
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'",'&#039;');
+}
