@@ -3,287 +3,129 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="마이코드 - 이미지를 업로드하고 웹사이트용 이미지 URL과 HTML, CSS 코드를 바로 생성하고 My Cloud에 저장하는 이미지 워크스페이스" />
+  <meta name="description" content="마이코드 - 이미지를 올리면 URL, HTML, CSS 코드를 바로 생성하는 이미지 워크스페이스" />
   <meta name="theme-color" content="#fb5d00" />
-  <title>마이코드 | MY CODE</title>
-  <link rel="icon" href="./favicon.svg?v=20260818-8" type="image/svg+xml" />
+  <title>MY CODE | 이미지 URL · 웹 코드 생성</title>
+  <link rel="icon" href="./favicon.svg?v=20260818-9" type="image/svg+xml" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css" />
-  <link rel="stylesheet" href="./style.css?v=20260818-8" />
-  <link rel="stylesheet" href="./platform.css?v=20260818-8" />
-  <link rel="stylesheet" href="./workspace.css?v=20260818-8" />
+  <link rel="stylesheet" href="./style.css?v=20260818-9" />
+  <link rel="stylesheet" href="./platform.css?v=20260818-9" />
+  <link rel="stylesheet" href="./workspace.css?v=20260818-9" />
+  <link rel="stylesheet" href="./pages.css?v=20260818-9" />
 </head>
 <body>
-  <header class="site-header platform-header">
+  <header class="site-header platform-header page-header">
     <div class="shell header-inner">
-      <a class="brand brand-logo-link" href="#top" aria-label="마이코드 홈">
-        <img class="brand-logo-image" src="./logo.svg?v=20260818-8" alt="MY CODE" />
+      <a class="brand brand-logo-link" href="./index.html" aria-label="마이코드 홈">
+        <img class="brand-logo-image" src="./logo.svg?v=20260818-9" alt="MY CODE" />
       </a>
-
       <nav class="platform-nav" aria-label="주요 메뉴">
-        <a href="#features">Product</a>
-        <a href="#upload">Workspace</a>
-        <a href="#pricing">Pricing</a>
-        <a href="#library">My Cloud</a>
+        <a href="./product.html">Product</a>
+        <a href="./workspace.html">Workspace</a>
+        <a href="./pricing.html">Pricing</a>
+        <a href="./mycloud.html">My Cloud</a>
       </nav>
-
       <div class="header-actions">
         <button class="account-button header-cta" id="accountButton" type="button">로그인</button>
-        <span id="serviceStatus" hidden></span>
-        <span id="serviceStatusDot" hidden></span>
+        <span id="serviceStatus" hidden></span><span id="serviceStatusDot" hidden></span>
       </div>
     </div>
   </header>
 
-  <main id="top">
-    <section class="tool-first shell" id="product">
-      <div class="tool-first-heading">
-        <p class="eyebrow">MY CODE / WORKSPACE</p>
-        <h1>이미지를 올리고,<br />바로 코드로 사용하세요.</h1>
-        <p>이미지를 드래그하면 URL, HTML, CSS 코드가 바로 생성됩니다. 필요한 코드만 복사해서 웹사이트에 붙여넣으세요.</p>
-      </div>
-
-      <div class="hero-product-window live-product-window tool-window" id="upload" aria-label="마이코드 이미지 코드 워크스페이스">
-        <div class="product-window-bar">
-          <div class="window-dots"><i></i><i></i><i></i></div>
-          <span>MY CODE / WORKSPACE</span>
-          <div class="window-status">READY</div>
+  <main>
+    <section class="home-tool">
+      <div class="page-shell">
+        <div class="home-tool-heading">
+          <p class="page-kicker">MY CODE / IMAGE WORKSPACE</p>
+          <h1>이미지를 올리고,<br />바로 코드로 가져가세요.</h1>
+          <p>파일을 드래그하면 이미지 URL, HTML, CSS 코드가 즉시 만들어집니다. 회원가입 없이 바로 사용할 수 있습니다.</p>
         </div>
 
-        <div class="product-window-body live-window-body">
-          <aside class="product-mini-sidebar live-sidebar" aria-label="워크스페이스 메뉴">
-            <div class="mini-brand mini-brand-symbol" aria-hidden="true">&lt;/&gt;</div>
-            <span class="active">UPLOAD</span>
-            <span>RESULT</span>
-            <span>MY CLOUD</span>
-            <small>JPG · PNG<br />WEBP · GIF</small>
-          </aside>
-
-          <div class="product-mini-content live-workspace-content">
-            <div class="product-mini-heading live-workspace-heading">
-              <div><small>01 / WORKSPACE</small><strong>이미지를 올리고 코드 가져가기</strong></div>
-              <span>여러 장 가능 · 최대 10MB</span>
-            </div>
-
-            <div class="live-workspace-grid">
-              <div class="live-upload-pane">
-                <div class="live-pane-label"><span>UPLOAD</span><b>새 이미지</b></div>
-                <button class="dropzone platform-dropzone hero-live-dropzone" id="dropzone" type="button">
-                  <span class="drop-icon" aria-hidden="true">＋</span>
-                  <strong>이미지를 여기에 놓으세요</strong>
-                  <span>또는 클릭해서 파일 선택</span>
-                  <small>업로드 후 코드가 오른쪽에 바로 생성됩니다.</small>
-                </button>
-                <input id="fileInput" type="file" accept="image/*" multiple hidden />
-                <div class="upload-format-row"><span>JPG</span><span>PNG</span><span>WEBP</span><span>GIF</span></div>
+        <div class="hero-product-window live-product-window" id="upload" aria-label="이미지 업로드 워크스페이스">
+          <div class="product-window-bar">
+            <div class="window-dots"><i></i><i></i><i></i></div>
+            <span>MY CODE / WORKSPACE</span>
+            <div class="window-status">READY</div>
+          </div>
+          <div class="product-window-body live-window-body">
+            <aside class="product-mini-sidebar live-sidebar" aria-label="워크스페이스 메뉴">
+              <div class="mini-brand mini-brand-symbol" aria-hidden="true">&lt;/&gt;</div>
+              <span class="active">UPLOAD</span><span>RESULT</span><span>MY CLOUD</span>
+              <small>JPG · PNG<br />WEBP · GIF</small>
+            </aside>
+            <div class="product-mini-content live-workspace-content">
+              <div class="product-mini-heading live-workspace-heading">
+                <div><small>WORKSPACE</small><strong>이미지 올리기</strong></div>
+                <span>여러 장 가능 · 최대 10MB</span>
               </div>
-
-              <div class="live-result-pane" id="result">
-                <div class="live-result-head">
-                  <div class="live-pane-label"><span>RESULT</span><b>생성된 코드</b></div>
-                  <div class="live-result-actions"><span><b id="fileCount">0개</b></span><button class="quiet-button" id="clearButton" type="button">비우기</button></div>
+              <div class="live-workspace-grid">
+                <div class="live-upload-pane">
+                  <div class="live-pane-label"><span>UPLOAD</span><b>새 이미지</b></div>
+                  <button class="dropzone platform-dropzone hero-live-dropzone" id="dropzone" type="button">
+                    <span class="drop-icon" aria-hidden="true">＋</span>
+                    <strong>이미지를 여기에 놓으세요</strong>
+                    <span>또는 클릭해서 파일 선택</span>
+                    <small>올리면 오른쪽에 코드가 바로 생성됩니다.</small>
+                  </button>
+                  <input id="fileInput" type="file" accept="image/*" multiple hidden />
+                  <div class="upload-format-row"><span>JPG</span><span>PNG</span><span>WEBP</span><span>GIF</span></div>
                 </div>
-
-                <div class="empty-state platform-empty hero-empty-state" id="emptyState">
-                  <div class="empty-orbit"><span>&lt;/&gt;</span></div>
-                  <div><strong>이미지를 올려주세요.</strong><p>IMAGE URL, HTML, CSS 코드가 바로 여기에 나타납니다.</p></div>
+                <div class="live-result-pane" id="result">
+                  <div class="live-result-head">
+                    <div class="live-pane-label"><span>RESULT</span><b>생성된 코드</b></div>
+                    <div class="live-result-actions"><span><b id="fileCount">0개</b></span><button class="quiet-button" id="clearButton" type="button">비우기</button></div>
+                  </div>
+                  <div class="empty-state platform-empty hero-empty-state" id="emptyState">
+                    <div class="empty-orbit"><span>&lt;/&gt;</span></div>
+                    <div><strong>이미지를 올려주세요.</strong><p>IMAGE URL, HTML, CSS 코드가 바로 나타납니다.</p></div>
+                  </div>
+                  <div class="result-list hero-result-list" id="resultGrid"></div>
                 </div>
-                <div class="result-list hero-result-list" id="resultGrid"></div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="tool-first-note">
-        <span>회원가입 없이 코드 생성 가능</span><i></i><span>로그인 시 My Cloud 자동 저장</span><i></i><span>여러 이미지 동시 업로드</span>
+        <div class="home-tool-note"><span>코드 생성 횟수 제한 없음</span><span>로그인 시 My Cloud 자동 저장</span><span>여러 이미지 동시 업로드</span></div>
       </div>
     </section>
 
-    <section class="platform-band value-band">
-      <div class="shell value-grid">
-        <article><span>01</span><strong>Upload once</strong><p>이미지 한 번 업로드</p></article>
-        <article><span>02</span><strong>Generate instantly</strong><p>URL·HTML·CSS 즉시 생성</p></article>
-        <article><span>03</span><strong>Save to My Cloud</strong><p>로그인 후 자동 저장·재사용</p></article>
-        <article><span>04</span><strong>Use anywhere</strong><p>어떤 웹사이트에도 사용</p></article>
-      </div>
-    </section>
-
-    <section class="benefit-section product-story-section" id="features">
-      <div class="shell">
-        <div class="centered-heading benefit-heading">
-          <p class="eyebrow">BUILT FOR WEB WORK</p>
-          <h2>업로드부터 재사용까지,<br />하나의 작업 흐름으로.</h2>
-          <p>파일을 올리고 주소를 만들고, 코드를 복사하고, 다시 찾는 과정을 마이코드 안에서 이어갑니다.</p>
-        </div>
-        <div class="benefit-grid">
-          <article class="benefit-card">
-            <span class="feature-index">01 / GENERATE</span>
-            <div class="benefit-icon">&lt;/&gt;</div>
-            <h3>필요한 코드를 즉시 생성</h3>
-            <p>이미지 URL, HTML 이미지 태그, CSS background 코드를 한 번에 생성하고 바로 복사합니다.</p>
-          </article>
-          <article class="benefit-card featured">
-            <span class="feature-index">02 / STORE</span>
-            <div class="benefit-icon">∞</div>
-            <h3>웹에서 바로 쓰는 이미지 주소</h3>
-            <p>업로드한 이미지를 외부 웹사이트에서 바로 사용할 수 있는 주소로 제공해 작업 흐름을 단순화합니다.</p>
-          </article>
-          <article class="benefit-card">
-            <span class="feature-index">03 / MY CLOUD</span>
-            <div class="benefit-icon">＋</div>
-            <h3>저장하고 다시 사용</h3>
-            <p>생성된 이미지와 코드를 My Cloud에 저장하고 프로젝트가 바뀌어도 검색해서 다시 복사할 수 있습니다.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="pricing-section" id="pricing">
-      <div class="shell">
-        <div class="centered-heading pricing-heading">
-          <p class="eyebrow">PRICING / BETA</p>
-          <h2>필요한 만큼 가볍게 시작하세요.</h2>
-          <p>현재는 베타 요금 기준이며, 정식 결제 기능 오픈 전까지 일부 용량과 정책은 조정될 수 있습니다.</p>
-        </div>
-
-        <div class="pricing-grid">
-          <article class="pricing-card">
-            <div class="pricing-card-top"><span>FREE</span><b>개인 테스트</b></div>
-            <div class="pricing-price"><strong>0원</strong><span>/ 월</span></div>
-            <p>바로 이미지 코드를 만들고 가볍게 사용해보는 기본 플랜입니다.</p>
-            <ul>
-              <li>URL · HTML · CSS 코드 생성</li>
-              <li>My Cloud 500MB</li>
-              <li>파일당 최대 10MB</li>
-              <li>개인 작업용</li>
-            </ul>
-            <a class="pricing-button secondary" href="#upload">무료로 사용</a>
-          </article>
-
-          <article class="pricing-card is-featured">
-            <div class="pricing-card-top"><span>BASIC</span><b>가장 추천</b></div>
-            <div class="pricing-price"><strong>5,900원</strong><span>/ 월</span></div>
-            <p>웹사이트와 브랜드 작업에서 이미지를 자주 사용하는 사용자를 위한 플랜입니다.</p>
-            <ul>
-              <li>FREE의 모든 기능</li>
-              <li>My Cloud 10GB</li>
-              <li>검색 · 저장 · 재사용</li>
-              <li>상업 프로젝트 사용</li>
-            </ul>
-            <a class="pricing-button primary" href="#account">베타 신청</a>
-          </article>
-
-          <article class="pricing-card">
-            <div class="pricing-card-top"><span>PRO</span><b>고용량 작업</b></div>
-            <div class="pricing-price"><strong>12,900원</strong><span>/ 월</span></div>
-            <p>여러 프로젝트와 대용량 이미지 자산을 지속적으로 관리하는 사용자를 위한 플랜입니다.</p>
-            <ul>
-              <li>BASIC의 모든 기능</li>
-              <li>My Cloud 50GB</li>
-              <li>대량 이미지 자산 관리</li>
-              <li>우선 지원</li>
-            </ul>
-            <a class="pricing-button secondary" href="mailto:info@9works.kr?subject=MY%20CODE%20PRO%20문의">PRO 문의</a>
-          </article>
-        </div>
-        <p class="pricing-note">* 표시 금액은 VAT 포함 베타 기준입니다. 정식 서비스 오픈 시 최종 정책을 별도로 안내합니다.</p>
-      </div>
-    </section>
-
-    <section class="platform-section library-surface-section" id="library">
-      <div class="shell">
-        <div class="library-hero-panel">
-          <div class="library-copy-block">
-            <p class="eyebrow">03 / MY CLOUD</p>
-            <h2>만든 이미지와 코드를 저장하고,<br />다음 작업에서 다시 꺼내세요.</h2>
-            <p>로그인한 계정에 이미지와 URL·HTML·CSS 코드를 저장해두면 프로젝트가 달라져도 다시 찾을 수 있습니다.</p>
-            <div class="library-status-line"><span id="libraryCount">로그인 필요</span></div>
-          </div>
-          <div class="library-visual" aria-hidden="true">
-            <div class="library-floating-card card-one"><span>IMAGE URL</span><b>Copy</b></div>
-            <div class="library-floating-card card-two"><span>HTML</span><b>Saved</b></div>
-            <div class="library-floating-card card-three"><span>MY CLOUD</span><b>Reuse</b></div>
-          </div>
-        </div>
-
-        <div class="library-tools-row">
-          <div class="library-tools" id="libraryTools" hidden>
-            <input id="librarySearch" type="search" placeholder="파일명 검색" aria-label="My Cloud 검색" />
-            <button class="secondary-button" id="refreshLibrary" type="button">새로고침</button>
-          </div>
-        </div>
-
-        <div class="library-locked platform-library-locked" id="libraryLocked">
-          <div class="locked-visual"><span class="locked-badge">MY CLOUD</span><div class="locked-stack"><i></i><i></i><i></i></div></div>
-          <div class="locked-copy">
-            <h3>로그인하면 생성한 이미지와 코드를<br />My Cloud에 저장할 수 있습니다.</h3>
-            <p>로그인한 상태에서 업로드하면 이미지와 URL·HTML·CSS 코드가 My Cloud에 자동 저장됩니다.</p>
-            <button class="primary-cta" id="libraryLoginButton" type="button">로그인하고 My Cloud 시작</button>
-          </div>
-        </div>
-        <div class="library-empty" id="libraryEmpty" hidden>아직 My Cloud에 저장한 이미지가 없습니다.</div>
-        <div class="library-grid" id="libraryGrid" hidden></div>
-      </div>
-    </section>
-
-    <section class="platform-section account-section" id="account">
-      <div class="shell">
-        <div class="account-panel platform-account-panel">
-          <div>
-            <p class="eyebrow">04 / ACCOUNT</p>
-            <h2>작업을 쌓을수록<br />마이코드가 더 편해집니다.</h2>
-            <p id="accountSummary">비회원도 이미지 URL 생성은 가능하며, 로그인하면 My Cloud 저장 기능이 활성화됩니다.</p>
-          </div>
-          <button class="account-panel-cta" id="accountPanelButton" type="button">로그인</button>
-        </div>
+    <section class="quick-links">
+      <div class="page-shell quick-grid">
+        <a class="quick-card" href="./product.html"><span>PRODUCT</span><h3>어떻게 작동하나요?</h3><p>업로드부터 코드 생성, 저장과 재사용까지 서비스 구조를 확인합니다.</p></a>
+        <a class="quick-card" href="./pricing.html"><span>PRICING</span><h3>무료부터 기업용까지</h3><p>무료 버전은 코드 생성 횟수 제한 없이 사용할 수 있습니다.</p></a>
+        <a class="quick-card" href="./mycloud.html"><span>MY CLOUD</span><h3>내 이미지 자산 모아보기</h3><p>로그인 후 저장한 이미지와 코드를 검색하고 다시 복사합니다.</p></a>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer platform-footer company-footer">
+  <footer class="site-footer platform-footer company-footer page-footer">
     <div class="shell company-footer-inner">
       <div class="company-footer-brand">
-        <img src="./logo.svg?v=20260818-8" alt="MY CODE" />
-        <div>
-          <strong>MY CODE / NINEWORKS</strong>
-          <p>마이코드는 나인웍스가 운영하는 웹 메이커를 위한 이미지 URL · 코드 워크스페이스입니다.</p>
-        </div>
+        <img src="./logo.svg?v=20260818-9" alt="MY CODE" />
+        <div><strong>MY CODE / NINEWORKS</strong><p>마이코드는 나인웍스가 운영하는 웹 메이커를 위한 이미지 URL · 코드 워크스페이스입니다.</p></div>
       </div>
-
       <div class="company-footer-info korean-footer-info">
-        <div>
-          <span>운영사 정보</span>
-          <strong>나인웍스 · MY CODE</strong>
-          <p>대표자 박재영<br />사업자등록번호 728-35-00866<br />통신판매업 신고번호 2022-고양덕양구-0487</p>
-        </div>
-        <div>
-          <span>연락처</span>
-          <p>평일 업무 032-208-5650<br />상시 연락 010-5422-5650<br />이메일 info@9works.kr<br />웹사이트 www.9works.kr</p>
-        </div>
-        <div>
-          <span>사업장 소재지</span>
-          <p>인천광역시 서구 원당대로 1039<br />태경타워 915, 916호<br />나인웍스</p>
-        </div>
-        <div>
-          <span>서비스 안내</span>
-          <p>서비스명 MY CODE<br />운영사 나인웍스<br />이미지 저장 · URL · HTML · CSS 코드 생성</p>
-        </div>
+        <div><span>운영사 정보</span><strong>나인웍스 · MY CODE</strong><p>대표자 박재영<br />사업자등록번호 728-35-00866<br />통신판매업 신고번호 2022-고양덕양구-0487</p></div>
+        <div><span>연락처</span><p>평일 업무 032-208-5650<br />상시 연락 010-5422-5650<br />이메일 info@9works.kr<br />웹사이트 www.9works.kr</p></div>
+        <div><span>사업장 소재지</span><p>인천광역시 서구 원당대로 1039<br />태경타워 915, 916호<br />나인웍스</p></div>
+        <div><span>서비스</span><p>MY CODE<br />이미지 저장 · URL 생성<br />HTML · CSS 코드 생성 · My Cloud</p></div>
       </div>
-
-      <div class="company-footer-bottom">
-        <span>© 2026 MY CODE / NINEWORKS. All Rights Reserved.</span>
-        <div><a href="#features">Product</a><a href="#upload">Workspace</a><a href="#pricing">Pricing</a><a href="#library">My Cloud</a></div>
-      </div>
+      <div class="company-footer-bottom"><span>© 2026 MY CODE / NINEWORKS. All Rights Reserved.</span><div><a href="./product.html">Product</a><a href="./workspace.html">Workspace</a><a href="./pricing.html">Pricing</a><a href="./mycloud.html">My Cloud</a></div></div>
     </div>
   </footer>
+
+  <div hidden aria-hidden="true">
+    <button id="accountPanelButton"></button><p id="accountSummary"></p><button id="libraryLoginButton"></button>
+    <div id="libraryLocked"></div><div id="libraryTools"></div><input id="librarySearch" /><button id="refreshLibrary"></button>
+    <div id="libraryEmpty"></div><div id="libraryGrid"></div><span id="libraryCount"></span>
+  </div>
 
   <dialog class="auth-dialog" id="authDialog">
     <form method="dialog" class="dialog-close-row"><button class="dialog-close" aria-label="닫기">×</button></form>
     <div class="auth-dialog-content">
-      <p class="eyebrow">MY CODE ACCOUNT</p>
-      <h2>로그인하고 My Cloud에 저장하세요.</h2>
-      <p class="auth-description">저장한 이미지 URL과 HTML·CSS 코드를 다음 작업에서도 다시 사용할 수 있습니다.</p>
+      <p class="eyebrow">MY CODE ACCOUNT</p><h2>로그인하고 My Cloud에 저장하세요.</h2>
+      <p class="auth-description">로그인하면 업로드한 이미지와 생성된 코드가 My Cloud에 자동 저장됩니다.</p>
       <button class="google-button" id="googleLoginButton" type="button">Google로 계속하기</button>
       <div class="auth-divider"><span>또는 이메일</span></div>
       <label class="auth-field"><span>이메일</span><input id="authEmail" type="email" autocomplete="email" placeholder="name@example.com" /></label>
@@ -294,23 +136,8 @@
   </dialog>
 
   <template id="resultCardTemplate">
-    <article class="result-card">
-      <div class="preview-wrap"><img class="result-preview" alt="" /></div>
-      <div class="card-body">
-        <div class="card-top">
-          <div><p class="card-index">GENERATED ASSET</p><h3 class="card-title"></h3><p class="card-meta"></p></div>
-          <div class="card-actions-top"><button class="save-button" type="button" disabled>My Cloud 저장</button><button class="remove-button" type="button">목록 삭제</button></div>
-        </div>
-        <div class="progress"><i></i></div><p class="card-status">업로드 준비 중...</p>
-        <div class="code-grid" hidden>
-          <div class="code-row"><span class="code-label">IMAGE URL</span><input class="code-input url-input" type="text" readonly /><button class="copy-button copy-url" type="button">복사</button></div>
-          <div class="code-row"><span class="code-label">HTML</span><input class="code-input html-input" type="text" readonly /><button class="copy-button copy-html" type="button">복사</button></div>
-          <div class="code-row"><span class="code-label">CSS BG</span><input class="code-input css-input" type="text" readonly /><button class="copy-button copy-css" type="button">복사</button></div>
-        </div>
-      </div>
-    </article>
+    <article class="result-card"><div class="preview-wrap"><img class="result-preview" alt="" /></div><div class="card-body"><div class="card-top"><div><p class="card-index">GENERATED ASSET</p><h3 class="card-title"></h3><p class="card-meta"></p></div><div class="card-actions-top"><button class="save-button" type="button" disabled>My Cloud 저장</button><button class="remove-button" type="button">목록 삭제</button></div></div><div class="progress"><i></i></div><p class="card-status">업로드 준비 중...</p><div class="code-grid" hidden><div class="code-row"><span class="code-label">IMAGE URL</span><input class="code-input url-input" type="text" readonly /><button class="copy-button copy-url" type="button">복사</button></div><div class="code-row"><span class="code-label">HTML</span><input class="code-input html-input" type="text" readonly /><button class="copy-button copy-html" type="button">복사</button></div><div class="code-row"><span class="code-label">CSS BG</span><input class="code-input css-input" type="text" readonly /><button class="copy-button copy-css" type="button">복사</button></div></div></div></article>
   </template>
-
-  <script type="module" src="./app.js?v=20260818-8"></script>
+  <script type="module" src="./app.js?v=20260818-9"></script>
 </body>
 </html>
