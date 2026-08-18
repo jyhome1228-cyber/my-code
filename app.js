@@ -15,21 +15,17 @@ import {
   getFirestore,
   collection,
   addDoc,
-  getDocs,
   getDoc,
   setDoc,
-  deleteDoc,
   doc,
-  query,
-  orderBy,
   serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js';
 
 const WORKER_API = 'https://cool-bar-7c8d.planus253.workers.dev';
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const GUEST_USE_KEY = 'mycode_guest_trial_used_v1';
-const USER_FREE_LIMIT = 3;
-const USER_USAGE_CACHE_PREFIX = 'mycode_user_free_uses_v1_';
+const GUEST_DAILY_KEY = 'mycode_guest_daily_free_v2';
+const USER_DAILY_CACHE_PREFIX = 'mycode_user_daily_free_v2_';
+const PAID_PLANS = new Set(['STARTER', 'STANDARD', 'PRO', 'TEAM', 'ENTERPRISE']);
 
 const fileInput = document.querySelector('#fileInput');
 const dropzone = document.querySelector('#dropzone');
@@ -37,16 +33,11 @@ const resultGrid = document.querySelector('#resultGrid');
 const emptyState = document.querySelector('#emptyState');
 const fileCount = document.querySelector('#fileCount');
 const clearButton = document.querySelector('#clearButton');
-const serviceStatus = document.querySelector('#serviceStatus');
-const serviceStatusDot = document.querySelector('#serviceStatusDot');
 const resultCardTemplate = document.querySelector('#resultCardTemplate');
 const uploadNotice = document.querySelector('#uploadNotice');
 
 const accountButton = document.querySelector('#accountButton');
-const accountPanelButton = document.querySelector('#accountPanelButton');
-const accountSummary = document.querySelector('#accountSummary');
 const authDialog = document.querySelector('#authDialog');
-const libraryLoginButton = document.querySelector('#libraryLoginButton');
 const googleLoginButton = document.querySelector('#googleLoginButton');
 const emailLoginButton = document.querySelector('#emailLoginButton');
 const emailSignupButton = document.querySelector('#emailSignupButton');
@@ -54,27 +45,19 @@ const authEmail = document.querySelector('#authEmail');
 const authPassword = document.querySelector('#authPassword');
 const authMessage = document.querySelector('#authMessage');
 
-const libraryLocked = document.querySelector('#libraryLocked');
-const libraryTools = document.querySelector('#libraryTools');
-const librarySearch = document.querySelector('#librarySearch');
-const refreshLibrary = document.querySelector('#refreshLibrary');
-const libraryEmpty = document.querySelector('#libraryEmpty');
-const libraryGrid = document.querySelector('#libraryGrid');
-const libraryCount = document.querySelector('#libraryCount');
-
 const items = new Map();
-let currentUser = null;
-let libraryAssets = [];
 let auth = null;
 let db = null;
+let currentUser = null;
+let currentPlan = 'FREE';
+let userDailyUsed = false;
 let authReady = false;
-let userFreeUses = 0;
 let uploadSessionBusy = false;
 
 initFirebase();
-checkWorker();
 initUploadEvents();
-initAccountEvents();
+initAuthEvents();
+updateUsageHint();
 
 function initFirebase() {
   try {
@@ -86,45 +69,32 @@ function initFirebase() {
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
       authReady = true;
+      currentPlan = 'FREE';
+      userDailyUsed = false;
+
       if (user) {
-        userFreeUses = await loadUserFreeUses(user);
-      } else {
-        userFreeUses = 0;
+        const state = await loadDailyAccountState(user);
+        currentPlan = state.plan;
+        userDailyUsed = state.usedToday;
+
+        // 같은 브라우저에서 비회원 1회를 사용한 뒤 로그인해도
+        // 하루 무료 횟수가 다시 생기지 않도록 계정 상태와 동기화합니다.
+        if (!isPaidPlan() && guestUsedToday() && !userDailyUsed) {
+          userDailyUsed = true;
+          await persistUserDailyState(true);
+        }
+
+        await autoSavePendingResults();
       }
+
       updateAccountUI();
       updateUsageHint();
       updateResultSaveButtons();
-      if (user) {
-        await loadLibrary();
-        await autoSavePendingResults();
-      } else {
-        resetLibrary();
-      }
     });
   } catch (error) {
     authReady = true;
-    console.error('Firebase account initialization failed:', error);
-    if (authMessage) authMessage.textContent = '계정 기능 초기화에 실패했습니다. Firebase 설정을 확인해주세요.';
-    updateUsageHint();
-  }
-}
-
-async function checkWorker() {
-  try {
-    const response = await fetch(WORKER_API, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    if (serviceStatus) serviceStatus.textContent = 'READY';
-    if (serviceStatusDot) {
-      serviceStatusDot.classList.remove('error');
-      serviceStatusDot.classList.add('ready');
-    }
-  } catch (error) {
-    console.error('Worker connection check failed:', error);
-    if (serviceStatus) serviceStatus.textContent = 'CHECK';
-    if (serviceStatusDot) {
-      serviceStatusDot.classList.remove('ready');
-      serviceStatusDot.classList.add('error');
-    }
+    console.error('Firebase initialization failed:', error);
+    showNotice('계정 기능을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.', 'error', 6000);
   }
 }
 
@@ -134,15 +104,15 @@ function initUploadEvents() {
   dropzone.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', (event) => handleFiles(event.target.files));
 
-  ['dragenter', 'dragover'].forEach((eventName) => {
-    dropzone.addEventListener(eventName, (event) => {
+  ['dragenter', 'dragover'].forEach((name) => {
+    dropzone.addEventListener(name, (event) => {
       event.preventDefault();
       dropzone.classList.add('is-dragging');
     });
   });
 
-  ['dragleave', 'drop'].forEach((eventName) => {
-    dropzone.addEventListener(eventName, (event) => {
+  ['dragleave', 'drop'].forEach((name) => {
+    dropzone.addEventListener(name, (event) => {
       event.preventDefault();
       dropzone.classList.remove('is-dragging');
     });
@@ -158,39 +128,37 @@ function initUploadEvents() {
   });
 }
 
-function initAccountEvents() {
-  accountButton?.addEventListener('click', handleAccountButton);
-  accountPanelButton?.addEventListener('click', handleAccountButton);
-  libraryLoginButton?.addEventListener('click', () => openAuthDialog());
+function initAuthEvents() {
+  accountButton?.addEventListener('click', () => {
+    if (currentUser) signOut(auth).catch(console.error);
+    else openAuthDialog();
+  });
+
+  authDialog?.addEventListener('click', (event) => {
+    if (event.target === authDialog) authDialog.close();
+  });
+
   googleLoginButton?.addEventListener('click', loginWithGoogle);
   emailLoginButton?.addEventListener('click', loginWithEmail);
   emailSignupButton?.addEventListener('click', signupWithEmail);
-  refreshLibrary?.addEventListener('click', loadLibrary);
-  librarySearch?.addEventListener('input', renderLibrary);
-}
+  authPassword?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') emailLoginButton?.click();
+  });
 
-function handleAccountButton() {
-  if (currentUser) {
-    signOut(auth).catch((error) => console.error(error));
-    return;
+  const description = authDialog?.querySelector('.auth-description');
+  if (description) {
+    description.textContent = '무료 플랜은 하루 1회 사용할 수 있습니다. 로그인하면 My Cloud 저장과 계정 관리 기능을 이용할 수 있습니다.';
   }
-  openAuthDialog();
-}
-
-function openAuthDialog(message = '') {
-  if (authMessage) authMessage.textContent = message;
-  if (authDialog && !authDialog.open) authDialog.showModal();
 }
 
 async function loginWithGoogle() {
   if (!auth) return;
   setAuthBusy(true);
+  clearAuthMessage();
   try {
-    const provider = new GoogleAuthProvider();
-    await signInWithPopup(auth, provider);
+    await signInWithPopup(auth, new GoogleAuthProvider());
     authDialog?.close();
   } catch (error) {
-    console.error(error);
     if (authMessage) authMessage.textContent = readableAuthError(error);
   } finally {
     setAuthBusy(false);
@@ -205,12 +173,13 @@ async function loginWithEmail() {
     if (authMessage) authMessage.textContent = '이메일과 비밀번호를 입력해주세요.';
     return;
   }
+
   setAuthBusy(true);
+  clearAuthMessage();
   try {
     await signInWithEmailAndPassword(auth, email, password);
     authDialog?.close();
   } catch (error) {
-    console.error(error);
     if (authMessage) authMessage.textContent = readableAuthError(error);
   } finally {
     setAuthBusy(false);
@@ -225,16 +194,22 @@ async function signupWithEmail() {
     if (authMessage) authMessage.textContent = '이메일과 6자 이상의 비밀번호를 입력해주세요.';
     return;
   }
+
   setAuthBusy(true);
+  clearAuthMessage();
   try {
     await createUserWithEmailAndPassword(auth, email, password);
     authDialog?.close();
   } catch (error) {
-    console.error(error);
     if (authMessage) authMessage.textContent = readableAuthError(error);
   } finally {
     setAuthBusy(false);
   }
+}
+
+function openAuthDialog(message = '') {
+  if (authMessage) authMessage.textContent = message;
+  if (authDialog && !authDialog.open) authDialog.showModal();
 }
 
 function setAuthBusy(busy) {
@@ -243,24 +218,13 @@ function setAuthBusy(busy) {
   });
 }
 
+function clearAuthMessage() {
+  if (authMessage) authMessage.textContent = '';
+}
+
 function updateAccountUI() {
-  if (currentUser) {
-    const name = currentUser.displayName || currentUser.email || 'MY CODE USER';
-    if (accountButton) accountButton.textContent = '로그아웃';
-    if (accountPanelButton) accountPanelButton.textContent = '로그아웃';
-    const remaining = Math.max(0, USER_FREE_LIMIT - userFreeUses);
-    if (accountSummary) accountSummary.textContent = `${name} 계정 · 무료 사용 ${userFreeUses}/${USER_FREE_LIMIT}회 · ${remaining}회 남음`;
-    if (libraryLocked) libraryLocked.hidden = true;
-    if (libraryTools) libraryTools.hidden = false;
-    if (libraryCount) libraryCount.textContent = '불러오는 중';
-  } else {
-    if (accountButton) accountButton.textContent = '로그인';
-    if (accountPanelButton) accountPanelButton.textContent = '로그인';
-    if (accountSummary) accountSummary.textContent = '첫 1회는 회원가입 없이 사용할 수 있으며, 두 번째 업로드부터 로그인이 필요합니다.';
-    if (libraryLocked) libraryLocked.hidden = false;
-    if (libraryTools) libraryTools.hidden = true;
-    if (libraryCount) libraryCount.textContent = '로그인 필요';
-  }
+  if (!accountButton) return;
+  accountButton.textContent = currentUser ? '로그아웃' : '로그인';
 }
 
 async function handleFiles(fileList) {
@@ -287,16 +251,14 @@ async function handleFiles(fileList) {
     return;
   }
 
-  if (!currentUser && hasUsedGuestTrial()) {
-    const message = '첫 무료 사용이 끝났어요. 두 번째 업로드부터 로그인 또는 회원가입이 필요합니다.';
-    showNotice(message, 'auth', 7000);
-    openAuthDialog('첫 1회 무료 이용을 사용했습니다. 계속 사용하려면 로그인 또는 회원가입해주세요.');
-    resetFileInput();
-    return;
-  }
-
-  if (currentUser && userFreeUses >= USER_FREE_LIMIT) {
-    showNotice('로그인 무료 3회를 모두 사용했습니다. 계속 사용하려면 Pricing에서 요금제를 선택해주세요.', 'auth', 8000);
+  if (!canUseToday()) {
+    if (!currentUser) {
+      const message = '오늘 무료 1회를 사용했습니다. 계속 사용하려면 로그인 후 요금제를 선택해주세요.';
+      showNotice(message, 'auth', 7000);
+      openAuthDialog(message);
+    } else {
+      showNotice('오늘 무료 1회를 모두 사용했습니다. 내일 다시 이용하거나 Pricing에서 요금제를 선택해주세요.', 'auth', 7000);
+    }
     resetFileInput();
     return;
   }
@@ -316,20 +278,9 @@ async function handleFiles(fileList) {
     const results = await Promise.allSettled(uploadTasks);
     const succeeded = results.some((result) => result.status === 'fulfilled' && result.value === true);
 
-    if (succeeded) {
-      if (currentUser) {
-        await incrementUserFreeUse();
-        const remaining = Math.max(0, USER_FREE_LIMIT - userFreeUses);
-        if (remaining > 0) {
-          showNotice(`무료 사용 ${userFreeUses}/${USER_FREE_LIMIT}회 · ${remaining}회 남았습니다.`, 'info', 5200);
-        } else {
-          showNotice('무료 3회를 모두 사용했습니다. 다음 업로드부터 요금제 선택이 필요합니다.', 'auth', 6500);
-        }
-      } else {
-        markGuestTrialUsed();
-        showNotice('첫 1회 무료 이용을 완료했습니다. 다음 업로드부터 로그인 또는 회원가입이 필요합니다.', 'info', 5200);
-      }
-      updateAccountUI();
+    if (succeeded && !isPaidPlan()) {
+      await markDailyUse();
+      showNotice('오늘 무료 1회 이용을 완료했습니다. 내일 다시 무료로 사용할 수 있습니다.', 'info', 5200);
       updateUsageHint();
     }
   } finally {
@@ -338,6 +289,122 @@ async function handleFiles(fileList) {
   }
 
   document.querySelector('#result')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function canUseToday() {
+  if (isPaidPlan()) return true;
+  return currentUser ? !userDailyUsed : !guestUsedToday();
+}
+
+function isPaidPlan() {
+  return PAID_PLANS.has(String(currentPlan || '').toUpperCase());
+}
+
+async function markDailyUse() {
+  if (currentUser) {
+    userDailyUsed = true;
+    writeUserDailyCache(currentUser.uid, true);
+    await persistUserDailyState(true);
+  } else {
+    try {
+      localStorage.setItem(GUEST_DAILY_KEY, todayKey());
+    } catch (_) {}
+  }
+}
+
+function guestUsedToday() {
+  try {
+    return localStorage.getItem(GUEST_DAILY_KEY) === todayKey();
+  } catch (_) {
+    return false;
+  }
+}
+
+async function loadDailyAccountState(user) {
+  const cachedUsed = readUserDailyCache(user.uid);
+  let plan = 'FREE';
+  let usedToday = cachedUsed;
+
+  if (!db) return { plan, usedToday };
+
+  try {
+    const ref = doc(db, 'users', user.uid);
+    const snapshot = await getDoc(ref);
+    const data = snapshot.exists() ? (snapshot.data() || {}) : {};
+    plan = String(data.plan || 'FREE').toUpperCase();
+
+    if (data.dailyFreeDate === todayKey()) {
+      usedToday = usedToday || Boolean(data.dailyFreeUsed);
+    }
+
+    writeUserDailyCache(user.uid, usedToday);
+
+    if (!snapshot.exists() || data.dailyFreeDate !== todayKey()) {
+      await setDoc(ref, {
+        dailyFreeDate: todayKey(),
+        dailyFreeUsed: false,
+        dailyFreeUpdatedAt: serverTimestamp()
+      }, { merge: true });
+      usedToday = cachedUsed;
+    }
+  } catch (error) {
+    console.warn('Daily usage load fallback:', error);
+  }
+
+  return { plan, usedToday };
+}
+
+async function persistUserDailyState(used) {
+  if (!currentUser || !db) return;
+  try {
+    await setDoc(doc(db, 'users', currentUser.uid), {
+      dailyFreeDate: todayKey(),
+      dailyFreeUsed: Boolean(used),
+      dailyFreeUpdatedAt: serverTimestamp()
+    }, { merge: true });
+  } catch (error) {
+    console.warn('Daily usage save fallback:', error);
+  }
+}
+
+function readUserDailyCache(uid) {
+  try {
+    const raw = localStorage.getItem(`${USER_DAILY_CACHE_PREFIX}${uid}`);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    return parsed?.date === todayKey() && parsed?.used === true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function writeUserDailyCache(uid, used) {
+  try {
+    localStorage.setItem(`${USER_DAILY_CACHE_PREFIX}${uid}`, JSON.stringify({ date: todayKey(), used: Boolean(used) }));
+  } catch (_) {}
+}
+
+function todayKey() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function updateUsageHint() {
+  const note = document.querySelector('.simple-trial-note');
+  if (!note) return;
+
+  if (isPaidPlan()) {
+    note.textContent = `${currentPlan} 플랜 · 업로드 제한 없이 사용할 수 있습니다.`;
+    return;
+  }
+
+  const used = currentUser ? userDailyUsed : guestUsedToday();
+  note.textContent = used
+    ? '오늘 무료 1회 사용 완료 · 내일 다시 무료로 이용할 수 있습니다.'
+    : '무료 플랜은 하루 1회 이용할 수 있습니다.';
 }
 
 function createItem(file) {
@@ -366,9 +433,8 @@ function renderResultCard(item) {
   card.querySelector('.card-title').textContent = item.file.name;
   card.querySelector('.card-meta').textContent = `${formatBytes(item.file.size)} · ${item.file.type || 'image'}`;
 
-  card.querySelector('.remove-button').addEventListener('click', () => removeItem(item, card));
-  card.querySelector('.save-button').addEventListener('click', () => saveResultItem(item, card));
-
+  card.querySelector('.remove-button')?.addEventListener('click', () => removeItem(item, card));
+  card.querySelector('.save-button')?.addEventListener('click', () => saveResultItem(item, card));
   resultGrid.prepend(card);
   return card;
 }
@@ -453,12 +519,11 @@ async function saveResultItem(item, card, auto = false) {
     item.saved = true;
     button.textContent = 'My Cloud 저장됨';
     card.querySelector('.card-status').textContent = '완료 · My Cloud에 저장되었습니다.';
-    await loadLibrary();
   } catch (error) {
-    console.error('Firestore save error:', error);
+    console.error('My Cloud save error:', error);
     button.disabled = false;
     button.textContent = '다시 저장';
-    card.querySelector('.card-status').textContent = '이미지는 업로드됐지만 My Cloud 저장에 실패했습니다. 잠시 후 다시 시도해주세요.';
+    card.querySelector('.card-status').textContent = '이미지는 업로드됐지만 My Cloud 저장에 실패했습니다.';
   } finally {
     item.saving = false;
   }
@@ -473,175 +538,18 @@ async function autoSavePendingResults() {
   }
 }
 
-async function loadLibrary() {
-  if (!currentUser || !db || !libraryGrid || !libraryCount || !libraryEmpty) return;
-
-  libraryGrid.hidden = true;
-  libraryEmpty.hidden = true;
-  libraryCount.textContent = '불러오는 중';
-
-  try {
-    const assetsRef = collection(db, 'users', currentUser.uid, 'assets');
-    const snapshot = await getDocs(query(assetsRef, orderBy('createdAt', 'desc')));
-    libraryAssets = snapshot.docs.map((itemDoc) => ({ id: itemDoc.id, ...itemDoc.data() }));
-    libraryCount.textContent = `${libraryAssets.length}개 저장됨`;
-    renderLibrary();
-  } catch (error) {
-    console.error('My Cloud load error:', error);
-    libraryCount.textContent = '불러오기 실패';
-    libraryEmpty.hidden = false;
-    libraryEmpty.textContent = 'My Cloud를 불러오지 못했습니다. 로그인 설정과 데이터 권한을 확인해주세요.';
-  }
-}
-
-function resetLibrary() {
-  libraryAssets = [];
-  if (libraryGrid) {
-    libraryGrid.innerHTML = '';
-    libraryGrid.hidden = true;
-  }
-  if (libraryEmpty) libraryEmpty.hidden = true;
-}
-
-function renderLibrary() {
-  if (!currentUser || !libraryGrid || !libraryEmpty) return;
-  const keyword = librarySearch?.value.trim().toLowerCase() || '';
-  const filtered = libraryAssets.filter((asset) => (asset.filename || '').toLowerCase().includes(keyword));
-
-  libraryGrid.innerHTML = '';
-  libraryEmpty.hidden = filtered.length > 0;
-  libraryGrid.hidden = filtered.length === 0;
-
-  if (!filtered.length) {
-    libraryEmpty.textContent = keyword ? '검색 결과가 없습니다.' : '아직 My Cloud에 저장한 이미지가 없습니다.';
-    return;
-  }
-
-  filtered.forEach((asset) => libraryGrid.appendChild(createLibraryCard(asset)));
-}
-
-function createLibraryCard(asset) {
-  const card = document.createElement('article');
-  card.className = 'library-card';
-  const date = asset.createdAt?.toDate ? asset.createdAt.toDate() : null;
-  const dateText = date ? new Intl.DateTimeFormat('ko-KR', { dateStyle: 'medium' }).format(date) : '방금 저장';
-
-  card.innerHTML = `
-    <div class="library-thumb"><img src="${escapeHtml(asset.imageUrl || '')}" alt="${escapeHtml(asset.filename || '저장 이미지')}" loading="lazy" /></div>
-    <div class="library-body">
-      <p class="library-meta">MY CLOUD / ${escapeHtml(dateText)}</p>
-      <h3 class="library-title">${escapeHtml(asset.filename || 'Untitled image')}</h3>
-      <div class="library-code-row">
-        <button class="copy-button library-url" type="button">URL 복사</button>
-        <button class="copy-button library-html" type="button">HTML 복사</button>
-        <button class="copy-button library-css" type="button">CSS 복사</button>
-      </div>
-      <div class="library-card-footer">
-        <span class="library-meta">${formatBytes(asset.fileSize || 0)}</span>
-        <button class="delete-library-button" type="button">My Cloud에서 삭제</button>
-      </div>
-    </div>`;
-
-  bindCopy(card.querySelector('.library-url'), asset.imageUrl || '');
-  bindCopy(card.querySelector('.library-html'), asset.htmlCode || `<img src="${asset.imageUrl || ''}" alt="">`);
-  bindCopy(card.querySelector('.library-css'), asset.cssCode || `background-image: url("${asset.imageUrl || ''}");`);
-
-  card.querySelector('.delete-library-button').addEventListener('click', async () => {
-    if (!currentUser || !db) return;
-    try {
-      await deleteDoc(doc(db, 'users', currentUser.uid, 'assets', asset.id));
-      libraryAssets = libraryAssets.filter((item) => item.id !== asset.id);
-      if (libraryCount) libraryCount.textContent = `${libraryAssets.length}개 저장됨`;
-      renderLibrary();
-    } catch (error) {
-      console.error(error);
-    }
-  });
-
-  return card;
-}
-
 function updateResultSaveButtons() {
   document.querySelectorAll('.result-card').forEach((card) => {
     const item = items.get(card.dataset.id);
     const button = card.querySelector('.save-button');
     if (!button || !item || !item.downloadUrl) return;
-    if (item.saved) {
-      button.disabled = true;
-      button.textContent = 'My Cloud 저장됨';
-      return;
-    }
-    button.disabled = false;
-    button.textContent = currentUser ? 'My Cloud 저장' : '로그인 후 저장';
+    button.disabled = Boolean(item.saved);
+    button.textContent = item.saved ? 'My Cloud 저장됨' : (currentUser ? 'My Cloud 저장' : '로그인 후 저장');
   });
 }
 
-async function loadUserFreeUses(user) {
-  const cached = readUserUsageCache(user.uid);
-  if (!db) return cached;
-  try {
-    const ref = doc(db, 'users', user.uid);
-    const snapshot = await getDoc(ref);
-    const remote = snapshot.exists() ? Number(snapshot.data()?.freeUploadsUsed || 0) : 0;
-    const used = Math.max(cached, Math.max(0, Math.min(USER_FREE_LIMIT, remote)));
-    writeUserUsageCache(user.uid, used);
-    if (!snapshot.exists() || remote !== used) {
-      await setDoc(ref, { freeUploadsUsed: used, freeUploadsUpdatedAt: serverTimestamp() }, { merge: true });
-    }
-    return used;
-  } catch (error) {
-    console.warn('Free usage load fallback:', error);
-    return cached;
-  }
-}
-
-async function incrementUserFreeUse() {
-  if (!currentUser) return;
-  userFreeUses = Math.min(USER_FREE_LIMIT, userFreeUses + 1);
-  writeUserUsageCache(currentUser.uid, userFreeUses);
-  if (!db) return;
-  try {
-    await setDoc(doc(db, 'users', currentUser.uid), {
-      freeUploadsUsed: userFreeUses,
-      freeUploadsUpdatedAt: serverTimestamp()
-    }, { merge: true });
-  } catch (error) {
-    console.warn('Free usage save fallback:', error);
-  }
-}
-
-function readUserUsageCache(uid) {
-  try {
-    return Math.max(0, Math.min(USER_FREE_LIMIT, Number(localStorage.getItem(`${USER_USAGE_CACHE_PREFIX}${uid}`) || 0)));
-  } catch (_) {
-    return 0;
-  }
-}
-
-function writeUserUsageCache(uid, value) {
-  try {
-    localStorage.setItem(`${USER_USAGE_CACHE_PREFIX}${uid}`, String(value));
-  } catch (_) {}
-}
-
-function updateUsageHint() {
-  const note = document.querySelector('.simple-trial-note');
-  if (!note) return;
-  if (currentUser) {
-    const remaining = Math.max(0, USER_FREE_LIMIT - userFreeUses);
-    note.textContent = remaining > 0
-      ? `로그인 무료 사용 ${userFreeUses}/${USER_FREE_LIMIT}회 · ${remaining}회 남음`
-      : '무료 3회를 모두 사용했습니다 · 이후 요금제 선택이 필요합니다.';
-    return;
-  }
-  note.textContent = hasUsedGuestTrial()
-    ? '첫 무료 이용을 사용했습니다 · 다음 업로드부터 로그인 또는 회원가입이 필요합니다.'
-    : '첫 1회 무료 이용 가능 · 이후 로그인 또는 회원가입이 필요합니다.';
-}
-
 function bindCopy(button, value) {
-  if (!button) return;
-  button.addEventListener('click', async () => {
+  button?.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(value);
       const original = button.textContent;
@@ -666,20 +574,6 @@ function updateCount() {
   if (emptyState) emptyState.hidden = count > 0;
 }
 
-function hasUsedGuestTrial() {
-  try {
-    return localStorage.getItem(GUEST_USE_KEY) === '1';
-  } catch (_) {
-    return false;
-  }
-}
-
-function markGuestTrialUsed() {
-  try {
-    localStorage.setItem(GUEST_USE_KEY, '1');
-  } catch (_) {}
-}
-
 function resetFileInput() {
   if (fileInput) fileInput.value = '';
 }
@@ -702,7 +596,6 @@ function showNotice(message, type = 'info', duration = 4800) {
   notice.textContent = message;
   notice.dataset.type = type;
   notice.hidden = false;
-
   clearTimeout(notice._hideTimer);
   notice._hideTimer = setTimeout(() => {
     notice.hidden = true;
@@ -729,19 +622,10 @@ function formatBytes(bytes) {
 function readableAuthError(error) {
   const code = error?.code || '';
   if (code.includes('popup-closed')) return '로그인 창이 닫혔습니다.';
-  if (code.includes('unauthorized-domain')) return 'Firebase Authentication의 승인된 도메인에 GitHub Pages 주소를 추가해주세요.';
-  if (code.includes('operation-not-allowed')) return 'Firebase Authentication에서 해당 로그인 방식을 활성화해주세요.';
+  if (code.includes('unauthorized-domain')) return 'Firebase 승인 도메인에 현재 사이트 주소를 추가해주세요.';
+  if (code.includes('operation-not-allowed')) return 'Firebase에서 해당 로그인 방식을 활성화해주세요.';
   if (code.includes('invalid-credential')) return '이메일 또는 비밀번호를 확인해주세요.';
   if (code.includes('email-already-in-use')) return '이미 가입된 이메일입니다.';
-  if (code.includes('weak-password')) return '비밀번호는 6자 이상으로 설정해주세요.';
+  if (code.includes('weak-password')) return '비밀번호는 6자 이상이어야 합니다.';
   return '로그인 처리 중 오류가 발생했습니다.';
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
 }
