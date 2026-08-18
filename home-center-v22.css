@@ -1,0 +1,48 @@
+/* MY CODE — center high-level home headings and CTA rhythm */
+.home-simple-page .home-section-heading,
+.home-simple-page .home-section-heading.event-heading {
+  width: min(760px, 100%);
+  margin: 0 auto 48px !important;
+  text-align: center !important;
+}
+
+.home-simple-page .home-section-kicker,
+.home-simple-page .home-section-heading h2 {
+  text-align: center !important;
+}
+
+.home-simple-page .home-section-heading h2 {
+  margin-inline: auto !important;
+}
+
+.home-simple-page .home-event-card a {
+  align-self: center !important;
+  text-align: center !important;
+}
+
+.home-simple-page .home-event-card,
+.home-simple-page .home-info-card {
+  text-align: left;
+}
+
+.home-simple-page .home-event-section .event-heading + .home-three-grid,
+.home-simple-page .home-service-section .home-section-heading + .home-three-grid {
+  margin-inline: auto;
+}
+
+/* Main hero title and helper copy remain optically centered */
+.home-simple-page .simple-home-heading,
+.home-simple-page .simple-home-heading h1,
+.home-simple-page .simple-home-heading p,
+.home-simple-page .simple-trial-note {
+  text-align: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+@media (max-width:760px) {
+  .home-simple-page .home-section-heading,
+  .home-simple-page .home-section-heading.event-heading {
+    margin-bottom: 32px !important;
+  }
+}
