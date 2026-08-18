@@ -1,10 +1,10 @@
 (() => {
-  const FAVICON = './mycode-favicon-orange-20260818.svg?v=20260818-24';
+  const FAVICON = './mycode-favicon-orange-20260818.svg?v=20260818-25';
 
   if (!document.querySelector('link[data-mycode-header]')) {
     const headerStyle = document.createElement('link');
     headerStyle.rel = 'stylesheet';
-    headerStyle.href = './header-consistency.css?v=20260818-24';
+    headerStyle.href = './header-consistency.css?v=20260818-25';
     headerStyle.dataset.mycodeHeader = 'true';
     document.head.appendChild(headerStyle);
   }
@@ -17,7 +17,7 @@
   document.head.appendChild(icon);
   const shortcut = document.createElement('link');
   shortcut.rel = 'shortcut icon';
-  shortcut.href = './favicon.ico?v=20260818-24';
+  shortcut.href = './favicon.ico?v=20260818-25';
   document.head.appendChild(shortcut);
 
   let theme = document.querySelector('meta[name="theme-color"]');
@@ -30,24 +30,11 @@
 
   const nav = document.querySelector('.platform-nav');
   if (nav) {
-    nav.innerHTML = `
-      <a href="./about.html">About</a>
-      <a href="./how-to-use.html">How to Use</a>
-      <a href="./pricing.html">Pricing</a>
-      <a href="./magazine.html">Magazine</a>
-      <a href="./faq.html">FAQ</a>
-      <a href="./mycloud.html">My Cloud</a>`;
+    nav.innerHTML = `<a href="./about.html">About</a><a href="./how-to-use.html">How to Use</a><a href="./pricing.html">Pricing</a><a href="./magazine.html">Magazine</a><a href="./faq.html">FAQ</a><a href="./mycloud.html">My Cloud</a>`;
   }
 
   document.querySelectorAll('.company-footer-bottom > div').forEach((links) => {
-    links.innerHTML = `
-      <a href="./about.html">About</a>
-      <a href="./how-to-use.html">How to Use</a>
-      <a href="./pricing.html">Pricing</a>
-      <a href="./magazine.html">Magazine</a>
-      <a href="./faq.html">FAQ</a>
-      <a href="./refund-policy.html">환불규정</a>
-      <a href="./mycloud.html">My Cloud</a>`;
+    links.innerHTML = `<a href="./about.html">About</a><a href="./how-to-use.html">How to Use</a><a href="./pricing.html">Pricing</a><a href="./magazine.html">Magazine</a><a href="./faq.html">FAQ</a><a href="./terms.html">이용약관</a><a href="./privacy.html">개인정보처리방침</a><a href="./refund-policy.html">환불규정</a><a href="./mycloud.html">My Cloud</a>`;
   });
 
   syncDailyFreeCopy();
