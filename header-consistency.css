@@ -99,6 +99,15 @@
   cursor: pointer !important;
 }
 
+/* Auth state: never show login and logout at the same time. */
+.page-header .header-cta[hidden],
+.page-header a.header-cta[hidden],
+.page-header button.header-cta[hidden],
+.page-header #cloudLoginButton[hidden],
+.page-header #cloudLogoutButton[hidden] {
+  display: none !important;
+}
+
 .page-header .header-cta:link,
 .page-header .header-cta:visited,
 .page-header .header-cta:hover,
