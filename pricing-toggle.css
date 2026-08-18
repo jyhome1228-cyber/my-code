@@ -1,0 +1,157 @@
+/* MY CODE — pricing toggle & 3-column plan grid */
+
+.pricing-hero .page-hero-inner {
+  max-width: 880px;
+}
+
+.billing-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 30px;
+  padding: 5px;
+  border: 1px solid #e9e2dc;
+  border-radius: 999px;
+  background: #f8f6f4;
+}
+
+.billing-option {
+  min-height: 42px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #7d7670;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 560;
+  cursor: pointer;
+  transition: .18s ease;
+}
+
+.billing-option span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  margin-left: 7px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #fff0e6;
+  color: #d95600;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.billing-option.is-active {
+  background: #171717;
+  color: #fff;
+  box-shadow: 0 5px 18px rgba(0,0,0,.08);
+}
+
+.billing-option.is-active span {
+  background: #fb5d00;
+  color: #fff;
+}
+
+.pricing-page .pricing-grid-six {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 20px !important;
+  max-width: 1180px !important;
+}
+
+.pricing-page .pricing-grid-six .pricing-card {
+  min-height: 500px;
+}
+
+.pricing-page .pricing-grid-six .pricing-card:nth-child(n+4) {
+  margin-top: 10px;
+}
+
+.billing-detail {
+  min-height: 38px !important;
+  margin: -2px 0 20px !important;
+  color: #a09a94 !important;
+  font-size: 12px !important;
+  line-height: 1.55 !important;
+}
+
+.billing-detail strong,
+.billing-detail span {
+  display: block;
+}
+
+.billing-detail strong {
+  color: #4f4945;
+  font-weight: 600;
+}
+
+.billing-detail span {
+  margin-top: 2px;
+  color: #d95600;
+}
+
+.team-card {
+  border-color: #f0d1be !important;
+  background: linear-gradient(180deg,#fffaf6 0%,#fff 45%) !important;
+}
+
+.annual-payment-note {
+  max-width: 1180px;
+  margin: 26px auto 0;
+  padding: 20px 22px;
+  border: 1px solid #f0ded1;
+  border-radius: 14px;
+  background: #fff8f2;
+}
+
+.annual-payment-note strong {
+  display: block;
+  color: #d95600;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.annual-payment-note p {
+  margin: 5px 0 0;
+  color: #726b66;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.pricing-page .pricing-note {
+  max-width: 1180px;
+}
+
+@media (max-width: 1050px) {
+  .pricing-page .pricing-grid-six {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .pricing-page .pricing-grid-six .pricing-card:nth-child(n+4) {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .billing-switch {
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .billing-option {
+    flex: 1;
+    padding: 0 10px;
+  }
+
+  .billing-option span {
+    display: none;
+  }
+
+  .pricing-page .pricing-grid-six {
+    grid-template-columns: 1fr !important;
+  }
+
+  .pricing-page .pricing-grid-six .pricing-card {
+    min-height: auto;
+  }
+}
