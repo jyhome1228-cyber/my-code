@@ -2,7 +2,7 @@
   if (!document.querySelector('link[data-mycode-header]')) {
     const headerStyle = document.createElement('link');
     headerStyle.rel = 'stylesheet';
-    headerStyle.href = './header-consistency.css?v=20260818-15';
+    headerStyle.href = './header-consistency.css?v=20260818-16';
     headerStyle.dataset.mycodeHeader = 'true';
     document.head.appendChild(headerStyle);
   }
