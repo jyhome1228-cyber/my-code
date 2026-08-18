@@ -13,24 +13,24 @@ const loadSharedHeaderStyle = () => {
   if (document.querySelector('link[data-mycode-header]')) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './header-consistency.css?v=20260818-18';
+  link.href = './header-consistency.css?v=20260818-19';
   link.dataset.mycodeHeader = 'true';
   document.head.appendChild(link);
 };
 
 const forceOrangeFavicon = () => {
-  document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]').forEach((node) => node.remove());
+  const href = './mycode-favicon-orange-20260818.svg?v=20260818-19';
+  document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach((node) => node.remove());
 
   const icon = document.createElement('link');
   icon.rel = 'icon';
   icon.type = 'image/svg+xml';
-  icon.href = './favicon-orange-v2.svg?v=1';
+  icon.href = href;
   document.head.appendChild(icon);
 
   const shortcut = document.createElement('link');
   shortcut.rel = 'shortcut icon';
-  shortcut.type = 'image/svg+xml';
-  shortcut.href = './favicon-orange-v2.svg?v=1';
+  shortcut.href = href;
   document.head.appendChild(shortcut);
 
   let theme = document.querySelector('meta[name="theme-color"]');
