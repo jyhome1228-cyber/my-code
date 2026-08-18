@@ -119,7 +119,6 @@ function initSignupModule() {
         termsAgreedAt: serverTimestamp(),
         privacyAgreedAt: serverTimestamp(),
         marketingEmailAgreedAt: signupMarketingEmail?.checked ? serverTimestamp() : null,
-        createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       }, { merge: true });
     } catch (error) {
