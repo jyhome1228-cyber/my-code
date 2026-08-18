@@ -1,15 +1,15 @@
 // MY CODE user account / library configuration
 // Firebase Web config values are public identifiers. Access control belongs in Firebase Auth + Firestore Security Rules.
 export const firebaseConfig = {
-  apiKey: "AIzaSyCkpU0EavwWyTy3BwokeQlqDXKTK8287qo",
+  apiKey: "AIzaSyCkpU0EavwWyTy3BwoKeQlqDXKTK8287qo",
   authDomain: "mycode-web.firebaseapp.com",
   projectId: "mycode-web",
   storageBucket: "mycode-web.firebasestorage.app",
   messagingSenderId: "268885401102",
-  appId: "1:268885401102:web:9c7608b60f41002262265f"
+  appId: "1:268885401102:web:66f4dcdbf0ced5e062265f"
 };
 
-const VERSION = '20260818-30';
+const VERSION = '20260818-31';
 
 const loadSharedHeaderStyle = () => {
   const existing = document.querySelector('link[href*="header-consistency.css"]');
@@ -43,14 +43,12 @@ const appendModule = (src, dataName) => {
 
 const scheduleAuthModules = () => {
   // MY CODE는 Firebase Authentication의 이메일/비밀번호 방식만 사용합니다.
-  // Google OAuth 보정 모듈은 더 이상 로드하지 않습니다.
   window.setTimeout(() => {
     appendModule('./auth-signup.js', 'mycode-signup');
   }, 350);
 };
 
 const simplifyAuthDialog = () => {
-  // Google 로그인 UI는 사용하지 않으므로 제거합니다.
   document.querySelector('#googleLoginButton')?.remove();
   document.querySelector('.auth-divider')?.remove();
 };
