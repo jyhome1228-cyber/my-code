@@ -1,7 +1,7 @@
 import { firebaseConfig } from './firebase-client.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js';
-import { getFirestore, collection, getDocs, deleteDoc, doc, query, orderBy } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js';
+import { getFirestore, collection, getDocs, getDoc, deleteDoc, doc, query, orderBy } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -10,6 +10,7 @@ setPersistence(auth, browserLocalPersistence).catch(() => {});
 
 const loginButton = document.querySelector('#cloudLoginButton');
 const logoutButton = document.querySelector('#cloudLogoutButton');
+const lockedLoginButton = document.querySelector('#cloudLockedLoginButton');
 const authDialog = document.querySelector('#authDialog');
 const googleButton = document.querySelector('#googleLoginButton');
 const emailLoginButton = document.querySelector('#emailLoginButton');
@@ -29,64 +30,153 @@ const accountName = document.querySelector('#cloudAccountName');
 const totalAssets = document.querySelector('#cloudTotalAssets');
 const storageUsed = document.querySelector('#cloudStorageUsed');
 const recentDate = document.querySelector('#cloudRecentDate');
+const userName = document.querySelector('#cloudUserName');
+const userEmail = document.querySelector('#cloudUserEmail');
+const plan = document.querySelector('#cloudPlan');
+const freeUsage = document.querySelector('#cloudFreeUsage');
+const freeRemaining = document.querySelector('#cloudFreeRemaining');
 
 let currentUser = null;
 let assets = [];
 
-loginButton?.addEventListener('click', () => authDialog.showModal());
+loginButton?.addEventListener('click', openLogin);
+lockedLoginButton?.addEventListener('click', openLogin);
 logoutButton?.addEventListener('click', () => signOut(auth));
 refreshButton?.addEventListener('click', loadAssets);
 search?.addEventListener('input', render);
 sortSelect?.addEventListener('change', render);
 
+authDialog?.addEventListener('click', (event) => {
+  if (event.target === authDialog) authDialog.close();
+});
+
 googleButton?.addEventListener('click', async () => {
   setBusy(true);
-  try { await signInWithPopup(auth, new GoogleAuthProvider()); authDialog.close(); }
-  catch (e) { authMessage.textContent = authError(e); }
-  finally { setBusy(false); }
+  clearAuthMessage();
+  try {
+    await signInWithPopup(auth, new GoogleAuthProvider());
+    authDialog?.close();
+  } catch (e) {
+    if (authMessage) authMessage.textContent = authError(e);
+  } finally {
+    setBusy(false);
+  }
 });
 
 emailLoginButton?.addEventListener('click', async () => {
-  if (!emailInput.value || !passwordInput.value) return authMessage.textContent = '이메일과 비밀번호를 입력해주세요.';
+  const email = emailInput?.value.trim() || '';
+  const password = passwordInput?.value || '';
+  if (!email || !password) {
+    if (authMessage) authMessage.textContent = '이메일과 비밀번호를 입력해주세요.';
+    return;
+  }
   setBusy(true);
-  try { await signInWithEmailAndPassword(auth, emailInput.value.trim(), passwordInput.value); authDialog.close(); }
-  catch (e) { authMessage.textContent = authError(e); }
-  finally { setBusy(false); }
+  clearAuthMessage();
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    authDialog?.close();
+  } catch (e) {
+    if (authMessage) authMessage.textContent = authError(e);
+  } finally {
+    setBusy(false);
+  }
 });
 
 emailSignupButton?.addEventListener('click', async () => {
-  if (!emailInput.value || passwordInput.value.length < 6) return authMessage.textContent = '이메일과 6자 이상의 비밀번호를 입력해주세요.';
+  const email = emailInput?.value.trim() || '';
+  const password = passwordInput?.value || '';
+  if (!email || password.length < 6) {
+    if (authMessage) authMessage.textContent = '이메일과 6자 이상의 비밀번호를 입력해주세요.';
+    return;
+  }
   setBusy(true);
-  try { await createUserWithEmailAndPassword(auth, emailInput.value.trim(), passwordInput.value); authDialog.close(); }
-  catch (e) { authMessage.textContent = authError(e); }
-  finally { setBusy(false); }
+  clearAuthMessage();
+  try {
+    await createUserWithEmailAndPassword(auth, email, password);
+    authDialog?.close();
+  } catch (e) {
+    if (authMessage) authMessage.textContent = authError(e);
+  } finally {
+    setBusy(false);
+  }
+});
+
+passwordInput?.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') emailLoginButton?.click();
 });
 
 onAuthStateChanged(auth, async (user) => {
   currentUser = user;
   if (user) {
-    locked.hidden = true;
-    content.hidden = false;
-    logoutButton.hidden = false;
-    loginButton.hidden = true;
-    accountName.textContent = `${user.displayName || user.email || 'MY CODE USER'} 계정`;
-    await loadAssets();
+    if (locked) locked.hidden = true;
+    if (content) content.hidden = false;
+    if (logoutButton) logoutButton.hidden = false;
+    if (loginButton) loginButton.hidden = true;
+    if (accountName) accountName.textContent = `${user.displayName || user.email || 'MY CODE USER'} 계정`;
+    await Promise.all([loadAccountProfile(), loadAssets()]);
   } else {
-    locked.hidden = false;
-    content.hidden = true;
-    logoutButton.hidden = true;
-    loginButton.hidden = false;
-    accountName.textContent = '로그인이 필요합니다.';
+    if (locked) locked.hidden = false;
+    if (content) content.hidden = true;
+    if (logoutButton) logoutButton.hidden = true;
+    if (loginButton) loginButton.hidden = false;
+    if (accountName) accountName.textContent = '로그인이 필요합니다.';
     assets = [];
-    grid.innerHTML = '';
+    if (grid) grid.innerHTML = '';
+    resetAccountProfile();
     updateStats();
   }
 });
 
+function openLogin() {
+  clearAuthMessage();
+  if (authDialog && !authDialog.open) authDialog.showModal();
+}
+
+async function loadAccountProfile() {
+  if (!currentUser) return;
+  const display = currentUser.displayName || currentUser.email?.split('@')[0] || 'MY CODE USER';
+  if (userName) userName.textContent = display;
+  if (userEmail) userEmail.textContent = currentUser.email || 'Google 계정';
+
+  let planName = 'FREE';
+  let used = readUsageCache(currentUser.uid);
+  try {
+    const snapshot = await getDoc(doc(db, 'users', currentUser.uid));
+    if (snapshot.exists()) {
+      const data = snapshot.data() || {};
+      planName = String(data.plan || 'FREE').toUpperCase();
+      used = Math.max(used, Math.max(0, Number(data.freeUploadsUsed || 0)));
+    }
+  } catch (e) {
+    console.warn('Account profile fallback:', e);
+  }
+
+  used = Math.min(3, used);
+  if (plan) plan.textContent = planName;
+  if (freeUsage) freeUsage.textContent = `${used} / 3`;
+  if (freeRemaining) freeRemaining.textContent = used < 3 ? `${3 - used}회 남음` : '무료 사용 완료';
+}
+
+function resetAccountProfile() {
+  if (userName) userName.textContent = 'MY CODE USER';
+  if (userEmail) userEmail.textContent = '—';
+  if (plan) plan.textContent = 'FREE';
+  if (freeUsage) freeUsage.textContent = '0 / 3';
+  if (freeRemaining) freeRemaining.textContent = '3회 남음';
+}
+
+function readUsageCache(uid) {
+  try {
+    return Math.max(0, Math.min(3, Number(localStorage.getItem(`mycode_user_free_uses_v1_${uid}`) || 0)));
+  } catch (_) {
+    return 0;
+  }
+}
+
 async function loadAssets() {
   if (!currentUser) return;
-  count.textContent = '불러오는 중';
-  refreshButton && (refreshButton.disabled = true);
+  if (count) count.textContent = '불러오는 중';
+  if (refreshButton) refreshButton.disabled = true;
   try {
     const ref = collection(db, 'users', currentUser.uid, 'assets');
     const snapshot = await getDocs(query(ref, orderBy('createdAt', 'desc')));
@@ -95,18 +185,19 @@ async function loadAssets() {
     render();
   } catch (e) {
     console.error(e);
-    count.textContent = '불러오기 실패';
-    empty.hidden = false;
-    empty.textContent = 'My Cloud 데이터를 불러오지 못했습니다. Firestore 규칙을 확인해주세요.';
+    if (count) count.textContent = '불러오기 실패';
+    if (empty) {
+      empty.hidden = false;
+      empty.textContent = 'My Cloud 데이터를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.';
+    }
   } finally {
-    refreshButton && (refreshButton.disabled = false);
+    if (refreshButton) refreshButton.disabled = false;
   }
 }
 
 function updateStats() {
   const totalBytes = assets.reduce((sum, asset) => sum + Number(asset.fileSize || 0), 0);
   const newest = [...assets].sort((a, b) => timeValue(b) - timeValue(a))[0];
-
   if (totalAssets) totalAssets.textContent = String(assets.length);
   if (storageUsed) storageUsed.textContent = formatBytes(totalBytes);
   if (recentDate) {
@@ -117,7 +208,7 @@ function updateStats() {
 }
 
 function render() {
-  if (!currentUser) return;
+  if (!currentUser || !grid || !empty) return;
   const keyword = (search?.value || '').trim().toLowerCase();
   const mode = sortSelect?.value || 'newest';
   let list = assets.filter(a => (a.filename || '').toLowerCase().includes(keyword));
@@ -171,7 +262,7 @@ function card(asset) {
     if (asset.imageUrl) window.open(asset.imageUrl, '_blank', 'noopener,noreferrer');
   });
 
-  el.querySelector('.delete-library-button').addEventListener('click', async () => {
+  el.querySelector('.delete-library-button')?.addEventListener('click', async () => {
     if (!confirm(`'${asset.filename || '이 이미지'}'를 My Cloud에서 삭제할까요?`)) return;
     try {
       await deleteDoc(doc(db, 'users', currentUser.uid, 'assets', asset.id));
@@ -193,20 +284,20 @@ function timeValue(asset) {
 }
 
 function bindCopy(button, value) {
-  button.addEventListener('click', async () => {
+  button?.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(value);
       const before = button.textContent;
       button.textContent = '복사 완료';
       setTimeout(() => button.textContent = before, 900);
     } catch (e) {
-      console.error(e);
       button.textContent = '복사 실패';
     }
   });
 }
 
+function clearAuthMessage() { if (authMessage) authMessage.textContent = ''; }
 function setBusy(v) { [googleButton,emailLoginButton,emailSignupButton].forEach(b => { if(b) b.disabled=v; }); }
 function formatBytes(bytes) { if (!bytes) return '0 B'; const u=['B','KB','MB','GB']; const i=Math.min(Math.floor(Math.log(bytes)/Math.log(1024)),u.length-1); return `${(bytes/Math.pow(1024,i)).toFixed(i?1:0)} ${u[i]}`; }
-function authError(e) { const c=e?.code||''; if(c.includes('unauthorized-domain')) return 'Firebase 승인 도메인 설정을 확인해주세요.'; if(c.includes('invalid-credential')) return '이메일 또는 비밀번호를 확인해주세요.'; if(c.includes('email-already-in-use')) return '이미 가입된 이메일입니다.'; return '로그인 처리 중 오류가 발생했습니다.'; }
+function authError(e) { const c=e?.code||''; if(c.includes('popup-closed')) return '로그인 창이 닫혔습니다.'; if(c.includes('unauthorized-domain')) return 'Firebase 승인 도메인에 현재 사이트 주소를 추가해주세요.'; if(c.includes('operation-not-allowed')) return 'Firebase에서 해당 로그인 방식을 활성화해주세요.'; if(c.includes('invalid-credential')) return '이메일 또는 비밀번호를 확인해주세요.'; if(c.includes('email-already-in-use')) return '이미 가입된 이메일입니다.'; if(c.includes('weak-password')) return '비밀번호는 6자 이상이어야 합니다.'; return '로그인 처리 중 오류가 발생했습니다.'; }
 function escapeHtml(v) { return String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
