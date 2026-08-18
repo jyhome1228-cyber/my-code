@@ -13,7 +13,7 @@ const loadSharedHeaderStyle = () => {
   if (document.querySelector('link[href*="header-consistency.css"]')) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './header-consistency.css?v=20260818-24';
+  link.href = './header-consistency.css?v=20260818-25';
   link.dataset.mycodeHeader = 'true';
   document.head.appendChild(link);
 };
@@ -22,9 +22,19 @@ const loadAuthModalFixStyle = () => {
   if (document.querySelector('link[href*="auth-modal-fix.css"]')) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './auth-modal-fix.css?v=20260818-24';
+  link.href = './auth-modal-fix.css?v=20260818-25';
   link.dataset.mycodeAuthFix = 'true';
   document.head.appendChild(link);
+};
+
+const loadAuthSignupModule = () => {
+  if (!document.querySelector('#authDialog')) return;
+  if (document.querySelector('script[data-mycode-signup]')) return;
+  const script = document.createElement('script');
+  script.type = 'module';
+  script.src = './auth-signup.js?v=20260818-25';
+  script.dataset.mycodeSignup = 'true';
+  document.body.appendChild(script);
 };
 
 const loadHomeCenterStyle = () => {
@@ -32,7 +42,7 @@ const loadHomeCenterStyle = () => {
   if (document.querySelector('link[href*="home-center-v22.css"]')) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './home-center-v22.css?v=20260818-24';
+  link.href = './home-center-v22.css?v=20260818-25';
   link.dataset.mycodeHomeCenter = 'true';
   document.head.appendChild(link);
 };
@@ -42,12 +52,12 @@ const loadUiFixStyle = () => {
   if (document.querySelector('link[href*="ui-fixes-v23.css"]')) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './ui-fixes-v23.css?v=20260818-24';
+  link.href = './ui-fixes-v23.css?v=20260818-25';
   document.head.appendChild(link);
 };
 
 const forceOrangeFavicon = () => {
-  const href = './mycode-favicon-orange-20260818.svg?v=20260818-24';
+  const href = './mycode-favicon-orange-20260818.svg?v=20260818-25';
   document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach((node) => node.remove());
 
   const icon = document.createElement('link');
@@ -58,7 +68,7 @@ const forceOrangeFavicon = () => {
 
   const shortcut = document.createElement('link');
   shortcut.rel = 'shortcut icon';
-  shortcut.href = './favicon.ico?v=20260818-24';
+  shortcut.href = './favicon.ico?v=20260818-25';
   document.head.appendChild(shortcut);
 
   let theme = document.querySelector('meta[name="theme-color"]');
@@ -90,13 +100,14 @@ const syncSiteNav = () => {
   loadUiFixStyle();
   forceOrangeFavicon();
   syncDailyFreeCopy();
+  loadAuthSignupModule();
 
   const nav = document.querySelector('.platform-nav');
   if (nav) {
     nav.innerHTML = `<a href="./about.html">About</a><a href="./how-to-use.html">How to Use</a><a href="./pricing.html">Pricing</a><a href="./magazine.html">Magazine</a><a href="./faq.html">FAQ</a><a href="./mycloud.html">My Cloud</a>`;
   }
   document.querySelectorAll('.company-footer-bottom > div').forEach((links) => {
-    links.innerHTML = `<a href="./about.html">About</a><a href="./how-to-use.html">How to Use</a><a href="./pricing.html">Pricing</a><a href="./magazine.html">Magazine</a><a href="./faq.html">FAQ</a><a href="./refund-policy.html">환불규정</a><a href="./mycloud.html">My Cloud</a>`;
+    links.innerHTML = `<a href="./about.html">About</a><a href="./how-to-use.html">How to Use</a><a href="./pricing.html">Pricing</a><a href="./magazine.html">Magazine</a><a href="./faq.html">FAQ</a><a href="./terms.html">이용약관</a><a href="./privacy.html">개인정보처리방침</a><a href="./refund-policy.html">환불규정</a><a href="./mycloud.html">My Cloud</a>`;
   });
 };
 
