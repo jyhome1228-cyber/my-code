@@ -9,7 +9,7 @@ export const firebaseConfig = {
   appId: "1:268885401102:web:9c7608b60f41002262265f"
 };
 
-const VERSION = '20260818-29';
+const VERSION = '20260818-30';
 
 const loadSharedHeaderStyle = () => {
   const existing = document.querySelector('link[href*="header-consistency.css"]');
@@ -42,10 +42,17 @@ const appendModule = (src, dataName) => {
 };
 
 const scheduleAuthModules = () => {
+  // MY CODE는 Firebase Authentication의 이메일/비밀번호 방식만 사용합니다.
+  // Google OAuth 보정 모듈은 더 이상 로드하지 않습니다.
   window.setTimeout(() => {
     appendModule('./auth-signup.js', 'mycode-signup');
-    appendModule('./auth-runtime-fix.js', 'mycode-auth-runtime');
   }, 350);
+};
+
+const simplifyAuthDialog = () => {
+  // Google 로그인 UI는 사용하지 않으므로 제거합니다.
+  document.querySelector('#googleLoginButton')?.remove();
+  document.querySelector('.auth-divider')?.remove();
 };
 
 const loadHomeCenterStyle = () => {
@@ -112,6 +119,7 @@ const syncSiteNav = () => {
   loadHomeCenterStyle();
   loadUiFixStyle();
   forceOrangeFavicon();
+  simplifyAuthDialog();
   syncDailyFreeCopy();
   scheduleAuthModules();
 
