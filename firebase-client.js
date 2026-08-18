@@ -13,7 +13,7 @@ const loadSharedHeaderStyle = () => {
   if (document.querySelector('link[data-mycode-header]')) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './header-consistency.css?v=20260818-21';
+  link.href = './header-consistency.css?v=20260818-22';
   link.dataset.mycodeHeader = 'true';
   document.head.appendChild(link);
 };
@@ -22,13 +22,23 @@ const loadAuthModalFixStyle = () => {
   if (document.querySelector('link[data-mycode-auth-fix]')) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './auth-modal-fix.css?v=20260818-21';
+  link.href = './auth-modal-fix.css?v=20260818-22';
   link.dataset.mycodeAuthFix = 'true';
   document.head.appendChild(link);
 };
 
+const loadHomeCenterStyle = () => {
+  if (!document.body?.classList.contains('home-simple-page')) return;
+  if (document.querySelector('link[data-mycode-home-center]')) return;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = './home-center-v22.css?v=20260818-22';
+  link.dataset.mycodeHomeCenter = 'true';
+  document.head.appendChild(link);
+};
+
 const forceOrangeFavicon = () => {
-  const href = './mycode-favicon-orange-20260818.svg?v=20260818-21';
+  const href = './mycode-favicon-orange-20260818.svg?v=20260818-22';
   document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach((node) => node.remove());
 
   const icon = document.createElement('link');
@@ -39,7 +49,7 @@ const forceOrangeFavicon = () => {
 
   const shortcut = document.createElement('link');
   shortcut.rel = 'shortcut icon';
-  shortcut.href = './favicon.ico?v=20260818-21';
+  shortcut.href = './favicon.ico?v=20260818-22';
   document.head.appendChild(shortcut);
 
   let theme = document.querySelector('meta[name="theme-color"]');
@@ -54,6 +64,7 @@ const forceOrangeFavicon = () => {
 const syncSiteNav = () => {
   loadSharedHeaderStyle();
   loadAuthModalFixStyle();
+  loadHomeCenterStyle();
   forceOrangeFavicon();
 
   const nav = document.querySelector('.platform-nav');
