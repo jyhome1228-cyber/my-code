@@ -9,8 +9,19 @@ export const firebaseConfig = {
   appId: "1:268885401102:web:9c7608b60f41002262265f"
 };
 
+const loadSharedHeaderStyle = () => {
+  if (document.querySelector('link[data-mycode-header]')) return;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = './header-consistency.css?v=20260818-15';
+  link.dataset.mycodeHeader = 'true';
+  document.head.appendChild(link);
+};
+
 // app.js / mycloud.js가 로드되는 페이지에서 공통 헤더·푸터 메뉴를 동기화합니다.
 const syncSiteNav = () => {
+  loadSharedHeaderStyle();
+
   const nav = document.querySelector('.platform-nav');
   if (nav) {
     nav.innerHTML = `<a href="./product.html">Product</a><a href="./workspace.html">Workspace</a><a href="./pricing.html">Pricing</a><a href="./magazine.html">Magazine</a><a href="./faq.html">FAQ</a><a href="./mycloud.html">My Cloud</a>`;
