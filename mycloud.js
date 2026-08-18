@@ -6,6 +6,7 @@ import { getFirestore, collection, getDocs, getDoc, deleteDoc, doc, query, order
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const PAID_PLANS = new Set(['STARTER', 'STANDARD', 'PRO', 'TEAM', 'ENTERPRISE']);
 setPersistence(auth, browserLocalPersistence).catch(() => {});
 
 const loginButton = document.querySelector('#cloudLoginButton');
@@ -53,14 +54,9 @@ authDialog?.addEventListener('click', (event) => {
 googleButton?.addEventListener('click', async () => {
   setBusy(true);
   clearAuthMessage();
-  try {
-    await signInWithPopup(auth, new GoogleAuthProvider());
-    authDialog?.close();
-  } catch (e) {
-    if (authMessage) authMessage.textContent = authError(e);
-  } finally {
-    setBusy(false);
-  }
+  try { await signInWithPopup(auth, new GoogleAuthProvider()); authDialog.close(); }
+  catch (e) { if (authMessage) authMessage.textContent = authError(e); }
+  finally { setBusy(false); }
 });
 
 emailLoginButton?.addEventListener('click', async () => {
@@ -72,14 +68,9 @@ emailLoginButton?.addEventListener('click', async () => {
   }
   setBusy(true);
   clearAuthMessage();
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    authDialog?.close();
-  } catch (e) {
-    if (authMessage) authMessage.textContent = authError(e);
-  } finally {
-    setBusy(false);
-  }
+  try { await signInWithEmailAndPassword(auth, email, password); authDialog.close(); }
+  catch (e) { if (authMessage) authMessage.textContent = authError(e); }
+  finally { setBusy(false); }
 });
 
 emailSignupButton?.addEventListener('click', async () => {
@@ -91,14 +82,9 @@ emailSignupButton?.addEventListener('click', async () => {
   }
   setBusy(true);
   clearAuthMessage();
-  try {
-    await createUserWithEmailAndPassword(auth, email, password);
-    authDialog?.close();
-  } catch (e) {
-    if (authMessage) authMessage.textContent = authError(e);
-  } finally {
-    setBusy(false);
-  }
+  try { await createUserWithEmailAndPassword(auth, email, password); authDialog.close(); }
+  catch (e) { if (authMessage) authMessage.textContent = authError(e); }
+  finally { setBusy(false); }
 });
 
 passwordInput?.addEventListener('keydown', (event) => {
@@ -139,38 +125,42 @@ async function loadAccountProfile() {
   if (userEmail) userEmail.textContent = currentUser.email || 'Google 계정';
 
   let planName = 'FREE';
-  let used = readUsageCache(currentUser.uid);
+  let usedToday = false;
   try {
     const snapshot = await getDoc(doc(db, 'users', currentUser.uid));
     if (snapshot.exists()) {
       const data = snapshot.data() || {};
       planName = String(data.plan || 'FREE').toUpperCase();
-      used = Math.max(used, Math.max(0, Number(data.freeUploadsUsed || 0)));
+      usedToday = data.dailyFreeDate === todayKey() && data.dailyFreeUsed === true;
     }
   } catch (e) {
     console.warn('Account profile fallback:', e);
   }
 
-  used = Math.min(3, used);
   if (plan) plan.textContent = planName;
-  if (freeUsage) freeUsage.textContent = `${used} / 3`;
-  if (freeRemaining) freeRemaining.textContent = used < 3 ? `${3 - used}회 남음` : '무료 사용 완료';
+  if (PAID_PLANS.has(planName)) {
+    if (freeUsage) freeUsage.textContent = '제한 없음';
+    if (freeRemaining) freeRemaining.textContent = '유료 플랜';
+  } else {
+    if (freeUsage) freeUsage.textContent = `${usedToday ? 1 : 0} / 1`;
+    if (freeRemaining) freeRemaining.textContent = usedToday ? '오늘 무료 사용 완료' : '오늘 1회 남음';
+  }
 }
 
 function resetAccountProfile() {
   if (userName) userName.textContent = 'MY CODE USER';
   if (userEmail) userEmail.textContent = '—';
   if (plan) plan.textContent = 'FREE';
-  if (freeUsage) freeUsage.textContent = '0 / 3';
-  if (freeRemaining) freeRemaining.textContent = '3회 남음';
+  if (freeUsage) freeUsage.textContent = '0 / 1';
+  if (freeRemaining) freeRemaining.textContent = '오늘 1회 남음';
 }
 
-function readUsageCache(uid) {
-  try {
-    return Math.max(0, Math.min(3, Number(localStorage.getItem(`mycode_user_free_uses_v1_${uid}`) || 0)));
-  } catch (_) {
-    return 0;
-  }
+function todayKey() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 async function loadAssets() {
