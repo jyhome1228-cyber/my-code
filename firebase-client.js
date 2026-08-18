@@ -13,13 +13,22 @@ const loadSharedHeaderStyle = () => {
   if (document.querySelector('link[data-mycode-header]')) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './header-consistency.css?v=20260818-19';
+  link.href = './header-consistency.css?v=20260818-20';
   link.dataset.mycodeHeader = 'true';
   document.head.appendChild(link);
 };
 
+const loadAuthModalFixStyle = () => {
+  if (document.querySelector('link[data-mycode-auth-fix]')) return;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = './auth-modal-fix.css?v=20260818-20';
+  link.dataset.mycodeAuthFix = 'true';
+  document.head.appendChild(link);
+};
+
 const forceOrangeFavicon = () => {
-  const href = './mycode-favicon-orange-20260818.svg?v=20260818-19';
+  const href = './mycode-favicon-orange-20260818.svg?v=20260818-20';
   document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach((node) => node.remove());
 
   const icon = document.createElement('link');
@@ -30,7 +39,7 @@ const forceOrangeFavicon = () => {
 
   const shortcut = document.createElement('link');
   shortcut.rel = 'shortcut icon';
-  shortcut.href = href;
+  shortcut.href = './favicon.ico?v=20260818-20';
   document.head.appendChild(shortcut);
 
   let theme = document.querySelector('meta[name="theme-color"]');
@@ -44,6 +53,7 @@ const forceOrangeFavicon = () => {
 
 const syncSiteNav = () => {
   loadSharedHeaderStyle();
+  loadAuthModalFixStyle();
   forceOrangeFavicon();
 
   const nav = document.querySelector('.platform-nav');
