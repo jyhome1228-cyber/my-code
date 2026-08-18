@@ -6,22 +6,22 @@
   <meta name="description" content="마이코드 - 이미지를 업로드하고 웹사이트용 이미지 URL과 HTML, CSS 코드를 바로 생성하고 My Cloud에 저장하는 이미지 워크스페이스" />
   <meta name="theme-color" content="#fb5d00" />
   <title>마이코드 | MY CODE</title>
-  <link rel="icon" href="./favicon.svg?v=20260818-6" type="image/svg+xml" />
+  <link rel="icon" href="./favicon.svg?v=20260818-7" type="image/svg+xml" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css" />
-  <link rel="stylesheet" href="./style.css?v=20260818-6" />
-  <link rel="stylesheet" href="./platform.css?v=20260818-6" />
-  <link rel="stylesheet" href="./workspace.css?v=20260818-6" />
+  <link rel="stylesheet" href="./style.css?v=20260818-7" />
+  <link rel="stylesheet" href="./platform.css?v=20260818-7" />
+  <link rel="stylesheet" href="./workspace.css?v=20260818-7" />
 </head>
 <body>
   <header class="site-header platform-header">
     <div class="shell header-inner">
       <a class="brand brand-logo-link" href="#top" aria-label="마이코드 홈">
-        <img class="brand-logo-image" src="./logo.svg?v=20260818-6" alt="MY CODE" />
+        <img class="brand-logo-image" src="./logo.svg?v=20260818-7" alt="MY CODE" />
       </a>
 
       <nav class="platform-nav" aria-label="주요 메뉴">
-        <a href="#product">Product</a>
+        <a href="#features">Product</a>
         <a href="#upload">Workspace</a>
         <a href="#library">My Cloud</a>
       </nav>
@@ -35,27 +35,17 @@
   </header>
 
   <main id="top">
-    <section class="saas-hero shell live-hero" id="product">
-      <div class="hero-glow hero-glow-one"></div>
-      <div class="hero-glow hero-glow-two"></div>
-
-      <div class="saas-hero-copy">
-        <div class="hero-badge"><span></span> IMAGE INFRASTRUCTURE FOR WEB MAKERS</div>
-        <h1>이미지를 올리고,<br /><em>웹 코드로 바로 사용하세요.</em></h1>
-        <p class="hero-description">이미지를 올리는 순간 URL, HTML, CSS 코드가 바로 만들어집니다. 아래 워크스페이스에서 바로 업로드하고 필요한 코드를 복사하세요.</p>
-        <div class="hero-actions">
-          <a class="hero-primary" href="#upload">지금 이미지 올리기</a>
-          <a class="hero-secondary" href="#library">My Cloud 보기 <span>↗</span></a>
-        </div>
-        <div class="hero-trust">
-          <span>Direct URL</span><i></i><span>HTML · CSS</span><i></i><span>My Cloud</span><i></i><span>Fast Delivery</span>
-        </div>
+    <section class="tool-first shell" id="product">
+      <div class="tool-first-heading">
+        <p class="eyebrow">MY CODE / WORKSPACE</p>
+        <h1>이미지를 올리고,<br />바로 코드로 사용하세요.</h1>
+        <p>이미지를 드래그하면 URL, HTML, CSS 코드가 바로 생성됩니다. 필요한 코드만 복사해서 웹사이트에 붙여넣으세요.</p>
       </div>
 
-      <div class="hero-product-window live-product-window" id="upload" aria-label="마이코드 이미지 코드 워크스페이스">
+      <div class="hero-product-window live-product-window tool-window" id="upload" aria-label="마이코드 이미지 코드 워크스페이스">
         <div class="product-window-bar">
           <div class="window-dots"><i></i><i></i><i></i></div>
-          <span>mycode / workspace</span>
+          <span>MY CODE / WORKSPACE</span>
           <div class="window-status">READY</div>
         </div>
 
@@ -103,18 +93,22 @@
           </div>
         </div>
       </div>
+
+      <div class="tool-first-note">
+        <span>회원가입 없이 코드 생성 가능</span><i></i><span>로그인 시 My Cloud 자동 저장</span><i></i><span>여러 이미지 동시 업로드</span>
+      </div>
     </section>
 
     <section class="platform-band value-band">
       <div class="shell value-grid">
         <article><span>01</span><strong>Upload once</strong><p>이미지 한 번 업로드</p></article>
         <article><span>02</span><strong>Generate instantly</strong><p>URL·HTML·CSS 즉시 생성</p></article>
-        <article><span>03</span><strong>Save to My Cloud</strong><p>로그인 후 저장·재사용</p></article>
+        <article><span>03</span><strong>Save to My Cloud</strong><p>로그인 후 자동 저장·재사용</p></article>
         <article><span>04</span><strong>Use anywhere</strong><p>어떤 웹사이트에도 사용</p></article>
       </div>
     </section>
 
-    <section class="benefit-section product-story-section">
+    <section class="benefit-section product-story-section" id="features">
       <div class="shell">
         <div class="centered-heading benefit-heading">
           <p class="eyebrow">BUILT FOR WEB WORK</p>
@@ -171,7 +165,7 @@
           <div class="locked-visual"><span class="locked-badge">MY CLOUD</span><div class="locked-stack"><i></i><i></i><i></i></div></div>
           <div class="locked-copy">
             <h3>로그인하면 생성한 이미지와 코드를<br />My Cloud에 저장할 수 있습니다.</h3>
-            <p>업로드 결과에서 ‘My Cloud 저장’을 누르면 이미지 URL·HTML·CSS 코드가 계정에 저장됩니다.</p>
+            <p>로그인한 상태에서 업로드하면 이미지와 URL·HTML·CSS 코드가 My Cloud에 자동 저장됩니다.</p>
             <button class="primary-cta" id="libraryLoginButton" type="button">로그인하고 My Cloud 시작</button>
           </div>
         </div>
@@ -197,7 +191,7 @@
   <footer class="site-footer platform-footer company-footer">
     <div class="shell company-footer-inner">
       <div class="company-footer-brand">
-        <img src="./logo.svg?v=20260818-6" alt="MY CODE" />
+        <img src="./logo.svg?v=20260818-7" alt="MY CODE" />
         <p>Image URL workspace for web makers.</p>
       </div>
       <div class="company-footer-info">
@@ -208,7 +202,7 @@
       </div>
       <div class="company-footer-bottom">
         <span>©2026 MY CODE. All Rights Reserved.</span>
-        <div><a href="#product">Product</a><a href="#upload">Workspace</a><a href="#library">My Cloud</a></div>
+        <div><a href="#features">Product</a><a href="#upload">Workspace</a><a href="#library">My Cloud</a></div>
       </div>
     </div>
   </footer>
@@ -246,6 +240,6 @@
     </article>
   </template>
 
-  <script type="module" src="./app.js?v=20260818-6"></script>
+  <script type="module" src="./app.js?v=20260818-7"></script>
 </body>
 </html>
