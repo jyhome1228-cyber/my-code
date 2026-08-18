@@ -9,7 +9,7 @@
 
 .brand-logo-image {
   display: block;
-  width: clamp(142px, 11vw, 176px);
+  width: clamp(114px, 8.8vw, 141px);
   height: auto;
 }
 
@@ -114,7 +114,6 @@
   color: #fb5d00;
 }
 
-/* Make My Cloud feel like a named product area */
 .library-hero-panel {
   border-color: #f0e0d5 !important;
 }
@@ -138,7 +137,7 @@
 
 @media (max-width: 900px) {
   .brand-logo-image {
-    width: 148px;
+    width: 118px;
   }
 
   .company-footer-info {
@@ -148,7 +147,7 @@
 
 @media (max-width: 760px) {
   .brand-logo-image {
-    width: 132px;
+    width: 106px;
   }
 
   .company-footer-inner {
