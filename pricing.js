@@ -1,6 +1,6 @@
 const pricingStyle = document.createElement('link');
 pricingStyle.rel = 'stylesheet';
-pricingStyle.href = './pricing-toggle.css?v=20260818-11';
+pricingStyle.href = './pricing-toggle.css?v=20260818-13';
 document.head.appendChild(pricingStyle);
 
 const billingButtons = [...document.querySelectorAll('[data-billing]')];
@@ -68,3 +68,11 @@ billingButtons.forEach((button) => {
 
 const savedBilling = localStorage.getItem(BILLING_KEY);
 updatePricing(savedBilling === 'yearly' ? 'yearly' : 'monthly');
+
+const pricingNote = document.querySelector('.pricing-note');
+if (pricingNote && !document.querySelector('.pricing-policy-link')) {
+  const policy = document.createElement('div');
+  policy.className = 'pricing-policy-link';
+  policy.innerHTML = `<div><strong>결제 전 확인해주세요.</strong><p>청약철회, 월간·연간 구독 해지 및 환불 처리 기준을 확인할 수 있습니다.</p></div><a href="./refund-policy.html">환불 및 구독 해지 기준 보기 ↗</a>`;
+  pricingNote.insertAdjacentElement('afterend', policy);
+}
