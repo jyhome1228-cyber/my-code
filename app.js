@@ -78,8 +78,12 @@ function initFirebase() {
       currentUser = user;
       updateAccountUI();
       updateResultSaveButtons();
-      if (user) await loadLibrary();
-      else resetLibrary();
+      if (user) {
+        await loadLibrary();
+        await autoSavePendingResults();
+      } else {
+        resetLibrary();
+      }
     });
   } catch (error) {
     console.error('Firebase account initialization failed:', error);
@@ -91,14 +95,18 @@ async function checkWorker() {
   try {
     const response = await fetch(WORKER_API, { cache: 'no-store' });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    serviceStatus.textContent = 'R2 연결됨';
-    serviceStatusDot.classList.remove('error');
-    serviceStatusDot.classList.add('ready');
+    if (serviceStatus) serviceStatus.textContent = 'READY';
+    if (serviceStatusDot) {
+      serviceStatusDot.classList.remove('error');
+      serviceStatusDot.classList.add('ready');
+    }
   } catch (error) {
     console.error('Worker connection check failed:', error);
-    serviceStatus.textContent = 'R2 연결 확인 필요';
-    serviceStatusDot.classList.remove('ready');
-    serviceStatusDot.classList.add('error');
+    if (serviceStatus) serviceStatus.textContent = 'CHECK';
+    if (serviceStatusDot) {
+      serviceStatusDot.classList.remove('ready');
+      serviceStatusDot.classList.add('error');
+    }
   }
 }
 
@@ -220,14 +228,14 @@ function updateAccountUI() {
     const name = currentUser.displayName || currentUser.email || 'MY CODE USER';
     accountButton.textContent = '로그아웃';
     accountPanelButton.textContent = '로그아웃';
-    accountSummary.textContent = `${name} 계정으로 로그인되어 있습니다. 생성한 이미지 코드를 내 라이브러리에 저장하고 다시 사용할 수 있습니다.`;
+    accountSummary.textContent = `${name} 계정으로 로그인되어 있습니다. 생성한 이미지와 코드는 My Cloud에 저장되어 다음 작업에서도 다시 사용할 수 있습니다.`;
     libraryLocked.hidden = true;
     libraryTools.hidden = false;
     libraryCount.textContent = '불러오는 중';
   } else {
     accountButton.textContent = '로그인';
     accountPanelButton.textContent = '로그인';
-    accountSummary.textContent = '비회원도 이미지 URL 생성은 가능하며, 로그인하면 라이브러리 저장 기능이 활성화됩니다.';
+    accountSummary.textContent = '비회원도 이미지 URL 생성은 가능하며, 로그인하면 My Cloud 저장 기능이 활성화됩니다.';
     libraryLocked.hidden = false;
     libraryTools.hidden = true;
     libraryCount.textContent = '로그인 필요';
@@ -254,7 +262,7 @@ async function handleFiles(fileList) {
   }
 
   fileInput.value = '';
-  document.querySelector('#result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelector('#result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function createItem(file) {
@@ -266,7 +274,8 @@ function createItem(file) {
     r2Key: '',
     htmlCode: '',
     cssCode: '',
-    saved: false
+    saved: false,
+    saving: false
   };
 }
 
@@ -297,7 +306,7 @@ async function uploadItem(item, card) {
 
   try {
     progressBar.style.width = '35%';
-    status.textContent = 'Cloudflare R2에 업로드 중...';
+    status.textContent = '이미지 업로드 중...';
 
     const response = await fetch(`${WORKER_API}/upload`, {
       method: 'POST',
@@ -319,35 +328,39 @@ async function uploadItem(item, card) {
 
     progressBar.style.width = '100%';
     card.dataset.state = 'done';
-    status.textContent = '완료 · 아래 코드를 바로 사용할 수 있습니다.';
+    status.textContent = currentUser ? '완료 · My Cloud에 저장합니다.' : '완료 · 아래 코드를 바로 사용할 수 있습니다.';
 
     card.querySelector('.url-input').value = item.downloadUrl;
     card.querySelector('.html-input').value = item.htmlCode;
     card.querySelector('.css-input').value = item.cssCode;
     codeGrid.hidden = false;
     saveButton.disabled = false;
+    saveButton.textContent = currentUser ? 'My Cloud 저장' : '로그인 후 저장';
 
     bindCopy(card.querySelector('.copy-url'), item.downloadUrl);
     bindCopy(card.querySelector('.copy-html'), item.htmlCode);
     bindCopy(card.querySelector('.copy-css'), item.cssCode);
+
+    if (currentUser) await saveResultItem(item, card, true);
   } catch (error) {
-    console.error('Cloudflare R2 upload error:', error);
+    console.error('Image upload error:', error);
     progressBar.style.width = '0%';
     card.dataset.state = 'error';
-    status.textContent = `업로드 실패 · ${error.message || 'Worker/R2 설정을 확인해주세요.'}`;
+    status.textContent = `업로드 실패 · ${error.message || '잠시 후 다시 시도해주세요.'}`;
   }
 }
 
-async function saveResultItem(item, card) {
+async function saveResultItem(item, card, auto = false) {
   if (!currentUser) {
-    openAuthDialog();
+    if (!auto) openAuthDialog();
     return;
   }
-  if (!db || !item.downloadUrl || item.saved) return;
+  if (!db || !item.downloadUrl || item.saved || item.saving) return;
 
   const button = card.querySelector('.save-button');
+  item.saving = true;
   button.disabled = true;
-  button.textContent = '저장 중';
+  button.textContent = 'My Cloud 저장 중';
 
   try {
     await addDoc(collection(db, 'users', currentUser.uid, 'assets'), {
@@ -361,13 +374,25 @@ async function saveResultItem(item, card) {
       createdAt: serverTimestamp()
     });
     item.saved = true;
-    button.textContent = '저장 완료';
+    button.textContent = 'My Cloud 저장됨';
+    card.querySelector('.card-status').textContent = '완료 · My Cloud에 저장되었습니다.';
     await loadLibrary();
   } catch (error) {
     console.error('Firestore save error:', error);
     button.disabled = false;
     button.textContent = '다시 저장';
-    card.querySelector('.card-status').textContent = '이미지는 업로드됐지만 라이브러리 저장에 실패했습니다. Firestore 규칙을 확인해주세요.';
+    card.querySelector('.card-status').textContent = '이미지는 업로드됐지만 My Cloud 저장에 실패했습니다. 잠시 후 다시 시도해주세요.';
+  } finally {
+    item.saving = false;
+  }
+}
+
+async function autoSavePendingResults() {
+  if (!currentUser) return;
+  const pending = [...items.values()].filter((item) => item.downloadUrl && !item.saved && !item.saving);
+  for (const item of pending) {
+    const card = resultGrid.querySelector(`[data-id="${item.id}"]`);
+    if (card) await saveResultItem(item, card, true);
   }
 }
 
@@ -385,10 +410,10 @@ async function loadLibrary() {
     libraryCount.textContent = `${libraryAssets.length}개 저장됨`;
     renderLibrary();
   } catch (error) {
-    console.error('Library load error:', error);
+    console.error('My Cloud load error:', error);
     libraryCount.textContent = '불러오기 실패';
     libraryEmpty.hidden = false;
-    libraryEmpty.textContent = '라이브러리를 불러오지 못했습니다. Firestore 보안 규칙과 로그인 설정을 확인해주세요.';
+    libraryEmpty.textContent = 'My Cloud를 불러오지 못했습니다. 로그인 설정과 데이터 권한을 확인해주세요.';
   }
 }
 
@@ -409,7 +434,7 @@ function renderLibrary() {
   libraryGrid.hidden = filtered.length === 0;
 
   if (!filtered.length) {
-    libraryEmpty.textContent = keyword ? '검색 결과가 없습니다.' : '아직 저장한 이미지가 없습니다.';
+    libraryEmpty.textContent = keyword ? '검색 결과가 없습니다.' : '아직 My Cloud에 저장한 이미지가 없습니다.';
     return;
   }
 
@@ -425,7 +450,7 @@ function createLibraryCard(asset) {
   card.innerHTML = `
     <div class="library-thumb"><img src="${escapeHtml(asset.imageUrl || '')}" alt="${escapeHtml(asset.filename || '저장 이미지')}" loading="lazy" /></div>
     <div class="library-body">
-      <p class="library-meta">IMAGE ASSET / ${escapeHtml(dateText)}</p>
+      <p class="library-meta">MY CLOUD / ${escapeHtml(dateText)}</p>
       <h3 class="library-title">${escapeHtml(asset.filename || 'Untitled image')}</h3>
       <div class="library-code-row">
         <button class="copy-button library-url" type="button">URL 복사</button>
@@ -434,7 +459,7 @@ function createLibraryCard(asset) {
       </div>
       <div class="library-card-footer">
         <span class="library-meta">${formatBytes(asset.fileSize || 0)}</span>
-        <button class="delete-library-button" type="button">라이브러리에서 삭제</button>
+        <button class="delete-library-button" type="button">My Cloud에서 삭제</button>
       </div>
     </div>`;
 
@@ -461,9 +486,14 @@ function updateResultSaveButtons() {
   document.querySelectorAll('.result-card').forEach((card) => {
     const item = items.get(card.dataset.id);
     const button = card.querySelector('.save-button');
-    if (!button || !item || !item.downloadUrl || item.saved) return;
+    if (!button || !item || !item.downloadUrl) return;
+    if (item.saved) {
+      button.disabled = true;
+      button.textContent = 'My Cloud 저장됨';
+      return;
+    }
     button.disabled = false;
-    button.textContent = currentUser ? '라이브러리 저장' : '로그인 후 저장';
+    button.textContent = currentUser ? 'My Cloud 저장' : '로그인 후 저장';
   });
 }
 
