@@ -1,22 +1,23 @@
 (() => {
+  const FAVICON = './mycode-favicon-orange-20260818.svg?v=20260818-19';
+
   if (!document.querySelector('link[data-mycode-header]')) {
     const headerStyle = document.createElement('link');
     headerStyle.rel = 'stylesheet';
-    headerStyle.href = './header-consistency.css?v=20260818-18';
+    headerStyle.href = './header-consistency.css?v=20260818-19';
     headerStyle.dataset.mycodeHeader = 'true';
     document.head.appendChild(headerStyle);
   }
 
-  document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]').forEach((node) => node.remove());
+  document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach((node) => node.remove());
   const icon = document.createElement('link');
   icon.rel = 'icon';
   icon.type = 'image/svg+xml';
-  icon.href = './favicon-orange-v2.svg?v=1';
+  icon.href = FAVICON;
   document.head.appendChild(icon);
   const shortcut = document.createElement('link');
   shortcut.rel = 'shortcut icon';
-  shortcut.type = 'image/svg+xml';
-  shortcut.href = './favicon-orange-v2.svg?v=1';
+  shortcut.href = FAVICON;
   document.head.appendChild(shortcut);
 
   let theme = document.querySelector('meta[name="theme-color"]');
