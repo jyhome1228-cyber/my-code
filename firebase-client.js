@@ -18,9 +18,12 @@ const loadSharedHeaderStyle = () => {
   document.head.appendChild(link);
 };
 
-// app.js / mycloud.js가 로드되는 페이지에서 공통 헤더·푸터 메뉴를 동기화합니다.
 const syncSiteNav = () => {
   loadSharedHeaderStyle();
+
+  document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]').forEach((icon) => {
+    icon.href = './favicon.svg?v=20260818-18';
+  });
 
   const nav = document.querySelector('.platform-nav');
   if (nav) {
