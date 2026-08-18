@@ -1,0 +1,179 @@
+/* MY CODE — official identity + My Cloud footer system */
+
+.brand-logo-link {
+  display: inline-flex !important;
+  align-items: center;
+  min-width: 0;
+  text-decoration: none;
+}
+
+.brand-logo-image {
+  display: block;
+  width: clamp(142px, 11vw, 176px);
+  height: auto;
+}
+
+.mini-brand-symbol {
+  font-size: 8px !important;
+  letter-spacing: -.08em;
+}
+
+.company-footer {
+  margin-top: 0 !important;
+  padding: 0 !important;
+  border-top: 1px solid #ece7e2 !important;
+  background: #fff !important;
+  color: #181818 !important;
+}
+
+.company-footer-inner {
+  padding: 72px 0 34px;
+}
+
+.company-footer-brand {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px;
+  padding-bottom: 42px;
+  border-bottom: 1px solid #ece7e2;
+}
+
+.company-footer-brand img {
+  display: block;
+  width: min(210px, 42vw);
+  height: auto;
+}
+
+.company-footer-brand p {
+  margin: 0;
+  color: #8a8580;
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: -.01em;
+}
+
+.company-footer-info {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 34px;
+  padding: 44px 0 48px;
+}
+
+.company-footer-info > div {
+  min-width: 0;
+}
+
+.company-footer-info span {
+  display: block;
+  margin-bottom: 14px;
+  color: #a39d97;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: .1em;
+}
+
+.company-footer-info strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 17px;
+  font-weight: 560;
+}
+
+.company-footer-info p {
+  margin: 0;
+  color: #5f5a56;
+  font-size: 14px;
+  line-height: 1.75;
+}
+
+.company-footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 26px;
+  border-top: 1px solid #ece7e2;
+  color: #8d8782;
+  font-size: 12px;
+}
+
+.company-footer-bottom > div {
+  display: flex;
+  gap: 24px;
+}
+
+.company-footer-bottom a {
+  color: #6f6964;
+  text-decoration: none;
+  transition: color .18s ease;
+}
+
+.company-footer-bottom a:hover {
+  color: #fb5d00;
+}
+
+/* Make My Cloud feel like a named product area */
+.library-hero-panel {
+  border-color: #f0e0d5 !important;
+}
+
+.library-copy-block .eyebrow,
+.locked-badge {
+  color: #d95600 !important;
+}
+
+.library-status-line span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid #eee3dc;
+  border-radius: 999px;
+  background: #fffaf6;
+  color: #7c746e;
+  font-size: 11px;
+}
+
+@media (max-width: 900px) {
+  .brand-logo-image {
+    width: 148px;
+  }
+
+  .company-footer-info {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .brand-logo-image {
+    width: 132px;
+  }
+
+  .company-footer-inner {
+    padding: 52px 0 26px;
+  }
+
+  .company-footer-brand {
+    align-items: flex-start;
+    flex-direction: column;
+    padding-bottom: 30px;
+  }
+
+  .company-footer-info {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 34px 0 38px;
+  }
+
+  .company-footer-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .company-footer-bottom > div {
+    flex-wrap: wrap;
+    gap: 10px 18px;
+  }
+}
