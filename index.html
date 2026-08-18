@@ -6,11 +6,12 @@
   <meta name="description" content="마이코드 - 이미지를 업로드하고 웹사이트용 이미지 URL과 HTML, CSS 코드를 바로 생성하고 저장하는 이미지 워크스페이스" />
   <meta name="theme-color" content="#ff6a00" />
   <title>마이코드 | MY CODE</title>
-  <link rel="icon" href="./favicon.svg?v=20260818-4" type="image/svg+xml" />
+  <link rel="icon" href="./favicon.svg?v=20260818-5" type="image/svg+xml" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css" />
-  <link rel="stylesheet" href="./style.css?v=20260818-4" />
-  <link rel="stylesheet" href="./platform.css?v=20260818-4" />
+  <link rel="stylesheet" href="./style.css?v=20260818-5" />
+  <link rel="stylesheet" href="./platform.css?v=20260818-5" />
+  <link rel="stylesheet" href="./workspace.css?v=20260818-5" />
 </head>
 <body>
   <header class="site-header platform-header">
@@ -38,16 +39,16 @@
   </header>
 
   <main id="top">
-    <section class="saas-hero shell" id="product">
+    <section class="saas-hero shell live-hero" id="product">
       <div class="hero-glow hero-glow-one"></div>
       <div class="hero-glow hero-glow-two"></div>
 
       <div class="saas-hero-copy">
         <div class="hero-badge"><span></span> IMAGE INFRASTRUCTURE FOR WEB MAKERS</div>
         <h1>이미지를 올리고,<br /><em>웹 코드로 바로 사용하세요.</em></h1>
-        <p class="hero-description">이미지를 한 번 업로드하면 URL, HTML, CSS 코드가 바로 만들어집니다. 로그인하면 내 라이브러리에 저장해 다음 프로젝트에서도 다시 사용할 수 있습니다.</p>
+        <p class="hero-description">이미지를 올리는 순간 URL, HTML, CSS 코드가 바로 만들어집니다. 아래 워크스페이스에서 바로 업로드하고 필요한 코드를 복사하세요.</p>
         <div class="hero-actions">
-          <a class="hero-primary" href="#upload">무료로 시작하기</a>
+          <a class="hero-primary" href="#upload">지금 이미지 올리기</a>
           <a class="hero-secondary" href="#library">내 라이브러리 보기 <span>↗</span></a>
         </div>
         <div class="hero-trust">
@@ -55,33 +56,53 @@
         </div>
       </div>
 
-      <div class="hero-product-window" aria-label="마이코드 제품 미리보기">
+      <div class="hero-product-window live-product-window" id="upload" aria-label="마이코드 이미지 코드 워크스페이스">
         <div class="product-window-bar">
           <div class="window-dots"><i></i><i></i><i></i></div>
           <span>mycode / workspace</span>
           <div class="window-status">READY</div>
         </div>
-        <div class="product-window-body">
-          <div class="product-mini-sidebar">
+
+        <div class="product-window-body live-window-body">
+          <aside class="product-mini-sidebar live-sidebar" aria-label="워크스페이스 메뉴">
             <div class="mini-brand">M/</div>
             <span class="active">UPLOAD</span>
             <span>RESULT</span>
             <span>LIBRARY</span>
-          </div>
-          <div class="product-mini-content">
-            <div class="product-mini-heading">
-              <div><small>01 / UPLOAD</small><strong>이미지를 코드로 변환</strong></div>
-              <span>JPG · PNG · WEBP · GIF</span>
+            <small>JPG · PNG<br />WEBP · GIF</small>
+          </aside>
+
+          <div class="product-mini-content live-workspace-content">
+            <div class="product-mini-heading live-workspace-heading">
+              <div><small>01 / WORKSPACE</small><strong>이미지를 올리고 코드 가져가기</strong></div>
+              <span>여러 장 가능 · 최대 10MB</span>
             </div>
-            <div class="mini-dropzone">
-              <div class="mini-plus">＋</div>
-              <strong>Drag & drop your image</strong>
-              <span>업로드 후 URL과 코드가 자동 생성됩니다.</span>
-            </div>
-            <div class="mini-code-grid">
-              <div><span>IMAGE URL</span><p>https://img.mycode.kr/...</p><b>Copy</b></div>
-              <div><span>HTML</span><p>&lt;img src=&quot;...&quot;&gt;</p><b>Copy</b></div>
-              <div><span>CSS BG</span><p>background-image: url(...)</p><b>Copy</b></div>
+
+            <div class="live-workspace-grid">
+              <div class="live-upload-pane">
+                <div class="live-pane-label"><span>UPLOAD</span><b>새 이미지</b></div>
+                <button class="dropzone platform-dropzone hero-live-dropzone" id="dropzone" type="button">
+                  <span class="drop-icon" aria-hidden="true">＋</span>
+                  <strong>이미지를 여기에 놓으세요</strong>
+                  <span>또는 클릭해서 파일 선택</span>
+                  <small>업로드 후 코드가 오른쪽에 바로 생성됩니다.</small>
+                </button>
+                <input id="fileInput" type="file" accept="image/*" multiple hidden />
+                <div class="upload-format-row"><span>JPG</span><span>PNG</span><span>WEBP</span><span>GIF</span></div>
+              </div>
+
+              <div class="live-result-pane" id="result">
+                <div class="live-result-head">
+                  <div class="live-pane-label"><span>RESULT</span><b>생성된 코드</b></div>
+                  <div class="live-result-actions"><span><b id="fileCount">0개</b></span><button class="quiet-button" id="clearButton" type="button">비우기</button></div>
+                </div>
+
+                <div class="empty-state platform-empty hero-empty-state" id="emptyState">
+                  <div class="empty-orbit"><span>M/</span></div>
+                  <div><strong>이미지를 올려주세요.</strong><p>IMAGE URL, HTML, CSS 코드가 바로 여기에 나타납니다.</p></div>
+                </div>
+                <div class="result-list hero-result-list" id="resultGrid"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -97,41 +118,12 @@
       </div>
     </section>
 
-    <section class="platform-section orange-surface-section upload-surface" id="upload">
-      <div class="shell surface-shell">
-        <div class="surface-copy">
-          <p class="eyebrow">01 / WORKSPACE</p>
-          <h2>복잡한 설정 없이<br />이미지만 올리면 됩니다.</h2>
-          <p>파일을 선택하거나 드래그하세요. 업로드가 끝나면 바로 사용할 수 있는 URL과 코드가 자동 생성됩니다.</p>
-          <div class="surface-points">
-            <span>여러 장 동시 업로드</span>
-            <span>파일당 최대 10MB</span>
-            <span>JPG · PNG · WEBP · GIF</span>
-          </div>
-        </div>
-
-        <div class="upload-product-card">
-          <div class="upload-card-top">
-            <div><span class="feature-index">NEW ASSET</span><strong>이미지 업로드</strong></div>
-            <span class="upload-meta">Drag & Drop</span>
-          </div>
-          <button class="dropzone platform-dropzone" id="dropzone" type="button">
-            <span class="drop-icon" aria-hidden="true">＋</span>
-            <strong>이미지를 여기에 놓으세요</strong>
-            <span>또는 클릭해서 파일 선택</span>
-            <small>여러 장을 한 번에 올릴 수 있습니다.</small>
-          </button>
-          <input id="fileInput" type="file" accept="image/*" multiple hidden />
-        </div>
-      </div>
-    </section>
-
-    <section class="benefit-section">
+    <section class="benefit-section product-story-section">
       <div class="shell">
         <div class="centered-heading benefit-heading">
           <p class="eyebrow">BUILT FOR WEB WORK</p>
-          <h2>이미지 작업의 반복을<br />하나의 흐름으로 줄입니다.</h2>
-          <p>파일을 올리고, 코드를 복사하고, 다시 찾는 과정까지 한 곳에서 해결합니다.</p>
+          <h2>업로드부터 재사용까지,<br />하나의 작업 흐름으로.</h2>
+          <p>파일을 올리고 주소를 만들고, 코드를 복사하고, 다시 찾는 과정을 마이코드 안에서 이어갑니다.</p>
         </div>
         <div class="benefit-grid">
           <article class="benefit-card">
@@ -152,28 +144,6 @@
             <h3>로그인하고 다시 사용</h3>
             <p>생성된 코드를 내 라이브러리에 저장하고 프로젝트가 바뀌어도 검색해서 다시 복사할 수 있습니다.</p>
           </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="platform-section orange-surface-section result-surface" id="result">
-      <div class="shell surface-shell result-surface-shell">
-        <div class="surface-copy">
-          <p class="eyebrow">02 / RESULT</p>
-          <h2>생성된 코드를<br />바로 복사하세요.</h2>
-          <p>IMAGE URL, HTML, CSS 중 필요한 형식만 선택해서 웹사이트에 그대로 붙여넣을 수 있습니다.</p>
-          <div class="workspace-actions">
-            <span><b id="fileCount">0개</b> 생성됨</span>
-            <button class="quiet-button" id="clearButton" type="button">목록 비우기</button>
-          </div>
-        </div>
-
-        <div class="result-workspace-panel">
-          <div class="empty-state platform-empty" id="emptyState">
-            <div class="empty-orbit"><span>M/</span></div>
-            <div><strong>아직 생성된 코드가 없습니다.</strong><p>이미지를 업로드하면 URL, HTML, CSS 코드가 이곳에 나타납니다.</p></div>
-          </div>
-          <div class="result-list" id="resultGrid"></div>
         </div>
       </div>
     </section>
@@ -268,6 +238,6 @@
     </article>
   </template>
 
-  <script type="module" src="./app.js?v=20260818-4"></script>
+  <script type="module" src="./app.js?v=20260818-5"></script>
 </body>
 </html>
