@@ -41,23 +41,24 @@
 .howto-left-group { margin:24px 0 8px; color:#aca59f; font-size:10px; font-weight:700; letter-spacing:.08em; }
 
 .howto-main { min-width:0; }
-.howto-doc-head { margin-bottom:36px; padding-bottom:28px; border-bottom:1px solid var(--htu-line); }
-.howto-doc-head .breadcrumb { margin:0 0 14px; color:#a49d97; font-size:12px; }
-.howto-doc-head h2 { margin:0; font-size:clamp(30px,3.2vw,44px); font-weight:520; line-height:1.16; letter-spacing:-.045em; }
-.howto-doc-head > p { margin:16px 0 0; color:var(--htu-muted); font-size:16px; line-height:1.75; }
+.howto-doc-head { margin-bottom:36px; padding-bottom:28px; border-bottom:1px solid var(--htu-line); text-align:center; }
+.howto-doc-head .breadcrumb { margin:0 0 14px; color:#a49d97; font-size:12px; text-align:center; }
+.howto-doc-head h2 { margin:0 auto; font-size:clamp(30px,3.2vw,44px); font-weight:520; line-height:1.16; letter-spacing:-.045em; text-align:center; }
+.howto-doc-head > p { max-width:720px; margin:16px auto 0; color:var(--htu-muted); font-size:16px; line-height:1.75; text-align:center; }
 
-.howto-status-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; }
+.howto-status-row { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-top:20px; }
 .howto-status-row span { display:inline-flex; align-items:center; gap:7px; padding:7px 10px; border:1px solid var(--htu-line); border-radius:999px; color:#625c57; font-size:11px; }
 .howto-status-row i { width:7px; height:7px; border-radius:50%; background:var(--htu-orange); }
 
-.howto-section { scroll-margin-top:120px; padding:12px 0 54px; }
+.howto-section { scroll-margin-top:120px; padding:12px 0 54px; text-align:center; }
 .howto-section + .howto-section { border-top:1px solid var(--htu-line); padding-top:48px; }
-.howto-section .section-label { margin:0 0 11px; color:var(--htu-orange); font-size:11px; font-weight:700; letter-spacing:.09em; }
-.howto-section h3 { margin:0; font-size:clamp(24px,2.2vw,32px); font-weight:540; line-height:1.28; letter-spacing:-.038em; }
-.howto-section .lead { margin:15px 0 0; color:var(--htu-muted); font-size:16px; line-height:1.75; }
+.howto-section .section-label { margin:0 0 11px; color:var(--htu-orange); font-size:11px; font-weight:700; letter-spacing:.09em; text-align:center; }
+.howto-section h3 { margin:0 auto; font-size:clamp(24px,2.2vw,32px); font-weight:540; line-height:1.28; letter-spacing:-.038em; text-align:center; }
+.howto-section .lead { max-width:720px; margin:15px auto 0; color:var(--htu-muted); font-size:16px; line-height:1.75; text-align:center; }
 
 .howto-demo {
   margin-top:24px; padding:28px; border:1px solid var(--htu-line); border-radius:18px; background:#fcfbfa;
+  text-align:left;
 }
 .howto-demo.upload-demo { display:grid; grid-template-columns:58px 1fr auto; align-items:center; gap:18px; }
 .demo-icon { width:56px; height:56px; display:grid; place-items:center; border-radius:15px; background:var(--htu-orange); color:#fff; font-size:24px; }
@@ -65,18 +66,18 @@
 .demo-copy span { color:#928b85; font-size:13px; }
 .demo-limit { padding:8px 11px; border-radius:999px; background:#f1ece8; color:#817a74; font-size:11px; white-space:nowrap; }
 
-.code-example { margin-top:22px; overflow:hidden; border:1px solid var(--htu-line); border-radius:15px; background:#1d1d1d; color:#f8f8f8; }
+.code-example { margin-top:22px; overflow:hidden; border:1px solid var(--htu-line); border-radius:15px; background:#1d1d1d; color:#f8f8f8; text-align:left; }
 .code-example-head { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:11px 14px; border-bottom:1px solid #343434; color:#bdbdbd; font-size:11px; }
 .code-example-head button { border:0; background:transparent; color:#ff9354; font:inherit; cursor:pointer; }
 .code-example pre { margin:0; padding:18px; overflow:auto; font-size:12px; line-height:1.7; white-space:pre-wrap; word-break:break-all; }
 
-.howto-cards { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:22px; }
+.howto-cards { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:22px; text-align:left; }
 .howto-mini-card { padding:22px; border:1px solid var(--htu-line); border-radius:15px; background:#fff; }
 .howto-mini-card span { color:var(--htu-orange); font-size:10px; font-weight:700; letter-spacing:.08em; }
 .howto-mini-card h4 { margin:18px 0 9px; font-size:18px; font-weight:580; letter-spacing:-.025em; }
 .howto-mini-card p { margin:0; color:var(--htu-muted); font-size:13px; line-height:1.7; }
 
-.howto-note { margin-top:22px; padding:18px 20px; border-left:3px solid var(--htu-orange); border-radius:0 12px 12px 0; background:var(--htu-soft); color:#6e5d52; font-size:14px; line-height:1.7; }
+.howto-note { margin-top:22px; padding:18px 20px; border-left:3px solid var(--htu-orange); border-radius:0 12px 12px 0; background:var(--htu-soft); color:#6e5d52; font-size:14px; line-height:1.7; text-align:left; }
 
 .howto-right-nav { display:grid; gap:2px; border-left:1px solid var(--htu-line); }
 .howto-right-nav a { position:relative; display:block; padding:7px 0 7px 16px; color:#918a84; text-decoration:none; font-size:12px; line-height:1.45; }
@@ -86,8 +87,8 @@
 .howto-right-nav a.is-active::before { background:var(--htu-orange); }
 
 .howto-end-cta { margin-top:14px; padding:42px 24px; border:1px solid #f0dfd3; border-radius:20px; background:linear-gradient(180deg,#fff8f2,#fff); text-align:center; }
-.howto-end-cta h3 { margin:0; font-size:28px; font-weight:540; letter-spacing:-.035em; }
-.howto-end-cta p { max-width:560px; margin:12px auto 22px; color:var(--htu-muted); font-size:14px; line-height:1.7; }
+.howto-end-cta h3 { margin:0; font-size:28px; font-weight:540; letter-spacing:-.035em; text-align:center; }
+.howto-end-cta p { max-width:560px; margin:12px auto 22px; color:var(--htu-muted); font-size:14px; line-height:1.7; text-align:center; }
 .howto-end-cta a { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:0 20px; border-radius:11px; background:var(--htu-orange); color:#fff; text-decoration:none; font-size:13px; font-weight:650; box-shadow:0 10px 24px rgba(251,93,0,.16); }
 
 @media (max-width:1160px) {
