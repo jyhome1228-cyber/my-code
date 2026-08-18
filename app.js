@@ -25,6 +25,7 @@ import {
 
 const WORKER_API = 'https://cool-bar-7c8d.planus253.workers.dev';
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const GUEST_USE_KEY = 'mycode_guest_trial_used_v1';
 
 const fileInput = document.querySelector('#fileInput');
 const dropzone = document.querySelector('#dropzone');
@@ -35,6 +36,7 @@ const clearButton = document.querySelector('#clearButton');
 const serviceStatus = document.querySelector('#serviceStatus');
 const serviceStatusDot = document.querySelector('#serviceStatusDot');
 const resultCardTemplate = document.querySelector('#resultCardTemplate');
+const uploadNotice = document.querySelector('#uploadNotice');
 
 const accountButton = document.querySelector('#accountButton');
 const accountPanelButton = document.querySelector('#accountPanelButton');
@@ -61,6 +63,7 @@ let currentUser = null;
 let libraryAssets = [];
 let auth = null;
 let db = null;
+let authReady = false;
 
 initFirebase();
 checkWorker();
@@ -76,6 +79,7 @@ function initFirebase() {
 
     onAuthStateChanged(auth, async (user) => {
       currentUser = user;
+      authReady = true;
       updateAccountUI();
       updateResultSaveButtons();
       if (user) {
@@ -86,8 +90,9 @@ function initFirebase() {
       }
     });
   } catch (error) {
+    authReady = true;
     console.error('Firebase account initialization failed:', error);
-    authMessage.textContent = '계정 기능 초기화에 실패했습니다. Firebase 설정을 확인해주세요.';
+    if (authMessage) authMessage.textContent = '계정 기능 초기화에 실패했습니다. Firebase 설정을 확인해주세요.';
   }
 }
 
@@ -111,6 +116,8 @@ async function checkWorker() {
 }
 
 function initUploadEvents() {
+  if (!dropzone || !fileInput || !resultGrid || !clearButton) return;
+
   dropzone.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', (event) => handleFiles(event.target.files));
 
@@ -139,14 +146,14 @@ function initUploadEvents() {
 }
 
 function initAccountEvents() {
-  accountButton.addEventListener('click', handleAccountButton);
-  accountPanelButton.addEventListener('click', handleAccountButton);
-  libraryLoginButton.addEventListener('click', openAuthDialog);
-  googleLoginButton.addEventListener('click', loginWithGoogle);
-  emailLoginButton.addEventListener('click', loginWithEmail);
-  emailSignupButton.addEventListener('click', signupWithEmail);
-  refreshLibrary.addEventListener('click', loadLibrary);
-  librarySearch.addEventListener('input', renderLibrary);
+  accountButton?.addEventListener('click', handleAccountButton);
+  accountPanelButton?.addEventListener('click', handleAccountButton);
+  libraryLoginButton?.addEventListener('click', () => openAuthDialog());
+  googleLoginButton?.addEventListener('click', loginWithGoogle);
+  emailLoginButton?.addEventListener('click', loginWithEmail);
+  emailSignupButton?.addEventListener('click', signupWithEmail);
+  refreshLibrary?.addEventListener('click', loadLibrary);
+  librarySearch?.addEventListener('input', renderLibrary);
 }
 
 function handleAccountButton() {
@@ -157,9 +164,9 @@ function handleAccountButton() {
   openAuthDialog();
 }
 
-function openAuthDialog() {
-  authMessage.textContent = '';
-  if (!authDialog.open) authDialog.showModal();
+function openAuthDialog(message = '') {
+  if (authMessage) authMessage.textContent = message;
+  if (authDialog && !authDialog.open) authDialog.showModal();
 }
 
 async function loginWithGoogle() {
@@ -168,10 +175,10 @@ async function loginWithGoogle() {
   try {
     const provider = new GoogleAuthProvider();
     await signInWithPopup(auth, provider);
-    authDialog.close();
+    authDialog?.close();
   } catch (error) {
     console.error(error);
-    authMessage.textContent = readableAuthError(error);
+    if (authMessage) authMessage.textContent = readableAuthError(error);
   } finally {
     setAuthBusy(false);
   }
@@ -179,19 +186,19 @@ async function loginWithGoogle() {
 
 async function loginWithEmail() {
   if (!auth) return;
-  const email = authEmail.value.trim();
-  const password = authPassword.value;
+  const email = authEmail?.value.trim() || '';
+  const password = authPassword?.value || '';
   if (!email || !password) {
-    authMessage.textContent = '이메일과 비밀번호를 입력해주세요.';
+    if (authMessage) authMessage.textContent = '이메일과 비밀번호를 입력해주세요.';
     return;
   }
   setAuthBusy(true);
   try {
     await signInWithEmailAndPassword(auth, email, password);
-    authDialog.close();
+    authDialog?.close();
   } catch (error) {
     console.error(error);
-    authMessage.textContent = readableAuthError(error);
+    if (authMessage) authMessage.textContent = readableAuthError(error);
   } finally {
     setAuthBusy(false);
   }
@@ -199,26 +206,26 @@ async function loginWithEmail() {
 
 async function signupWithEmail() {
   if (!auth) return;
-  const email = authEmail.value.trim();
-  const password = authPassword.value;
+  const email = authEmail?.value.trim() || '';
+  const password = authPassword?.value || '';
   if (!email || password.length < 6) {
-    authMessage.textContent = '이메일과 6자 이상의 비밀번호를 입력해주세요.';
+    if (authMessage) authMessage.textContent = '이메일과 6자 이상의 비밀번호를 입력해주세요.';
     return;
   }
   setAuthBusy(true);
   try {
     await createUserWithEmailAndPassword(auth, email, password);
-    authDialog.close();
+    authDialog?.close();
   } catch (error) {
     console.error(error);
-    authMessage.textContent = readableAuthError(error);
+    if (authMessage) authMessage.textContent = readableAuthError(error);
   } finally {
     setAuthBusy(false);
   }
 }
 
 function setAuthBusy(busy) {
-  [googleLoginButton, emailLoginButton, emailSignupButton].forEach((button) => {
+  [googleLoginButton, emailLoginButton, emailSignupButton].filter(Boolean).forEach((button) => {
     button.disabled = busy;
   });
 }
@@ -226,43 +233,72 @@ function setAuthBusy(busy) {
 function updateAccountUI() {
   if (currentUser) {
     const name = currentUser.displayName || currentUser.email || 'MY CODE USER';
-    accountButton.textContent = '로그아웃';
-    accountPanelButton.textContent = '로그아웃';
-    accountSummary.textContent = `${name} 계정으로 로그인되어 있습니다. 생성한 이미지와 코드는 My Cloud에 저장되어 다음 작업에서도 다시 사용할 수 있습니다.`;
-    libraryLocked.hidden = true;
-    libraryTools.hidden = false;
-    libraryCount.textContent = '불러오는 중';
+    if (accountButton) accountButton.textContent = '로그아웃';
+    if (accountPanelButton) accountPanelButton.textContent = '로그아웃';
+    if (accountSummary) accountSummary.textContent = `${name} 계정으로 로그인되어 있습니다. 생성한 이미지와 코드는 My Cloud에 저장되어 다음 작업에서도 다시 사용할 수 있습니다.`;
+    if (libraryLocked) libraryLocked.hidden = true;
+    if (libraryTools) libraryTools.hidden = false;
+    if (libraryCount) libraryCount.textContent = '불러오는 중';
   } else {
-    accountButton.textContent = '로그인';
-    accountPanelButton.textContent = '로그인';
-    accountSummary.textContent = '비회원도 이미지 URL 생성은 가능하며, 로그인하면 My Cloud 저장 기능이 활성화됩니다.';
-    libraryLocked.hidden = false;
-    libraryTools.hidden = true;
-    libraryCount.textContent = '로그인 필요';
+    if (accountButton) accountButton.textContent = '로그인';
+    if (accountPanelButton) accountPanelButton.textContent = '로그인';
+    if (accountSummary) accountSummary.textContent = '첫 1회는 회원가입 없이 사용할 수 있으며, 두 번째 업로드부터 로그인이 필요합니다.';
+    if (libraryLocked) libraryLocked.hidden = false;
+    if (libraryTools) libraryTools.hidden = true;
+    if (libraryCount) libraryCount.textContent = '로그인 필요';
   }
 }
 
 async function handleFiles(fileList) {
-  const files = [...fileList].filter((file) => file.type.startsWith('image/'));
-  if (!files.length) return;
+  if (!fileList) return;
+  await waitForAuthState();
+
+  const imageFiles = [...fileList].filter((file) => file.type.startsWith('image/'));
+  if (!imageFiles.length) {
+    showNotice('이미지 파일만 올릴 수 있어요.', 'error');
+    resetFileInput();
+    return;
+  }
+
+  const tooLarge = imageFiles.filter((file) => file.size > MAX_FILE_SIZE);
+  const files = imageFiles.filter((file) => file.size <= MAX_FILE_SIZE);
+
+  if (tooLarge.length) {
+    const label = tooLarge.length === 1 ? `“${tooLarge[0].name}”` : `${tooLarge.length}개 이미지`;
+    showNotice(`${label}가 10MB를 넘어요. 10MB 이하로 용량을 줄인 뒤 다시 올려주세요.`, 'error', 6500);
+  }
+
+  if (!files.length) {
+    resetFileInput();
+    return;
+  }
+
+  if (!currentUser && hasUsedGuestTrial()) {
+    const message = '첫 무료 사용이 끝났어요. 계속 이미지를 올리려면 회원가입 또는 로그인이 필요합니다.';
+    showNotice(message, 'auth', 7000);
+    openAuthDialog('첫 1회 체험을 사용했습니다. 계속 사용하려면 회원가입 또는 로그인해주세요.');
+    resetFileInput();
+    return;
+  }
+
+  if (!currentUser) {
+    markGuestTrialUsed();
+  }
 
   for (const file of files) {
     const item = createItem(file);
     items.set(item.id, item);
     const card = renderResultCard(item);
     updateCount();
-
-    if (file.size > MAX_FILE_SIZE) {
-      card.dataset.state = 'error';
-      card.querySelector('.card-status').textContent = '파일은 최대 10MB까지 업로드할 수 있습니다.';
-      continue;
-    }
-
     uploadItem(item, card);
   }
 
-  fileInput.value = '';
-  document.querySelector('#result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  if (!currentUser) {
+    showNotice('첫 무료 사용을 진행합니다. 다음 업로드부터는 회원가입 또는 로그인이 필요해요.', 'info', 5200);
+  }
+
+  resetFileInput();
+  document.querySelector('#result')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function createItem(file) {
@@ -280,7 +316,7 @@ function createItem(file) {
 }
 
 function renderResultCard(item) {
-  emptyState.hidden = true;
+  if (emptyState) emptyState.hidden = true;
   const card = resultCardTemplate.content.firstElementChild.cloneNode(true);
   card.dataset.id = item.id;
   card.dataset.state = 'uploading';
@@ -352,7 +388,7 @@ async function uploadItem(item, card) {
 
 async function saveResultItem(item, card, auto = false) {
   if (!currentUser) {
-    if (!auto) openAuthDialog();
+    if (!auto) openAuthDialog('My Cloud에 저장하려면 로그인 또는 회원가입해주세요.');
     return;
   }
   if (!db || !item.downloadUrl || item.saved || item.saving) return;
@@ -388,7 +424,7 @@ async function saveResultItem(item, card, auto = false) {
 }
 
 async function autoSavePendingResults() {
-  if (!currentUser) return;
+  if (!currentUser || !resultGrid) return;
   const pending = [...items.values()].filter((item) => item.downloadUrl && !item.saved && !item.saving);
   for (const item of pending) {
     const card = resultGrid.querySelector(`[data-id="${item.id}"]`);
@@ -397,7 +433,7 @@ async function autoSavePendingResults() {
 }
 
 async function loadLibrary() {
-  if (!currentUser || !db) return;
+  if (!currentUser || !db || !libraryGrid || !libraryCount || !libraryEmpty) return;
 
   libraryGrid.hidden = true;
   libraryEmpty.hidden = true;
@@ -419,14 +455,16 @@ async function loadLibrary() {
 
 function resetLibrary() {
   libraryAssets = [];
-  libraryGrid.innerHTML = '';
-  libraryGrid.hidden = true;
-  libraryEmpty.hidden = true;
+  if (libraryGrid) {
+    libraryGrid.innerHTML = '';
+    libraryGrid.hidden = true;
+  }
+  if (libraryEmpty) libraryEmpty.hidden = true;
 }
 
 function renderLibrary() {
-  if (!currentUser) return;
-  const keyword = librarySearch.value.trim().toLowerCase();
+  if (!currentUser || !libraryGrid || !libraryEmpty) return;
+  const keyword = librarySearch?.value.trim().toLowerCase() || '';
   const filtered = libraryAssets.filter((asset) => (asset.filename || '').toLowerCase().includes(keyword));
 
   libraryGrid.innerHTML = '';
@@ -472,7 +510,7 @@ function createLibraryCard(asset) {
     try {
       await deleteDoc(doc(db, 'users', currentUser.uid, 'assets', asset.id));
       libraryAssets = libraryAssets.filter((item) => item.id !== asset.id);
-      libraryCount.textContent = `${libraryAssets.length}개 저장됨`;
+      if (libraryCount) libraryCount.textContent = `${libraryAssets.length}개 저장됨`;
       renderLibrary();
     } catch (error) {
       console.error(error);
@@ -498,6 +536,7 @@ function updateResultSaveButtons() {
 }
 
 function bindCopy(button, value) {
+  if (!button) return;
   button.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(value);
@@ -519,8 +558,60 @@ function removeItem(item, card) {
 
 function updateCount() {
   const count = items.size;
-  fileCount.textContent = `${count}개`;
-  emptyState.hidden = count > 0;
+  if (fileCount) fileCount.textContent = `${count}개`;
+  if (emptyState) emptyState.hidden = count > 0;
+}
+
+function hasUsedGuestTrial() {
+  try {
+    return localStorage.getItem(GUEST_USE_KEY) === '1';
+  } catch (_) {
+    return false;
+  }
+}
+
+function markGuestTrialUsed() {
+  try {
+    localStorage.setItem(GUEST_USE_KEY, '1');
+  } catch (_) {}
+}
+
+function resetFileInput() {
+  if (fileInput) fileInput.value = '';
+}
+
+function showNotice(message, type = 'info', duration = 4800) {
+  let notice = uploadNotice;
+  let isGlobal = false;
+
+  if (!notice) {
+    notice = document.querySelector('.global-upload-notice');
+    if (!notice) {
+      notice = document.createElement('div');
+      notice.className = 'global-upload-notice';
+      notice.setAttribute('role', 'status');
+      document.body.appendChild(notice);
+    }
+    isGlobal = true;
+  }
+
+  notice.textContent = message;
+  notice.dataset.type = type;
+  notice.hidden = false;
+
+  clearTimeout(notice._hideTimer);
+  notice._hideTimer = setTimeout(() => {
+    notice.hidden = true;
+    if (isGlobal && notice.parentNode) notice.remove();
+  }, duration);
+}
+
+async function waitForAuthState() {
+  if (authReady) return;
+  const started = Date.now();
+  while (!authReady && Date.now() - started < 1200) {
+    await new Promise((resolve) => setTimeout(resolve, 40));
+  }
 }
 
 function formatBytes(bytes) {
