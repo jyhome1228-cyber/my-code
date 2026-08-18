@@ -1,18 +1,6 @@
-import { firebaseConfig } from './firebase-client.js';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js';
+import { auth, db } from './firebase-core.js?v=20260818-32';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js';
 import {
-  getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  setPersistence,
-  browserLocalPersistence
-} from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js';
-import {
-  getFirestore,
   collection,
   addDoc,
   getDoc,
@@ -20,6 +8,7 @@ import {
   doc,
   serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js';
+import './auth-signup.js?v=20260818-32';
 
 const WORKER_API = 'https://cool-bar-7c8d.planus253.workers.dev';
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -38,64 +27,51 @@ const uploadNotice = document.querySelector('#uploadNotice');
 
 const accountButton = document.querySelector('#accountButton');
 const authDialog = document.querySelector('#authDialog');
-const googleLoginButton = document.querySelector('#googleLoginButton');
 const emailLoginButton = document.querySelector('#emailLoginButton');
-const emailSignupButton = document.querySelector('#emailSignupButton');
 const authEmail = document.querySelector('#authEmail');
 const authPassword = document.querySelector('#authPassword');
 const authMessage = document.querySelector('#authMessage');
 
 const items = new Map();
-let auth = null;
-let db = null;
 let currentUser = null;
 let currentPlan = 'FREE';
 let userDailyUsed = false;
 let authReady = false;
 let uploadSessionBusy = false;
 
-initFirebase();
 initUploadEvents();
 initAuthEvents();
+initAuthState();
 updateUsageHint();
 
-function initFirebase() {
-  try {
-    const firebaseApp = initializeApp(firebaseConfig);
-    auth = getAuth(firebaseApp);
-    db = getFirestore(firebaseApp);
-    setPersistence(auth, browserLocalPersistence).catch(() => {});
+function initAuthState() {
+  onAuthStateChanged(auth, async (user) => {
+    currentUser = user;
+    authReady = true;
+    currentPlan = 'FREE';
+    userDailyUsed = false;
 
-    onAuthStateChanged(auth, async (user) => {
-      currentUser = user;
-      authReady = true;
-      currentPlan = 'FREE';
-      userDailyUsed = false;
+    if (user) {
+      const state = await loadDailyAccountState(user);
+      currentPlan = state.plan;
+      userDailyUsed = state.usedToday;
 
-      if (user) {
-        const state = await loadDailyAccountState(user);
-        currentPlan = state.plan;
-        userDailyUsed = state.usedToday;
-
-        // 같은 브라우저에서 비회원 1회를 사용한 뒤 로그인해도
-        // 하루 무료 횟수가 다시 생기지 않도록 계정 상태와 동기화합니다.
-        if (!isPaidPlan() && guestUsedToday() && !userDailyUsed) {
-          userDailyUsed = true;
-          await persistUserDailyState(true);
-        }
-
-        await autoSavePendingResults();
+      if (!isPaidPlan() && guestUsedToday() && !userDailyUsed) {
+        userDailyUsed = true;
+        await persistUserDailyState(true);
       }
 
-      updateAccountUI();
-      updateUsageHint();
-      updateResultSaveButtons();
-    });
-  } catch (error) {
+      await autoSavePendingResults();
+    }
+
+    updateAccountUI();
+    updateUsageHint();
+    updateResultSaveButtons();
+  }, (error) => {
     authReady = true;
-    console.error('Firebase initialization failed:', error);
+    console.error('[MY CODE] Firebase auth state error:', error);
     showNotice('계정 기능을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.', 'error', 6000);
-  }
+  });
 }
 
 function initUploadEvents() {
@@ -138,9 +114,7 @@ function initAuthEvents() {
     if (event.target === authDialog) authDialog.close();
   });
 
-  googleLoginButton?.addEventListener('click', loginWithGoogle);
   emailLoginButton?.addEventListener('click', loginWithEmail);
-  emailSignupButton?.addEventListener('click', signupWithEmail);
   authPassword?.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') emailLoginButton?.click();
   });
@@ -151,22 +125,7 @@ function initAuthEvents() {
   }
 }
 
-async function loginWithGoogle() {
-  if (!auth) return;
-  setAuthBusy(true);
-  clearAuthMessage();
-  try {
-    await signInWithPopup(auth, new GoogleAuthProvider());
-    authDialog?.close();
-  } catch (error) {
-    if (authMessage) authMessage.textContent = readableAuthError(error);
-  } finally {
-    setAuthBusy(false);
-  }
-}
-
 async function loginWithEmail() {
-  if (!auth) return;
   const email = authEmail?.value.trim() || '';
   const password = authPassword?.value || '';
   if (!email || !password) {
@@ -186,36 +145,13 @@ async function loginWithEmail() {
   }
 }
 
-async function signupWithEmail() {
-  if (!auth) return;
-  const email = authEmail?.value.trim() || '';
-  const password = authPassword?.value || '';
-  if (!email || password.length < 6) {
-    if (authMessage) authMessage.textContent = '이메일과 6자 이상의 비밀번호를 입력해주세요.';
-    return;
-  }
-
-  setAuthBusy(true);
-  clearAuthMessage();
-  try {
-    await createUserWithEmailAndPassword(auth, email, password);
-    authDialog?.close();
-  } catch (error) {
-    if (authMessage) authMessage.textContent = readableAuthError(error);
-  } finally {
-    setAuthBusy(false);
-  }
-}
-
 function openAuthDialog(message = '') {
   if (authMessage) authMessage.textContent = message;
   if (authDialog && !authDialog.open) authDialog.showModal();
 }
 
 function setAuthBusy(busy) {
-  [googleLoginButton, emailLoginButton, emailSignupButton].filter(Boolean).forEach((button) => {
-    button.disabled = busy;
-  });
+  if (emailLoginButton) emailLoginButton.disabled = busy;
 }
 
 function clearAuthMessage() {
@@ -325,8 +261,6 @@ async function loadDailyAccountState(user) {
   let plan = 'FREE';
   let usedToday = cachedUsed;
 
-  if (!db) return { plan, usedToday };
-
   try {
     const ref = doc(db, 'users', user.uid);
     const snapshot = await getDoc(ref);
@@ -339,7 +273,21 @@ async function loadDailyAccountState(user) {
 
     writeUserDailyCache(user.uid, usedToday);
 
-    if (!snapshot.exists() || data.dailyFreeDate !== todayKey()) {
+    if (!snapshot.exists()) {
+      await setDoc(ref, {
+        name: user.displayName || '',
+        email: user.email || '',
+        phone: '',
+        plan: 'FREE',
+        signupMethod: 'email',
+        dailyFreeDate: todayKey(),
+        dailyFreeUsed: Boolean(cachedUsed),
+        dailyFreeUpdatedAt: serverTimestamp(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+      usedToday = cachedUsed;
+    } else if (data.dailyFreeDate !== todayKey()) {
       await setDoc(ref, {
         dailyFreeDate: todayKey(),
         dailyFreeUsed: false,
@@ -355,7 +303,7 @@ async function loadDailyAccountState(user) {
 }
 
 async function persistUserDailyState(used) {
-  if (!currentUser || !db) return;
+  if (!currentUser) return;
   try {
     await setDoc(doc(db, 'users', currentUser.uid), {
       dailyFreeDate: todayKey(),
@@ -498,7 +446,7 @@ async function saveResultItem(item, card, auto = false) {
     if (!auto) openAuthDialog('My Cloud에 저장하려면 로그인 또는 회원가입해주세요.');
     return;
   }
-  if (!db || !item.downloadUrl || item.saved || item.saving) return;
+  if (!item.downloadUrl || item.saved || item.saving) return;
 
   const button = card.querySelector('.save-button');
   item.saving = true;
@@ -621,11 +569,11 @@ function formatBytes(bytes) {
 
 function readableAuthError(error) {
   const code = error?.code || '';
-  if (code.includes('popup-closed')) return '로그인 창이 닫혔습니다.';
   if (code.includes('unauthorized-domain')) return 'Firebase 승인 도메인에 현재 사이트 주소를 추가해주세요.';
-  if (code.includes('operation-not-allowed')) return 'Firebase에서 해당 로그인 방식을 활성화해주세요.';
-  if (code.includes('invalid-credential')) return '이메일 또는 비밀번호를 확인해주세요.';
-  if (code.includes('email-already-in-use')) return '이미 가입된 이메일입니다.';
-  if (code.includes('weak-password')) return '비밀번호는 6자 이상이어야 합니다.';
-  return '로그인 처리 중 오류가 발생했습니다.';
+  if (code.includes('operation-not-allowed')) return 'Firebase에서 이메일/비밀번호 로그인을 활성화해주세요.';
+  if (code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found')) return '이메일 또는 비밀번호를 확인해주세요.';
+  if (code.includes('too-many-requests')) return '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.';
+  if (code.includes('network-request-failed')) return '네트워크 연결을 확인해주세요.';
+  if (code.includes('api-key-not-valid')) return 'Firebase 웹 앱 설정의 API Key가 유효하지 않습니다.';
+  return code ? `로그인 오류: ${code}` : '로그인 처리 중 오류가 발생했습니다.';
 }
