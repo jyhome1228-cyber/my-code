@@ -1,22 +1,30 @@
-/* MY CODE — shared header lock */
+/* MY CODE — shared header + brand color lock */
+
+:root {
+  --orange:#fb5d00 !important;
+  --orange-dark:#fb5d00 !important;
+  --page-orange:#fb5d00 !important;
+  --page-orange-dark:#fb5d00 !important;
+  --mc-orange:#fb5d00 !important;
+}
 
 .page-header,
 .platform-header.page-header,
 .home-simple-page .page-header {
-  height: 88px !important;
-  background: rgba(255,255,255,.96) !important;
-  border-bottom: 1px solid rgba(236,231,226,.92) !important;
-  box-shadow: none !important;
-  backdrop-filter: blur(18px) !important;
+  height:88px !important;
+  background:rgba(255,255,255,.96) !important;
+  border-bottom:1px solid rgba(236,231,226,.92) !important;
+  box-shadow:none !important;
+  backdrop-filter:blur(18px) !important;
 }
 
 .page-header .header-inner,
 .home-simple-page .page-header .header-inner {
-  height: 100% !important;
-  display: grid !important;
-  grid-template-columns: 1fr auto 1fr !important;
-  align-items: center !important;
-  gap: 28px !important;
+  height:100% !important;
+  display:grid !important;
+  grid-template-columns:1fr auto 1fr !important;
+  align-items:center !important;
+  gap:28px !important;
 }
 
 .page-header .brand-logo-image { width:116px !important; height:auto !important; display:block !important; }
@@ -99,6 +107,27 @@
 .page-header .header-cta:active { color:#fff !important; -webkit-text-fill-color:#fff !important; text-decoration:none !important; }
 
 .page-header .header-cta:hover { background:#fb5d00 !important; filter:brightness(.94); transform:translateY(-1px) !important; }
+
+/* Shared point-color elements */
+.feature-item b,
+.quick-card span,
+.editorial-card .read,
+.home-section-kicker,
+.home-info-card > span,
+.event-label,
+.pricing-card-top span,
+.billing-detail span,
+.annual-payment-note strong,
+.cloud-stats span,
+.cloud-section-label span,
+.locked-badge,
+.library-copy-block .eyebrow,
+.faq-answer a { color:#fb5d00 !important; }
+
+.support-strip a,
+.primary-cta,
+.hero-primary,
+.account-panel-cta { background:#fb5d00 !important; }
 
 @media (max-width:760px) {
   .page-header,.platform-header.page-header,.home-simple-page .page-header { height:72px !important; }
