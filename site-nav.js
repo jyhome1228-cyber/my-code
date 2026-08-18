@@ -1,10 +1,10 @@
 (() => {
-  const FAVICON = './mycode-favicon-orange-20260818.svg?v=20260818-21';
+  const FAVICON = './mycode-favicon-orange-20260818.svg?v=20260818-22';
 
   if (!document.querySelector('link[data-mycode-header]')) {
     const headerStyle = document.createElement('link');
     headerStyle.rel = 'stylesheet';
-    headerStyle.href = './header-consistency.css?v=20260818-21';
+    headerStyle.href = './header-consistency.css?v=20260818-22';
     headerStyle.dataset.mycodeHeader = 'true';
     document.head.appendChild(headerStyle);
   }
@@ -17,7 +17,7 @@
   document.head.appendChild(icon);
   const shortcut = document.createElement('link');
   shortcut.rel = 'shortcut icon';
-  shortcut.href = './favicon.ico?v=20260818-21';
+  shortcut.href = './favicon.ico?v=20260818-22';
   document.head.appendChild(shortcut);
 
   let theme = document.querySelector('meta[name="theme-color"]');
