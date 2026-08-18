@@ -1,7 +1,7 @@
 // MY CODE user account / library configuration
 // Firebase Web config values are public identifiers. Access control belongs in Firebase Auth + Firestore Security Rules.
 export const firebaseConfig = {
-  apiKey: "AIzaSyCkpU0EavwWyTy3BwokEqLqDXKTK8287qo",
+  apiKey: "AIzaSyCkpU0EavwWyTy3BwoKeQlqDXKTK8287qo",
   authDomain: "mycode-web.firebaseapp.com",
   projectId: "mycode-web",
   storageBucket: "mycode-web.firebasestorage.app",
@@ -9,7 +9,7 @@ export const firebaseConfig = {
   appId: "1:268885401102:web:9c7608b60f41002262265f"
 };
 
-const VERSION = '20260818-26';
+const VERSION = '20260818-27';
 
 const loadSharedHeaderStyle = () => {
   const existing = document.querySelector('link[href*="header-consistency.css"]');
@@ -42,8 +42,6 @@ const appendModule = (src, dataName) => {
 };
 
 const scheduleAuthModules = () => {
-  // app.js / mycloud.js가 먼저 Firebase 기본 앱을 초기화한 뒤
-  // 보조 로그인·회원가입 모듈을 붙여 중복 초기화 경합을 방지합니다.
   window.setTimeout(() => {
     appendModule('./auth-signup.js', 'mycode-signup');
     appendModule('./auth-runtime-fix.js', 'mycode-auth-runtime');
