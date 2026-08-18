@@ -7,6 +7,10 @@
     document.head.appendChild(headerStyle);
   }
 
+  document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]').forEach((icon) => {
+    icon.href = './favicon.svg?v=20260818-18';
+  });
+
   const nav = document.querySelector('.platform-nav');
   if (nav) {
     nav.innerHTML = `
