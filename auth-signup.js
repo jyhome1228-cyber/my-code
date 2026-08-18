@@ -90,10 +90,25 @@ function initSignupModule() {
     setBusy(true);
     setMessage('');
 
+    let credential;
     try {
-      const credential = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(credential.user, { displayName: name });
+      credential = await createUserWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      console.error('[MY CODE] Firebase Auth signup error:', error?.code, error);
+      setMessage(readableError(error));
+      setBusy(false);
+      return;
+    }
 
+    // Firebase Authentication 계정 생성이 성공했다면 Firestore 프로필 저장 실패로
+    // 회원가입 전체를 실패 처리하지 않습니다.
+    try {
+      await updateProfile(credential.user, { displayName: name });
+    } catch (error) {
+      console.warn('[MY CODE] displayName update skipped:', error?.code, error);
+    }
+
+    try {
       await setDoc(doc(db, 'users', credential.user.uid), {
         name,
         phone,
@@ -111,14 +126,14 @@ function initSignupModule() {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       }, { merge: true });
-
-      clearSignupFields();
-      dialog.close();
     } catch (error) {
-      setMessage(readableError(error));
-    } finally {
-      setBusy(false);
+      console.warn('[MY CODE] Firestore profile save failed after successful signup:', error?.code, error);
+      // 로그인/회원가입 자체는 이미 성공했으므로 이용을 막지 않습니다.
     }
+
+    clearSignupFields();
+    setBusy(false);
+    dialog.close();
   }
 
   function setBusy(busy) {
@@ -201,9 +216,13 @@ function formatPhone(value) {
 
 function readableError(error) {
   const code = error?.code || '';
-  if (code.includes('email-already-in-use')) return '이미 가입된 이메일입니다. 로그인해주세요.';
-  if (code.includes('invalid-email')) return '이메일 주소를 확인해주세요.';
-  if (code.includes('weak-password')) return '비밀번호는 6자 이상으로 설정해주세요.';
-  if (code.includes('operation-not-allowed')) return 'Firebase에서 이메일/비밀번호 로그인을 활성화해주세요.';
-  return '회원가입 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+  if (code === 'auth/email-already-in-use') return '이미 가입된 이메일입니다. 로그인해주세요.';
+  if (code === 'auth/invalid-email') return '이메일 주소를 확인해주세요.';
+  if (code === 'auth/weak-password') return '비밀번호는 6자 이상으로 설정해주세요.';
+  if (code === 'auth/operation-not-allowed') return 'Firebase에서 이메일/비밀번호 로그인을 활성화해주세요.';
+  if (code === 'auth/unauthorized-domain') return '현재 사이트 주소가 Firebase 승인 도메인에 등록되지 않았습니다.';
+  if (code === 'auth/network-request-failed') return '네트워크 연결을 확인한 뒤 다시 시도해주세요.';
+  if (code === 'auth/too-many-requests') return '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.';
+  if (code === 'auth/api-key-not-valid') return 'Firebase API 키 설정을 확인해주세요.';
+  return code ? `회원가입 오류: ${code}` : '회원가입 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
 }
