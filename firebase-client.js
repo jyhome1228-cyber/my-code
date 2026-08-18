@@ -1,7 +1,7 @@
 // MY CODE user account / library configuration
 // Firebase Web config values are public identifiers. Access control belongs in Firebase Auth + Firestore Security Rules.
 export const firebaseConfig = {
-  apiKey: "AIzaSyCkpU0EavwWyTy3BwoKeQlqDXKTK8287qo",
+  apiKey: "AIzaSyCkpU0EavwWyTy3BwokeQlqDXKTK8287qo",
   authDomain: "mycode-web.firebaseapp.com",
   projectId: "mycode-web",
   storageBucket: "mycode-web.firebasestorage.app",
@@ -9,7 +9,7 @@ export const firebaseConfig = {
   appId: "1:268885401102:web:9c7608b60f41002262265f"
 };
 
-const VERSION = '20260818-27';
+const VERSION = '20260818-29';
 
 const loadSharedHeaderStyle = () => {
   const existing = document.querySelector('link[href*="header-consistency.css"]');
