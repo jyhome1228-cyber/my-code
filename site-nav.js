@@ -7,9 +7,25 @@
     document.head.appendChild(headerStyle);
   }
 
-  document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]').forEach((icon) => {
-    icon.href = './favicon.svg?v=20260818-18';
-  });
+  document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"]').forEach((node) => node.remove());
+  const icon = document.createElement('link');
+  icon.rel = 'icon';
+  icon.type = 'image/svg+xml';
+  icon.href = './favicon-orange-v2.svg?v=1';
+  document.head.appendChild(icon);
+  const shortcut = document.createElement('link');
+  shortcut.rel = 'shortcut icon';
+  shortcut.type = 'image/svg+xml';
+  shortcut.href = './favicon-orange-v2.svg?v=1';
+  document.head.appendChild(shortcut);
+
+  let theme = document.querySelector('meta[name="theme-color"]');
+  if (!theme) {
+    theme = document.createElement('meta');
+    theme.name = 'theme-color';
+    document.head.appendChild(theme);
+  }
+  theme.content = '#fb5d00';
 
   const nav = document.querySelector('.platform-nav');
   if (nav) {
