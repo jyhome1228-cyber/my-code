@@ -3,22 +3,104 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="MY CODE My Cloud - 저장한 이미지와 URL, HTML, CSS 코드를 다시 찾고 관리하세요." />
+  <meta name="description" content="MY CODE My Cloud - 계정, 무료 사용량, 저장한 이미지와 URL, HTML, CSS 코드를 관리하세요." />
   <meta name="theme-color" content="#fb5d00" />
   <title>My Cloud | MY CODE</title>
-  <link rel="icon" href="./mycode-favicon-orange-20260818.svg?v=20260818-19" type="image/svg+xml" />
-  <link rel="shortcut icon" href="./mycode-favicon-orange-20260818.svg?v=20260818-19" />
+  <link rel="icon" href="./mycode-favicon-orange-20260818.svg?v=20260818-20" type="image/svg+xml" />
+  <link rel="shortcut icon" href="./favicon.ico?v=20260818-20" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css" />
-  <link rel="stylesheet" href="./style.css?v=20260818-19" />
-  <link rel="stylesheet" href="./platform.css?v=20260818-19" />
-  <link rel="stylesheet" href="./workspace.css?v=20260818-19" />
-  <link rel="stylesheet" href="./pages.css?v=20260818-19" />
-  <link rel="stylesheet" href="./cloud-manager.css?v=20260818-19" />
+  <link rel="stylesheet" href="./style.css?v=20260818-20" />
+  <link rel="stylesheet" href="./platform.css?v=20260818-20" />
+  <link rel="stylesheet" href="./workspace.css?v=20260818-20" />
+  <link rel="stylesheet" href="./pages.css?v=20260818-20" />
+  <link rel="stylesheet" href="./cloud-manager.css?v=20260818-20" />
+  <link rel="stylesheet" href="./auth-modal-fix.css?v=20260818-20" />
 </head>
 <body>
-<header class="site-header platform-header page-header"><div class="shell header-inner"><a class="brand brand-logo-link" href="./index.html"><img class="brand-logo-image" src="./logo.svg?v=20260818-19" alt="MY CODE" /></a><nav class="platform-nav"><a href="./product.html">Product</a><a href="./workspace.html">Workspace</a><a href="./pricing.html">Pricing</a><a href="./magazine.html">Magazine</a><a href="./faq.html">FAQ</a><a href="./mycloud.html">My Cloud</a></nav><div class="header-actions"><button class="account-button header-cta" id="cloudLoginButton" type="button">로그인</button><button class="account-button header-cta" id="cloudLogoutButton" type="button" hidden>로그아웃</button></div></div></header>
-<main><section class="cloud-page cloud-manager-page"><div class="page-shell"><div class="cloud-top manager-top"><div><p class="page-kicker">MY CLOUD / ASSET MANAGER</p><h1>내 이미지 자산</h1><p id="cloudAccountName">로그인이 필요합니다.</p></div><a class="hero-primary" href="./workspace.html">새 이미지 올리기</a></div><div class="cloud-login-card" id="cloudLocked"><div><h2>로그인하면 저장한 이미지와 코드를 관리할 수 있습니다.</h2><p>Workspace에서 로그인한 상태로 업로드한 이미지는 My Cloud에 자동 저장됩니다.</p></div><button class="primary-cta" type="button" onclick="document.querySelector('#cloudLoginButton').click()">로그인하고 시작</button></div><div id="cloudContent" hidden><div class="cloud-stats"><article><span>ASSETS</span><strong id="cloudTotalAssets">0</strong><p>저장된 이미지</p></article><article><span>STORAGE</span><strong id="cloudStorageUsed">0 B</strong><p>현재 저장 용량</p></article><article><span>RECENT</span><strong id="cloudRecentDate">—</strong><p>최근 저장</p></article></div><div class="cloud-manager-toolbar"><div class="cloud-search-wrap"><input id="cloudSearch" type="search" placeholder="파일명 검색" aria-label="My Cloud 파일명 검색" /></div><div class="cloud-toolbar-actions"><select id="cloudSort" aria-label="정렬 방식"><option value="newest">최신순</option><option value="oldest">오래된순</option><option value="name">이름순</option><option value="size">용량 큰순</option></select><button class="secondary-button" id="cloudRefresh" type="button">새로고침</button><span class="library-status-line"><span id="cloudCount">0개 저장됨</span></span></div></div><div class="cloud-section-label"><span>MY ASSETS</span><p>이미지를 확인하고 필요한 코드를 바로 복사하세요.</p></div><div class="library-empty" id="cloudEmpty" hidden></div><div class="library-grid cloud-grid" id="cloudGrid"></div></div></div></section></main>
-<footer class="site-footer platform-footer company-footer page-footer"><div class="shell company-footer-inner"><div class="company-footer-brand"><img src="./logo.svg?v=20260818-19" alt="MY CODE"/><div><strong>MY CODE / NINEWORKS</strong><p>나인웍스가 운영하는 웹 메이커를 위한 이미지 URL · 코드 워크스페이스입니다.</p></div></div><div class="company-footer-info korean-footer-info"><div><span>운영사 정보</span><strong>나인웍스 · MY CODE</strong><p>대표자 박재영<br/>사업자등록번호 728-35-00866<br/>통신판매업 신고번호 2022-고양덕양구-0487</p></div><div><span>연락처</span><p>032-208-5650<br/>010-5422-5650<br/>info@9works.kr</p></div><div><span>사업장 소재지</span><p>인천광역시 서구 원당대로 1039<br/>태경타워 915, 916호</p></div><div><span>서비스</span><p>이미지 저장 · URL 생성<br/>HTML · CSS 코드 생성 · My Cloud</p></div></div><div class="company-footer-bottom"><span>© 2026 MY CODE / NINEWORKS.</span><div><a href="./product.html">Product</a><a href="./pricing.html">Pricing</a><a href="./magazine.html">Magazine</a><a href="./faq.html">FAQ</a><a href="./refund-policy.html">환불규정</a><a href="./mycloud.html">My Cloud</a></div></div></div></footer>
-<dialog class="auth-dialog" id="authDialog"><form method="dialog" class="dialog-close-row"><button class="dialog-close">×</button></form><div class="auth-dialog-content"><p class="eyebrow">MY CODE ACCOUNT</p><h2>로그인하고 My Cloud를 사용하세요.</h2><p class="auth-description">저장한 이미지와 URL, HTML, CSS 코드를 다시 찾고 관리할 수 있습니다.</p><button class="google-button" id="googleLoginButton" type="button">Google로 계속하기</button><div class="auth-divider"><span>또는 이메일</span></div><label class="auth-field"><span>이메일</span><input id="authEmail" type="email" /></label><label class="auth-field"><span>비밀번호</span><input id="authPassword" type="password" /></label><div class="auth-buttons"><button class="primary-cta" id="emailLoginButton" type="button">로그인</button><button class="secondary-button" id="emailSignupButton" type="button">회원가입</button></div><p class="auth-message" id="authMessage"></p></div></dialog>
-<script type="module" src="./mycloud.js?v=20260818-19"></script>
-</body></html>
+<header class="site-header platform-header page-header">
+  <div class="shell header-inner">
+    <a class="brand brand-logo-link" href="./index.html"><img class="brand-logo-image" src="./logo.svg?v=20260818-20" alt="MY CODE" /></a>
+    <nav class="platform-nav"><a href="./product.html">Product</a><a href="./workspace.html">Workspace</a><a href="./pricing.html">Pricing</a><a href="./magazine.html">Magazine</a><a href="./faq.html">FAQ</a><a href="./mycloud.html">My Cloud</a></nav>
+    <div class="header-actions"><button class="account-button header-cta" id="cloudLoginButton" type="button">로그인</button><button class="account-button header-cta" id="cloudLogoutButton" type="button" hidden>로그아웃</button></div>
+  </div>
+</header>
+
+<main>
+  <section class="cloud-page cloud-manager-page">
+    <div class="page-shell">
+      <div class="cloud-top manager-top">
+        <div>
+          <p class="page-kicker">MY CLOUD / ACCOUNT & ASSETS</p>
+          <h1>내 이미지 자산</h1>
+          <p id="cloudAccountName">로그인이 필요합니다.</p>
+        </div>
+        <a class="hero-primary" href="./workspace.html">새 이미지 올리기</a>
+      </div>
+
+      <div class="cloud-login-card" id="cloudLocked">
+        <div><h2>로그인하면 내 이미지와 코드를 한곳에서 관리할 수 있습니다.</h2><p>첫 1회 체험 후 로그인하면 무료 3회를 추가로 사용할 수 있고, 생성된 자산은 My Cloud에 저장됩니다.</p></div>
+        <button class="primary-cta" id="cloudLockedLoginButton" type="button">로그인하고 시작</button>
+      </div>
+
+      <div id="cloudContent" hidden>
+        <section class="cloud-account-panel" aria-label="계정 정보">
+          <div class="cloud-account-main">
+            <span>ACCOUNT</span>
+            <strong id="cloudUserName">MY CODE USER</strong>
+            <p id="cloudUserEmail">—</p>
+          </div>
+          <div class="cloud-account-item">
+            <span>PLAN</span>
+            <strong id="cloudPlan">FREE</strong>
+            <a href="./pricing.html">요금제 관리 ↗</a>
+          </div>
+          <div class="cloud-account-item">
+            <span>FREE USE</span>
+            <strong id="cloudFreeUsage">0 / 3</strong>
+            <p id="cloudFreeRemaining">3회 남음</p>
+          </div>
+        </section>
+
+        <div class="cloud-stats">
+          <article><span>ASSETS</span><strong id="cloudTotalAssets">0</strong><p>저장된 이미지</p></article>
+          <article><span>STORAGE</span><strong id="cloudStorageUsed">0 B</strong><p>현재 저장 용량</p></article>
+          <article><span>RECENT</span><strong id="cloudRecentDate">—</strong><p>최근 저장</p></article>
+        </div>
+
+        <div class="cloud-manager-toolbar">
+          <div class="cloud-search-wrap"><input id="cloudSearch" type="search" placeholder="파일명 검색" aria-label="My Cloud 파일명 검색" /></div>
+          <div class="cloud-toolbar-actions">
+            <select id="cloudSort" aria-label="정렬 방식"><option value="newest">최신순</option><option value="oldest">오래된순</option><option value="name">이름순</option><option value="size">용량 큰순</option></select>
+            <button class="secondary-button" id="cloudRefresh" type="button">새로고침</button>
+            <span class="library-status-line"><span id="cloudCount">0개 저장됨</span></span>
+          </div>
+        </div>
+
+        <div class="cloud-section-label"><span>MY ASSETS</span><p>이미지를 확인하고 필요한 코드를 바로 복사하세요.</p></div>
+        <div class="library-empty" id="cloudEmpty" hidden></div>
+        <div class="library-grid cloud-grid" id="cloudGrid"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer platform-footer company-footer page-footer">
+  <div class="shell company-footer-inner">
+    <div class="company-footer-brand"><img src="./logo.svg?v=20260818-20" alt="MY CODE"/><div><strong>MY CODE / NINEWORKS</strong><p>나인웍스가 운영하는 웹 메이커를 위한 이미지 URL · 코드 워크스페이스입니다.</p></div></div>
+    <div class="company-footer-info korean-footer-info"><div><span>운영사 정보</span><strong>나인웍스 · MY CODE</strong><p>대표자 박재영<br/>사업자등록번호 728-35-00866<br/>통신판매업 신고번호 2022-고양덕양구-0487</p></div><div><span>연락처</span><p>032-208-5650<br/>010-5422-5650<br/>info@9works.kr</p></div><div><span>사업장 소재지</span><p>인천광역시 서구 원당대로 1039<br/>태경타워 915, 916호</p></div><div><span>서비스</span><p>이미지 저장 · URL 생성<br/>HTML · CSS 코드 생성 · My Cloud</p></div></div>
+    <div class="company-footer-bottom"><span>© 2026 MY CODE / NINEWORKS.</span><div><a href="./product.html">Product</a><a href="./pricing.html">Pricing</a><a href="./magazine.html">Magazine</a><a href="./faq.html">FAQ</a><a href="./refund-policy.html">환불규정</a><a href="./mycloud.html">My Cloud</a></div></div>
+  </div>
+</footer>
+
+<dialog class="auth-dialog" id="authDialog">
+  <form method="dialog" class="dialog-close-row"><button class="dialog-close" aria-label="닫기">×</button></form>
+  <div class="auth-dialog-content">
+    <p class="eyebrow">MY CODE ACCOUNT</p><h2>로그인하고 My Cloud를 사용하세요.</h2><p class="auth-description">로그인하면 무료 3회와 이미지 저장·검색·코드 재사용 기능을 이용할 수 있습니다.</p>
+    <button class="google-button" id="googleLoginButton" type="button">Google로 계속하기</button><div class="auth-divider"><span>또는 이메일</span></div>
+    <label class="auth-field"><span>이메일</span><input id="authEmail" type="email" autocomplete="email" /></label><label class="auth-field"><span>비밀번호</span><input id="authPassword" type="password" autocomplete="current-password" /></label>
+    <div class="auth-buttons"><button class="primary-cta" id="emailLoginButton" type="button">로그인</button><button class="secondary-button" id="emailSignupButton" type="button">회원가입</button></div><p class="auth-message" id="authMessage"></p>
+  </div>
+</dialog>
+<script type="module" src="./mycloud.js?v=20260818-20"></script>
+</body>
+</html>
