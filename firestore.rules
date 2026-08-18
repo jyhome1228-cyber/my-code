@@ -2,14 +2,49 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
-      allow read, create, update: if request.auth != null && request.auth.uid == userId;
+      // 본인 계정 데이터만 읽기
+      allow read: if request.auth != null
+                  && request.auth.uid == userId;
+
+      // 최초 계정 문서는 FREE 플랜으로만 생성
+      allow create: if request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data.plan == 'FREE';
+
+      // 사용자가 직접 변경 가능한 계정 필드만 허용
+      // plan / 결제 관련 필드는 클라이언트에서 수정할 수 없음
+      allow update: if request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data
+                        .diff(resource.data)
+                        .affectedKeys()
+                        .hasOnly([
+                          'name',
+                          'phone',
+                          'email',
+                          'signupMethod',
+                          'consents',
+                          'termsAgreedAt',
+                          'privacyAgreedAt',
+                          'marketingEmailAgreedAt',
+                          'updatedAt',
+                          'lastLoginAt',
+                          'dailyFreeDate',
+                          'dailyFreeUsed',
+                          'dailyFreeUpdatedAt'
+                        ]);
+
       allow delete: if false;
 
+      // My Cloud 이미지 메타데이터
       match /assets/{assetId} {
-        allow read, create, update, delete: if request.auth != null && request.auth.uid == userId;
+        allow read, create, update, delete:
+          if request.auth != null
+          && request.auth.uid == userId;
       }
     }
 
+    // 그 외 모든 문서는 기본 차단
     match /{document=**} {
       allow read, write: if false;
     }
