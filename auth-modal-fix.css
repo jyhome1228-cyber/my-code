@@ -1,0 +1,91 @@
+/* MY CODE — auth dialog hardening */
+.auth-dialog,
+dialog.auth-dialog {
+  position: fixed !important;
+  inset: 0 !important;
+  width: min(520px, calc(100vw - 32px)) !important;
+  max-width: 520px !important;
+  max-height: calc(100dvh - 32px) !important;
+  margin: auto !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  overflow: auto !important;
+  overscroll-behavior: contain !important;
+  border: 1px solid #eadfd7 !important;
+  border-radius: 22px !important;
+  background: #fff !important;
+  color: #171717 !important;
+  box-shadow: 0 34px 100px rgba(55,33,18,.22) !important;
+  transform: none !important;
+  translate: none !important;
+}
+
+.auth-dialog[open] {
+  display: block !important;
+}
+
+.auth-dialog::backdrop {
+  background: rgba(21,17,14,.38) !important;
+  backdrop-filter: blur(5px) !important;
+}
+
+.auth-dialog .dialog-close-row {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 2 !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  padding: 14px 14px 0 !important;
+  background: linear-gradient(180deg,#fff 70%,rgba(255,255,255,0)) !important;
+}
+
+.auth-dialog .dialog-close {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  padding: 0 !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  border: 1px solid #e9e2dc !important;
+  border-radius: 11px !important;
+  background: #fff !important;
+  color: #171717 !important;
+  font: 400 25px/1 'Pretendard Variable','Pretendard',sans-serif !important;
+  cursor: pointer !important;
+}
+
+.auth-dialog .auth-dialog-content {
+  width: 100% !important;
+  padding: 8px 34px 36px !important;
+  box-sizing: border-box !important;
+}
+
+.auth-dialog .auth-field input,
+.auth-dialog .google-button,
+.auth-dialog .primary-cta,
+.auth-dialog .secondary-button {
+  box-sizing: border-box !important;
+}
+
+body:has(.auth-dialog[open]) {
+  overflow: hidden;
+}
+
+@media (max-width: 560px) {
+  .auth-dialog,
+  dialog.auth-dialog {
+    width: calc(100vw - 24px) !important;
+    max-height: calc(100dvh - 24px) !important;
+    border-radius: 18px !important;
+  }
+  .auth-dialog .auth-dialog-content {
+    padding: 6px 20px 26px !important;
+  }
+  .auth-dialog .auth-dialog-content h2 {
+    font-size: 25px !important;
+    line-height: 1.25 !important;
+  }
+  .auth-dialog .auth-buttons {
+    grid-template-columns: 1fr !important;
+  }
+}
