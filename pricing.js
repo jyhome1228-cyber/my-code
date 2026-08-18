@@ -1,18 +1,15 @@
 const pricingStyle = document.createElement('link');
 pricingStyle.rel = 'stylesheet';
-pricingStyle.href = './pricing-toggle.css?v=20260818-13';
+pricingStyle.href = './pricing-toggle.css?v=20260818-14';
 document.head.appendChild(pricingStyle);
 
 const billingButtons = [...document.querySelectorAll('[data-billing]')];
 const planCards = [...document.querySelectorAll('.pricing-card[data-plan]')];
 const annualPaymentNote = document.querySelector('#annualPaymentNote');
-const BILLING_KEY = 'mycode_billing_cycle';
 
 const formatWon = (value) => `${Number(value).toLocaleString('ko-KR')}원`;
 
 function updatePricing(mode) {
-  localStorage.setItem(BILLING_KEY, mode);
-
   billingButtons.forEach((button) => {
     const active = button.dataset.billing === mode;
     button.classList.toggle('is-active', active);
@@ -66,13 +63,13 @@ billingButtons.forEach((button) => {
   button.addEventListener('click', () => updatePricing(button.dataset.billing));
 });
 
-const savedBilling = localStorage.getItem(BILLING_KEY);
-updatePricing(savedBilling === 'yearly' ? 'yearly' : 'monthly');
+// Pricing 페이지는 항상 월간 결제 상태로 시작합니다.
+updatePricing('monthly');
 
 const pricingNote = document.querySelector('.pricing-note');
 if (pricingNote && !document.querySelector('.pricing-policy-link')) {
   const policy = document.createElement('div');
   policy.className = 'pricing-policy-link';
-  policy.innerHTML = `<div><strong>결제 전 확인해주세요.</strong><p>청약철회, 월간·연간 구독 해지 및 환불 처리 기준을 확인할 수 있습니다.</p></div><a href="./refund-policy.html">환불 및 구독 해지 기준 보기 ↗</a>`;
+  policy.innerHTML = `<div><strong>결제 전 확인해주세요.</strong><p>환불·구독 해지 기준과 자주 묻는 질문을 먼저 확인할 수 있습니다.</p></div><div class="pricing-policy-actions"><a href="./refund-policy.html">환불 및 구독 해지 ↗</a><a href="./faq.html">FAQ ↗</a></div>`;
   pricingNote.insertAdjacentElement('afterend', policy);
 }
