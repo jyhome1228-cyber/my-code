@@ -1,17 +1,15 @@
-import { firebaseConfig } from './firebase-client.js';
-import { initializeApp, getApps, getApp } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js';
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js';
-import { getFirestore, doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js';
+import { auth, db } from './firebase-core.js?v=20260818-32';
+import { createUserWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js';
+import { doc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js';
 
 const dialog = document.querySelector('#authDialog');
 if (dialog) initSignupModule();
 
 function initSignupModule() {
+  // MY CODE는 이메일/비밀번호 Firebase Authentication만 사용합니다.
+  document.querySelector('#googleLoginButton')?.remove();
+  document.querySelector('.auth-divider')?.remove();
   ensureSignupMarkup();
-
-  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
 
   const loginView = document.querySelector('#authLoginView');
   const signupView = document.querySelector('#authSignupView');
@@ -100,8 +98,6 @@ function initSignupModule() {
       return;
     }
 
-    // Firebase Authentication 계정 생성이 성공했다면 Firestore 프로필 저장 실패로
-    // 회원가입 전체를 실패 처리하지 않습니다.
     try {
       await updateProfile(credential.user, { displayName: name });
     } catch (error) {
@@ -128,7 +124,6 @@ function initSignupModule() {
       }, { merge: true });
     } catch (error) {
       console.warn('[MY CODE] Firestore profile save failed after successful signup:', error?.code, error);
-      // 로그인/회원가입 자체는 이미 성공했으므로 이용을 막지 않습니다.
     }
 
     clearSignupFields();
@@ -223,6 +218,6 @@ function readableError(error) {
   if (code === 'auth/unauthorized-domain') return '현재 사이트 주소가 Firebase 승인 도메인에 등록되지 않았습니다.';
   if (code === 'auth/network-request-failed') return '네트워크 연결을 확인한 뒤 다시 시도해주세요.';
   if (code === 'auth/too-many-requests') return '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.';
-  if (code === 'auth/api-key-not-valid') return 'Firebase API 키 설정을 확인해주세요.';
+  if (code === 'auth/api-key-not-valid') return 'Firebase 웹 앱 설정의 API Key가 유효하지 않습니다.';
   return code ? `회원가입 오류: ${code}` : '회원가입 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
 }
