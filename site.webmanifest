@@ -1,0 +1,12 @@
+{
+  "name": "MY CODE",
+  "short_name": "MY CODE",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#fb5d00",
+  "icons": [
+    {"src":"./favicon-64.png?v=20260818-20","sizes":"64x64","type":"image/png"},
+    {"src":"./mycode-favicon-orange-20260818.svg?v=20260818-20","sizes":"any","type":"image/svg+xml"}
+  ]
+}
