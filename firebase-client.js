@@ -9,43 +9,54 @@ export const firebaseConfig = {
   appId: "1:268885401102:web:9c7608b60f41002262265f"
 };
 
+const VERSION = '20260818-26';
+
 const loadSharedHeaderStyle = () => {
   const existing = document.querySelector('link[href*="header-consistency.css"]');
-  if (existing) { existing.href = './header-consistency.css?v=20260818-25'; return; }
+  if (existing) { existing.href = `./header-consistency.css?v=${VERSION}`; return; }
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './header-consistency.css?v=20260818-25';
+  link.href = `./header-consistency.css?v=${VERSION}`;
   link.dataset.mycodeHeader = 'true';
   document.head.appendChild(link);
 };
 
 const loadAuthModalFixStyle = () => {
   const existing = document.querySelector('link[href*="auth-modal-fix.css"]');
-  if (existing) { existing.href = './auth-modal-fix.css?v=20260818-25'; return; }
+  if (existing) { existing.href = `./auth-modal-fix.css?v=${VERSION}`; return; }
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './auth-modal-fix.css?v=20260818-25';
+  link.href = `./auth-modal-fix.css?v=${VERSION}`;
   link.dataset.mycodeAuthFix = 'true';
   document.head.appendChild(link);
 };
 
-const loadAuthSignupModule = () => {
+const appendModule = (src, dataName) => {
   if (!document.querySelector('#authDialog')) return;
-  if (document.querySelector('script[data-mycode-signup]')) return;
+  if (document.querySelector(`script[data-${dataName}]`)) return;
   const script = document.createElement('script');
   script.type = 'module';
-  script.src = './auth-signup.js?v=20260818-25';
-  script.dataset.mycodeSignup = 'true';
+  script.src = `${src}?v=${VERSION}`;
+  script.dataset[dataName.replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = 'true';
   document.body.appendChild(script);
+};
+
+const scheduleAuthModules = () => {
+  // app.js / mycloud.js가 먼저 Firebase 기본 앱을 초기화한 뒤
+  // 보조 로그인·회원가입 모듈을 붙여 중복 초기화 경합을 방지합니다.
+  window.setTimeout(() => {
+    appendModule('./auth-signup.js', 'mycode-signup');
+    appendModule('./auth-runtime-fix.js', 'mycode-auth-runtime');
+  }, 350);
 };
 
 const loadHomeCenterStyle = () => {
   if (!document.body?.classList.contains('home-simple-page')) return;
   const existing = document.querySelector('link[href*="home-center-v22.css"]');
-  if (existing) { existing.href = './home-center-v22.css?v=20260818-25'; return; }
+  if (existing) { existing.href = `./home-center-v22.css?v=${VERSION}`; return; }
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './home-center-v22.css?v=20260818-25';
+  link.href = `./home-center-v22.css?v=${VERSION}`;
   link.dataset.mycodeHomeCenter = 'true';
   document.head.appendChild(link);
 };
@@ -53,15 +64,15 @@ const loadHomeCenterStyle = () => {
 const loadUiFixStyle = () => {
   if (!document.body?.classList.contains('home-simple-page')) return;
   const existing = document.querySelector('link[href*="ui-fixes-v23.css"]');
-  if (existing) { existing.href = './ui-fixes-v23.css?v=20260818-25'; return; }
+  if (existing) { existing.href = `./ui-fixes-v23.css?v=${VERSION}`; return; }
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './ui-fixes-v23.css?v=20260818-25';
+  link.href = `./ui-fixes-v23.css?v=${VERSION}`;
   document.head.appendChild(link);
 };
 
 const forceOrangeFavicon = () => {
-  const href = './mycode-favicon-orange-20260818.svg?v=20260818-25';
+  const href = `./mycode-favicon-orange-20260818.svg?v=${VERSION}`;
   document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach((node) => node.remove());
 
   const icon = document.createElement('link');
@@ -72,7 +83,7 @@ const forceOrangeFavicon = () => {
 
   const shortcut = document.createElement('link');
   shortcut.rel = 'shortcut icon';
-  shortcut.href = './favicon.ico?v=20260818-25';
+  shortcut.href = `./favicon.ico?v=${VERSION}`;
   document.head.appendChild(shortcut);
 
   let theme = document.querySelector('meta[name="theme-color"]');
@@ -104,7 +115,7 @@ const syncSiteNav = () => {
   loadUiFixStyle();
   forceOrangeFavicon();
   syncDailyFreeCopy();
-  loadAuthSignupModule();
+  scheduleAuthModules();
 
   const nav = document.querySelector('.platform-nav');
   if (nav) {
