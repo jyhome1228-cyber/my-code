@@ -10,7 +10,8 @@ export const firebaseConfig = {
 };
 
 const loadSharedHeaderStyle = () => {
-  if (document.querySelector('link[href*="header-consistency.css"]')) return;
+  const existing = document.querySelector('link[href*="header-consistency.css"]');
+  if (existing) { existing.href = './header-consistency.css?v=20260818-25'; return; }
   const link = document.createElement('link');
   link.rel = 'stylesheet';
   link.href = './header-consistency.css?v=20260818-25';
@@ -19,7 +20,8 @@ const loadSharedHeaderStyle = () => {
 };
 
 const loadAuthModalFixStyle = () => {
-  if (document.querySelector('link[href*="auth-modal-fix.css"]')) return;
+  const existing = document.querySelector('link[href*="auth-modal-fix.css"]');
+  if (existing) { existing.href = './auth-modal-fix.css?v=20260818-25'; return; }
   const link = document.createElement('link');
   link.rel = 'stylesheet';
   link.href = './auth-modal-fix.css?v=20260818-25';
@@ -39,7 +41,8 @@ const loadAuthSignupModule = () => {
 
 const loadHomeCenterStyle = () => {
   if (!document.body?.classList.contains('home-simple-page')) return;
-  if (document.querySelector('link[href*="home-center-v22.css"]')) return;
+  const existing = document.querySelector('link[href*="home-center-v22.css"]');
+  if (existing) { existing.href = './home-center-v22.css?v=20260818-25'; return; }
   const link = document.createElement('link');
   link.rel = 'stylesheet';
   link.href = './home-center-v22.css?v=20260818-25';
@@ -49,7 +52,8 @@ const loadHomeCenterStyle = () => {
 
 const loadUiFixStyle = () => {
   if (!document.body?.classList.contains('home-simple-page')) return;
-  if (document.querySelector('link[href*="ui-fixes-v23.css"]')) return;
+  const existing = document.querySelector('link[href*="ui-fixes-v23.css"]');
+  if (existing) { existing.href = './ui-fixes-v23.css?v=20260818-25'; return; }
   const link = document.createElement('link');
   link.rel = 'stylesheet';
   link.href = './ui-fixes-v23.css?v=20260818-25';
