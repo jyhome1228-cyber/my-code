@@ -13,7 +13,7 @@ const loadSharedHeaderStyle = () => {
   if (document.querySelector('link[data-mycode-header]')) return;
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = './header-consistency.css?v=20260818-16';
+  link.href = './header-consistency.css?v=20260818-18';
   link.dataset.mycodeHeader = 'true';
   document.head.appendChild(link);
 };
