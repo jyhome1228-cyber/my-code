@@ -3,31 +3,27 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="마이코드 - 이미지를 업로드하고 웹사이트용 이미지 URL과 HTML, CSS 코드를 바로 생성하고 저장하는 이미지 워크스페이스" />
-  <meta name="theme-color" content="#ff6a00" />
+  <meta name="description" content="마이코드 - 이미지를 업로드하고 웹사이트용 이미지 URL과 HTML, CSS 코드를 바로 생성하고 My Cloud에 저장하는 이미지 워크스페이스" />
+  <meta name="theme-color" content="#fb5d00" />
   <title>마이코드 | MY CODE</title>
-  <link rel="icon" href="./favicon.svg?v=20260818-5" type="image/svg+xml" />
+  <link rel="icon" href="./favicon.svg?v=20260818-6" type="image/svg+xml" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css" />
-  <link rel="stylesheet" href="./style.css?v=20260818-5" />
-  <link rel="stylesheet" href="./platform.css?v=20260818-5" />
-  <link rel="stylesheet" href="./workspace.css?v=20260818-5" />
+  <link rel="stylesheet" href="./style.css?v=20260818-6" />
+  <link rel="stylesheet" href="./platform.css?v=20260818-6" />
+  <link rel="stylesheet" href="./workspace.css?v=20260818-6" />
 </head>
 <body>
   <header class="site-header platform-header">
     <div class="shell header-inner">
-      <a class="brand" href="#top" aria-label="마이코드 홈">
-        <span class="brand-mark" aria-hidden="true">M/</span>
-        <span class="brand-copy">
-          <strong>MY CODE</strong>
-          <small>IMAGE URL WORKSPACE</small>
-        </span>
+      <a class="brand brand-logo-link" href="#top" aria-label="마이코드 홈">
+        <img class="brand-logo-image" src="./logo.svg?v=20260818-6" alt="MY CODE" />
       </a>
 
       <nav class="platform-nav" aria-label="주요 메뉴">
         <a href="#product">Product</a>
         <a href="#upload">Workspace</a>
-        <a href="#library">Library</a>
+        <a href="#library">My Cloud</a>
       </nav>
 
       <div class="header-actions">
@@ -49,10 +45,10 @@
         <p class="hero-description">이미지를 올리는 순간 URL, HTML, CSS 코드가 바로 만들어집니다. 아래 워크스페이스에서 바로 업로드하고 필요한 코드를 복사하세요.</p>
         <div class="hero-actions">
           <a class="hero-primary" href="#upload">지금 이미지 올리기</a>
-          <a class="hero-secondary" href="#library">내 라이브러리 보기 <span>↗</span></a>
+          <a class="hero-secondary" href="#library">My Cloud 보기 <span>↗</span></a>
         </div>
         <div class="hero-trust">
-          <span>Direct URL</span><i></i><span>HTML · CSS</span><i></i><span>Private Library</span><i></i><span>Fast Delivery</span>
+          <span>Direct URL</span><i></i><span>HTML · CSS</span><i></i><span>My Cloud</span><i></i><span>Fast Delivery</span>
         </div>
       </div>
 
@@ -65,10 +61,10 @@
 
         <div class="product-window-body live-window-body">
           <aside class="product-mini-sidebar live-sidebar" aria-label="워크스페이스 메뉴">
-            <div class="mini-brand">M/</div>
+            <div class="mini-brand mini-brand-symbol" aria-hidden="true">&lt;/&gt;</div>
             <span class="active">UPLOAD</span>
             <span>RESULT</span>
-            <span>LIBRARY</span>
+            <span>MY CLOUD</span>
             <small>JPG · PNG<br />WEBP · GIF</small>
           </aside>
 
@@ -98,7 +94,7 @@
                 </div>
 
                 <div class="empty-state platform-empty hero-empty-state" id="emptyState">
-                  <div class="empty-orbit"><span>M/</span></div>
+                  <div class="empty-orbit"><span>&lt;/&gt;</span></div>
                   <div><strong>이미지를 올려주세요.</strong><p>IMAGE URL, HTML, CSS 코드가 바로 여기에 나타납니다.</p></div>
                 </div>
                 <div class="result-list hero-result-list" id="resultGrid"></div>
@@ -113,7 +109,7 @@
       <div class="shell value-grid">
         <article><span>01</span><strong>Upload once</strong><p>이미지 한 번 업로드</p></article>
         <article><span>02</span><strong>Generate instantly</strong><p>URL·HTML·CSS 즉시 생성</p></article>
-        <article><span>03</span><strong>Save & reuse</strong><p>로그인 후 저장·재사용</p></article>
+        <article><span>03</span><strong>Save to My Cloud</strong><p>로그인 후 저장·재사용</p></article>
         <article><span>04</span><strong>Use anywhere</strong><p>어떤 웹사이트에도 사용</p></article>
       </div>
     </section>
@@ -139,10 +135,10 @@
             <p>업로드한 이미지를 외부 웹사이트에서 바로 사용할 수 있는 주소로 제공해 작업 흐름을 단순화합니다.</p>
           </article>
           <article class="benefit-card">
-            <span class="feature-index">03 / REUSE</span>
+            <span class="feature-index">03 / MY CLOUD</span>
             <div class="benefit-icon">＋</div>
-            <h3>로그인하고 다시 사용</h3>
-            <p>생성된 코드를 내 라이브러리에 저장하고 프로젝트가 바뀌어도 검색해서 다시 복사할 수 있습니다.</p>
+            <h3>저장하고 다시 사용</h3>
+            <p>생성된 이미지와 코드를 My Cloud에 저장하고 프로젝트가 바뀌어도 검색해서 다시 복사할 수 있습니다.</p>
           </article>
         </div>
       </div>
@@ -152,34 +148,34 @@
       <div class="shell">
         <div class="library-hero-panel">
           <div class="library-copy-block">
-            <p class="eyebrow">03 / LIBRARY</p>
-            <h2>만든 코드를 저장하고,<br />다음 작업에서 다시 꺼내세요.</h2>
-            <p>로그인한 계정에 이미지 URL과 HTML·CSS 코드를 저장해두면 프로젝트가 달라져도 다시 찾을 수 있습니다.</p>
+            <p class="eyebrow">03 / MY CLOUD</p>
+            <h2>만든 이미지와 코드를 저장하고,<br />다음 작업에서 다시 꺼내세요.</h2>
+            <p>로그인한 계정에 이미지와 URL·HTML·CSS 코드를 저장해두면 프로젝트가 달라져도 다시 찾을 수 있습니다.</p>
             <div class="library-status-line"><span id="libraryCount">로그인 필요</span></div>
           </div>
           <div class="library-visual" aria-hidden="true">
             <div class="library-floating-card card-one"><span>IMAGE URL</span><b>Copy</b></div>
             <div class="library-floating-card card-two"><span>HTML</span><b>Saved</b></div>
-            <div class="library-floating-card card-three"><span>CSS BG</span><b>Reuse</b></div>
+            <div class="library-floating-card card-three"><span>MY CLOUD</span><b>Reuse</b></div>
           </div>
         </div>
 
         <div class="library-tools-row">
           <div class="library-tools" id="libraryTools" hidden>
-            <input id="librarySearch" type="search" placeholder="파일명 검색" aria-label="라이브러리 검색" />
+            <input id="librarySearch" type="search" placeholder="파일명 검색" aria-label="My Cloud 검색" />
             <button class="secondary-button" id="refreshLibrary" type="button">새로고침</button>
           </div>
         </div>
 
         <div class="library-locked platform-library-locked" id="libraryLocked">
-          <div class="locked-visual"><span class="locked-badge">MEMBER FEATURE</span><div class="locked-stack"><i></i><i></i><i></i></div></div>
+          <div class="locked-visual"><span class="locked-badge">MY CLOUD</span><div class="locked-stack"><i></i><i></i><i></i></div></div>
           <div class="locked-copy">
-            <h3>로그인하면 생성한 코드를<br />내 작업 자산으로 저장할 수 있습니다.</h3>
-            <p>업로드 결과에서 ‘라이브러리 저장’을 누르면 URL·HTML·CSS 코드가 계정에 저장됩니다.</p>
-            <button class="primary-cta" id="libraryLoginButton" type="button">로그인하고 시작</button>
+            <h3>로그인하면 생성한 이미지와 코드를<br />My Cloud에 저장할 수 있습니다.</h3>
+            <p>업로드 결과에서 ‘My Cloud 저장’을 누르면 이미지 URL·HTML·CSS 코드가 계정에 저장됩니다.</p>
+            <button class="primary-cta" id="libraryLoginButton" type="button">로그인하고 My Cloud 시작</button>
           </div>
         </div>
-        <div class="library-empty" id="libraryEmpty" hidden>아직 저장한 이미지가 없습니다.</div>
+        <div class="library-empty" id="libraryEmpty" hidden>아직 My Cloud에 저장한 이미지가 없습니다.</div>
         <div class="library-grid" id="libraryGrid" hidden></div>
       </div>
     </section>
@@ -190,7 +186,7 @@
           <div>
             <p class="eyebrow">04 / ACCOUNT</p>
             <h2>작업을 쌓을수록<br />마이코드가 더 편해집니다.</h2>
-            <p id="accountSummary">비회원도 이미지 URL 생성은 가능하며, 로그인하면 라이브러리 저장 기능이 활성화됩니다.</p>
+            <p id="accountSummary">비회원도 이미지 URL 생성은 가능하며, 로그인하면 My Cloud 저장 기능이 활성화됩니다.</p>
           </div>
           <button class="account-panel-cta" id="accountPanelButton" type="button">로그인</button>
         </div>
@@ -198,10 +194,22 @@
     </section>
   </main>
 
-  <footer class="site-footer platform-footer">
-    <div class="shell footer-inner">
-      <div><strong>MY CODE</strong><span>Image URL workspace for web makers.</span></div>
-      <span>© MY CODE</span>
+  <footer class="site-footer platform-footer company-footer">
+    <div class="shell company-footer-inner">
+      <div class="company-footer-brand">
+        <img src="./logo.svg?v=20260818-6" alt="MY CODE" />
+        <p>Image URL workspace for web makers.</p>
+      </div>
+      <div class="company-footer-info">
+        <div><span>COMPANY</span><strong>MY CODE</strong><p>Representative Jaeyoung Park (CEO)</p></div>
+        <div><span>CONTACT</span><p>T +82-10-5422-5650<br />E info@9works.kr<br />HP www.9works.kr</p></div>
+        <div><span>OFFICE</span><p>9F, 1039, Wondang-daero,<br />Seo-gu, Incheon, Republic of Korea</p></div>
+        <div><span>RECORD</span><p>PROJECTS: 600+<br />BRANDS: 300+<br />DESIGNS: 800+</p></div>
+      </div>
+      <div class="company-footer-bottom">
+        <span>©2026 MY CODE. All Rights Reserved.</span>
+        <div><a href="#product">Product</a><a href="#upload">Workspace</a><a href="#library">My Cloud</a></div>
+      </div>
     </div>
   </footer>
 
@@ -209,7 +217,7 @@
     <form method="dialog" class="dialog-close-row"><button class="dialog-close" aria-label="닫기">×</button></form>
     <div class="auth-dialog-content">
       <p class="eyebrow">MY CODE ACCOUNT</p>
-      <h2>로그인하고 코드를 저장하세요.</h2>
+      <h2>로그인하고 My Cloud에 저장하세요.</h2>
       <p class="auth-description">저장한 이미지 URL과 HTML·CSS 코드를 다음 작업에서도 다시 사용할 수 있습니다.</p>
       <button class="google-button" id="googleLoginButton" type="button">Google로 계속하기</button>
       <div class="auth-divider"><span>또는 이메일</span></div>
@@ -226,7 +234,7 @@
       <div class="card-body">
         <div class="card-top">
           <div><p class="card-index">GENERATED ASSET</p><h3 class="card-title"></h3><p class="card-meta"></p></div>
-          <div class="card-actions-top"><button class="save-button" type="button" disabled>라이브러리 저장</button><button class="remove-button" type="button">목록 삭제</button></div>
+          <div class="card-actions-top"><button class="save-button" type="button" disabled>My Cloud 저장</button><button class="remove-button" type="button">목록 삭제</button></div>
         </div>
         <div class="progress"><i></i></div><p class="card-status">업로드 준비 중...</p>
         <div class="code-grid" hidden>
@@ -238,6 +246,6 @@
     </article>
   </template>
 
-  <script type="module" src="./app.js?v=20260818-5"></script>
+  <script type="module" src="./app.js?v=20260818-6"></script>
 </body>
 </html>
